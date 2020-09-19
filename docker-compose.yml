@@ -1,12 +1,12 @@
 version: "3.5"
 
 services:
-  service:
+  api:
     build:
       context: .
-      dockerfile: ./docker/service/Dockerfile
+      dockerfile: ./docker/api/Dockerfile
     volumes:
-      - ./service:/go/app
+      - ./src:/go/app
     command: realize start --run --no-config
     ports:
       - 9000:9000

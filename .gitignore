@@ -2,4 +2,4 @@
 .env
 .vscode
 mysql/data
-service/main
+src/main

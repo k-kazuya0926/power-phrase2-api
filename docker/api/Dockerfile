@@ -2,7 +2,7 @@ FROM golang:1.13.5-alpine as build
 
 WORKDIR /go/app
 
-COPY service .
+COPY src .
 
 RUN apk update \
     && apk add --no-cache vim \
