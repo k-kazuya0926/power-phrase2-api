@@ -1,0 +1,48 @@
+version: "3.5"
+
+services:
+  service:
+    build:
+      context: .
+      dockerfile: ./docker/service/Dockerfile
+    volumes:
+      - ./service:/go/app
+    command: realize start --run --no-config
+    ports:
+      - 9000:9000
+    networks:
+      - app_network
+
+  db:
+    image: mysql:8.0
+    container_name: power-phrase2-db
+    ports:
+      - 13306:3306
+    volumes:
+      - ./mysql/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql/data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: power-phrase2
+      MYSQL_DATABASE: power-phrase2
+    networks:
+      - app_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - db
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOSTS=db
+      - PMA_USER=root
+      - PMA_PASSWORD=power-phrase2
+    ports:
+      - "8888:80"
+    volumes:
+      - ./docker/phpmyadmin/sessions:/sessions
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    external: true
