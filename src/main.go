@@ -1,8 +1,8 @@
 package main
 
 import (
-	"app/handler"
-	"app/model"
+	"github.com/k-kazuya0926/power-phrase2-api/handler"
+	"github.com/k-kazuya0926/power-phrase2-api/model"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"

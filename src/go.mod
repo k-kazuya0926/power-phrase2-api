@@ -1,4 +1,4 @@
-module app
+module github.com/k-kazuya0926/power-phrase2-api
 
 go 1.15
 

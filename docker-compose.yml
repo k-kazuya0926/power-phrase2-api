@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./docker/api/Dockerfile
     volumes:
-      - ./src:/go/app
+      - ./src:/go/src/github.com/k-kazuya0926/power-phrase2-api
     command: realize start --run --no-config
     ports:
       - 9000:9000

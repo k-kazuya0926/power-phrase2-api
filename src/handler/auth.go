@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"app/model"
+	"github.com/k-kazuya0926/power-phrase2-api/model"
 
 	"github.com/dgrijalva/jwt-go"
 

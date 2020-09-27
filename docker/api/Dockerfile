@@ -1,6 +1,6 @@
 FROM golang:1.13.5-alpine as build
 
-WORKDIR /go/app
+WORKDIR /go/src/github.com/k-kazuya0926/power-phrase2-api
 
 COPY src .
 
