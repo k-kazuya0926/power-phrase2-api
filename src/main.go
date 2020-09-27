@@ -23,15 +23,15 @@ func initRouting(e *echo.Echo) {
 	e.POST("/signup", handler.Signup)
 	e.POST("/login", handler.Login)
 
-	prefix := "/api/v1/"
-	e.GET(prefix+"users", model.GetAllUsers)
-	e.GET(prefix+"user/:id", model.GetUser)
-	e.PUT(prefix+"user/:id", model.UpdateUser)
-	e.DELETE(prefix+"user/:id", model.DeleteUser)
+	api := e.Group("/api/v1")
+	api.GET("/users", model.GetAllUsers)
+	api.GET("/user/:id", model.GetUser)
+	api.PUT("/user/:id", model.UpdateUser)
+	api.DELETE("/user/:id", model.DeleteUser)
 
-	// e.GET(prefix+"posts", model.GetAllPosts)
-	// e.GET(prefix+"posts/:id", model.GetPost)
-	// e.POST(prefix+"posts", model.CreatePost)
-	// e.PUT(prefix+"posts/:id", model.UpdatePost)
-	// e.DELETE(prefix+"posts/:id", model.DeletePost)
+	// api.GET("posts", model.GetAllPosts)
+	// api.GET("posts/:id", model.GetPost)
+	// api.POST("posts", model.CreatePost)
+	// api.PUT("posts/:id", model.UpdatePost)
+	// api.DELETE("posts/:id", model.DeletePost)
 }

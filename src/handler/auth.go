@@ -47,6 +47,8 @@ func Signup(c echo.Context) error {
 		}
 	}
 
+	// TODO パスワード暗号化
+
 	model.CreateUser(user)
 	user.Password = ""
 
