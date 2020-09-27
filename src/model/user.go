@@ -1,23 +1,41 @@
 package model
 
 import (
-	"app/db"
 	"net/http"
+	"time"
 
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 
 type User struct {
-	gorm.Model
-	Name     string
-	Email    string
-	Password string
-	ImageURL string
+	ID        int        `json:"id" gorm:"primaryKey"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
+	Name      string     `json:"name"`
+	Email     string     `json:"email"`
+	Password  string     `json:"password"`
+	ImageURL  string     `json:"imageUrl"`
 }
 
+func CreateUser(user *User) {
+	db := Connection()
+	defer db.Close()
+	db.AutoMigrate(&User{})
+	db.Create(user)
+}
+
+func FindUser(u *User) User {
+	var user User
+	db := Connection()
+	db.AutoMigrate(&User{})
+	db.Where(u).First(&user)
+	return user
+}
+
+// TODO 以下、echoに依存しないように見直し
 func GetAllUsers(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 	db.AutoMigrate(&User{})
 
@@ -27,7 +45,7 @@ func GetAllUsers(c echo.Context) error {
 }
 
 func GetUser(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 	db.AutoMigrate(&User{})
 
@@ -40,22 +58,8 @@ func GetUser(c echo.Context) error {
 	}
 }
 
-func CreateUser(c echo.Context) error {
-	db := db.Connection()
-	defer db.Close()
-	db.AutoMigrate(&User{})
-
-	user := new(User)
-	if err := c.Bind(user); err != nil {
-		return err
-	}
-	db.Create(&user)
-
-	return c.JSON(http.StatusOK, user)
-}
-
 func UpdateUser(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 
 	newUser := new(User)
@@ -74,7 +78,7 @@ func UpdateUser(c echo.Context) error {
 }
 
 func DeleteUser(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 
 	if id := c.Param("id"); id != "" {
