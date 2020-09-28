@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/k-kazuya0926/power-phrase2-api/model"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/dgrijalva/jwt-go"
 
@@ -42,6 +44,24 @@ func Signup(c echo.Context) error {
 		return err
 	}
 
+	if err := validateForSignup(user); err != nil {
+		return err
+	}
+
+	// パスワード暗号化
+	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+	if err != nil {
+		log.Fatal(err)
+	}
+	user.Password = string(hash)
+
+	model.CreateUser(user)
+	user.Password = ""
+
+	return c.JSON(http.StatusCreated, user)
+}
+
+func validateForSignup(user *model.User) *echo.HTTPError {
 	// ユーザー名またはパスワードが空である場合、エラー
 	if user.Name == "" || user.Password == "" {
 		return &echo.HTTPError{
@@ -58,12 +78,7 @@ func Signup(c echo.Context) error {
 		}
 	}
 
-	// TODO パスワード暗号化
-
-	model.CreateUser(user)
-	user.Password = ""
-
-	return c.JSON(http.StatusCreated, user)
+	return nil
 }
 
 func Login(c echo.Context) error {

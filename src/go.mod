@@ -8,6 +8,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
+	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
 )
 
 replace gopkg.in/urfave/cli.v2 => github.com/urfave/cli/v2 v2.2.0
