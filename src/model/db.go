@@ -18,7 +18,7 @@ func Connection() *gorm.DB {
 	DBMS := "mysql"
 	USER := os.Getenv("DB_USER")
 	PASS := os.Getenv("DB_PASSWORD")
-	PROTOCOL := "tcp(" + os.Getenv("DB_ADDRESS") + ")"
+	PROTOCOL := "tcp(" + os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT") + ")"
 	DBNAME := os.Getenv("DB_NAME")
 	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?charset=utf8&parseTime=True&loc=Local"
 	fmt.Println(CONNECT)
