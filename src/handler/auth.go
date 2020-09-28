@@ -2,12 +2,14 @@ package handler
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/k-kazuya0926/power-phrase2-api/model"
 
 	"github.com/dgrijalva/jwt-go"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -18,7 +20,16 @@ type jwtCustomClaims struct {
 	jwt.StandardClaims
 }
 
-var signingKey = []byte("secret") // TODO
+var signingKey = []byte(getSigningKey())
+
+func getSigningKey() string {
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic(".env読み込みエラー")
+	}
+
+	return os.Getenv("JWT_SIGNING_KEY")
+}
 
 var Config = middleware.JWTConfig{
 	Claims:     &jwtCustomClaims{},

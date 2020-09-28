@@ -24,6 +24,7 @@ func initRouting(e *echo.Echo) {
 	e.POST("/login", handler.Login)
 
 	api := e.Group("/api/v1")
+	api.Use(middleware.JWTWithConfig(handler.Config))
 	api.GET("/users", model.GetAllUsers)
 	api.GET("/user/:id", model.GetUser)
 	api.PUT("/user/:id", model.UpdateUser)
