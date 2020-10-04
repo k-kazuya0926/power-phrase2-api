@@ -1,24 +1,26 @@
 package model
 
 import (
-	"app/db"
 	"net/http"
+	"time"
 
-	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 
 type Post struct {
-	gorm.Model
-	UserID   uint
-	Title    string
-	Speaker  string
-	Detail   string
-	MovieURL string
+	ID        int        `json:"id" gorm:"primaryKey"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at"`
+	UserID    uint       `json:"user_id"`
+	Title     string     `json:"title"`
+	Speaker   string     `json:"speaker"`
+	Detail    string     `json:"detail"`
+	MovieURL  string     `json:"movie_url"`
 }
 
 func GetAllPosts(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 	db.AutoMigrate(&Post{})
 
@@ -28,7 +30,7 @@ func GetAllPosts(c echo.Context) error {
 }
 
 func GetPost(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 	db.AutoMigrate(&Post{})
 
@@ -42,7 +44,7 @@ func GetPost(c echo.Context) error {
 }
 
 func CreatePost(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 	db.AutoMigrate(&Post{})
 
@@ -56,7 +58,7 @@ func CreatePost(c echo.Context) error {
 }
 
 func UpdatePost(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 
 	newPost := new(Post)
@@ -75,7 +77,7 @@ func UpdatePost(c echo.Context) error {
 }
 
 func DeletePost(c echo.Context) error {
-	db := db.Connection()
+	db := Connection()
 	defer db.Close()
 
 	if id := c.Param("id"); id != "" {

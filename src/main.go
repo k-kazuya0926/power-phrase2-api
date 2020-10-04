@@ -30,9 +30,9 @@ func initRouting(e *echo.Echo) {
 	api.PUT("/user/:id", model.UpdateUser)
 	api.DELETE("/user/:id", model.DeleteUser)
 
-	// api.GET("posts", model.GetAllPosts)
-	// api.GET("posts/:id", model.GetPost)
-	// api.POST("posts", model.CreatePost)
-	// api.PUT("posts/:id", model.UpdatePost)
-	// api.DELETE("posts/:id", model.DeletePost)
+	api.GET("/posts", model.GetAllPosts)
+	api.GET("/posts/:id", model.GetPost)
+	api.POST("/posts", model.CreatePost)
+	api.PUT("/posts/:id", model.UpdatePost)
+	api.DELETE("/posts/:id", model.DeletePost)
 }
