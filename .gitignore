@@ -3,3 +3,4 @@
 .vscode
 mysql/data
 src/main
+__debug_bin
