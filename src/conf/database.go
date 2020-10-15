@@ -14,7 +14,7 @@ func NewDBConnection() *gorm.DB {
 
 func getMysqlConnection() *gorm.DB {
 	connectionString := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local",
 		Current.Database.User,
 		Current.Database.Password,
 		Current.Database.Host,
