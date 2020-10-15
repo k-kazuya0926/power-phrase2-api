@@ -1,38 +1,37 @@
 package main
 
 import (
-	"github.com/k-kazuya0926/power-phrase2-api/handler"
-	"github.com/k-kazuya0926/power-phrase2-api/model"
+	"flag"
+	"fmt"
 
+	_ "github.com/jinzhu/gorm"
+	"github.com/k-kazuya0926/power-phrase2-api/conf"
+	"github.com/k-kazuya0926/power-phrase2-api/interactor"
+	"github.com/k-kazuya0926/power-phrase2-api/ui/http/middleware"
+	"github.com/k-kazuya0926/power-phrase2-api/ui/http/router"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 )
 
+//Dockerコンテナで実行する時(production.confをもとに起動するとき)は起動時に-serverを指定
+var runServer = flag.Bool("server", false, "production is -server option require")
+
 func main() {
+	flag.Parse()
+	conf.NewConfig(*runServer)
+
 	e := echo.New()
+	connection := conf.NewDBConnection() // TODO 接続のたびに取得するほうがいいのでは？
+	defer func() {
+		if err := connection.Close(); err != nil {
+			e.Logger.Fatal(fmt.Sprintf("Failed to close: %v", err))
+		}
+	}()
+	interactor := interactor.NewInteractor(connection) // TODO DI用のライブラリはないのかな？
+	handler := interactor.NewAppHandler()
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-	e.Use(middleware.CORS())
-
-	initRouting(e)
-	e.Logger.Fatal(e.Start(":9000"))
-}
-
-func initRouting(e *echo.Echo) {
-	e.POST("/signup", handler.Signup)
-	e.POST("/login", handler.Login)
-
-	api := e.Group("/api/v1")
-	api.Use(middleware.JWTWithConfig(handler.Config))
-	api.GET("/users", model.GetAllUsers)
-	api.GET("/user/:id", model.GetUser)
-	api.PUT("/user/:id", model.UpdateUser)
-	api.DELETE("/user/:id", model.DeleteUser)
-
-	api.GET("/posts", model.GetAllPosts)
-	api.GET("/posts/:id", model.GetPost)
-	api.POST("/posts", model.CreatePost)
-	api.PUT("/posts/:id", model.UpdatePost)
-	api.DELETE("/posts/:id", model.DeletePost)
+	router.SetRoutes(e, handler)
+	middleware.SetMiddlewares(e)
+	if err := e.Start(fmt.Sprintf(":%d", conf.Current.Server.Port)); err != nil {
+		e.Logger.Fatal(fmt.Sprintf("Failed to start: %v", err))
+	}
 }
