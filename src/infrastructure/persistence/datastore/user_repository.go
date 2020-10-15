@@ -9,12 +9,12 @@ import (
 )
 
 type userRepository struct {
-	conn *gorm.DB
+	connection *gorm.DB
 }
 
 // NewUserRepository UserRepositoryを取得します.
-func NewUserRepository(conn *gorm.DB) repository.UserRepository {
-	return &userRepository{conn}
+func NewUserRepository(connection *gorm.DB) repository.UserRepository {
+	return &userRepository{connection}
 }
 
 func (repository *userRepository) Fetch(ctx context.Context) ([]*model.User, error) {
@@ -22,28 +22,28 @@ func (repository *userRepository) Fetch(ctx context.Context) ([]*model.User, err
 		users []*model.User
 		err   error
 	)
-	err = repository.conn.Order("id desc").Find(&users).Error
+	err = repository.connection.Order("id desc").Find(&users).Error
 	return users, err
 }
 
 func (repository *userRepository) FetchByID(ctx context.Context, id int) (*model.User, error) {
 	u := &model.User{ID: id}
-	err := repository.conn.First(u).Error
+	err := repository.connection.First(u).Error
 	return u, err
 }
 
 func (repository *userRepository) Create(ctx context.Context, u *model.User) (*model.User, error) {
-	err := repository.conn.Create(u).Error
+	err := repository.connection.Create(u).Error
 	return u, err
 }
 
 func (repository *userRepository) Update(ctx context.Context, u *model.User) (*model.User, error) {
-	err := repository.conn.Model(u).Update(u).Error
+	err := repository.connection.Model(u).Update(u).Error
 	return u, err
 }
 
 func (repository *userRepository) Delete(ctx context.Context, id int) error {
 	u := &model.User{ID: id}
-	err := repository.conn.Delete(u).Error
+	err := repository.connection.Delete(u).Error
 	return err
 }

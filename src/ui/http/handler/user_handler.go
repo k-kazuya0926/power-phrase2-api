@@ -91,7 +91,13 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		ctx = context.Background()
 	}
 
-	user, err := handler.UserUseCase.UpdateUser(ctx, id)
+	newUser := new(model.User)
+	if err := c.Bind(newUser); err != nil {
+		return err
+	}
+	newUser.ID = id
+
+	user, err := handler.UserUseCase.UpdateUser(ctx, newUser)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Create.")
 	}

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
@@ -15,7 +14,7 @@ type UserUseCase interface {
 	GetUsers(ctx context.Context) ([]*model.User, error)
 	GetUser(ctx context.Context, id int) (*model.User, error)
 	CreateUser(ctx context.Context, user *model.User) (*model.User, error)
-	UpdateUser(ctx context.Context, id int) (*model.User, error)
+	UpdateUser(ctx context.Context, user *model.User) (*model.User, error)
 	DeleteUser(ctx context.Context, id int) error
 }
 
@@ -40,12 +39,7 @@ func (usecase *userUseCase) CreateUser(ctx context.Context, user *model.User) (*
 	return usecase.UserRepository.Create(ctx, user)
 }
 
-func (usecase *userUseCase) UpdateUser(ctx context.Context, id int) (*model.User, error) {
-	user, err := usecase.UserRepository.FetchByID(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(user)
+func (usecase *userUseCase) UpdateUser(ctx context.Context, user *model.User) (*model.User, error) {
 	return usecase.UserRepository.Update(ctx, user)
 }
 
