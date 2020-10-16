@@ -20,13 +20,7 @@ func main() {
 	conf.NewConfig(*runServer)
 
 	e := echo.New()
-	connection := conf.NewDBConnection() // TODO 接続のたびに取得するほうがいいのでは？
-	defer func() {
-		if err := connection.Close(); err != nil {
-			e.Logger.Fatal(fmt.Sprintf("Failed to close: %v", err))
-		}
-	}()
-	interactor := interactor.NewInteractor(connection) // TODO DI用のライブラリはないのかな？
+	interactor := interactor.NewInteractor() // TODO DI用のライブラリはないのかな？
 	handler := interactor.NewAppHandler()
 
 	router.SetRoutes(e, handler)

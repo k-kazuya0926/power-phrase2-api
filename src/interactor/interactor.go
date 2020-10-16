@@ -1,7 +1,6 @@
 package interactor
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/service"
 	"github.com/k-kazuya0926/power-phrase2-api/infrastructure/persistence/datastore"
@@ -19,15 +18,14 @@ type Interactor interface {
 }
 
 type interactor struct {
-	Connection *gorm.DB
 }
 
 // NewInteractor intractorを取得します.
-func NewInteractor(connection *gorm.DB) Interactor {
-	return &interactor{connection}
+func NewInteractor() Interactor {
+	return &interactor{}
 }
 
-type appHandler struct { // TODO なぜapp_handler.goではなくここに定義されているのか？
+type appHandler struct {
 	handler.UserHandler
 	// embed all handler interfaces
 }
@@ -39,7 +37,7 @@ func (interactor *interactor) NewAppHandler() handler.AppHandler {
 }
 
 func (interactor *interactor) NewUserRepository() repository.UserRepository {
-	return datastore.NewUserRepository(interactor.Connection)
+	return datastore.NewUserRepository()
 }
 
 func (interactor *interactor) NewUserService() service.UserService {

@@ -1,47 +1,61 @@
 package datastore
 
 import (
-	"github.com/jinzhu/gorm"
+	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
 )
 
 type userRepository struct {
-	connection *gorm.DB
 }
 
 // NewUserRepository UserRepositoryを取得します.
-func NewUserRepository(connection *gorm.DB) repository.UserRepository {
-	return &userRepository{connection}
+func NewUserRepository() repository.UserRepository {
+	return &userRepository{}
 }
 
 func (repository *userRepository) Fetch() ([]*model.User, error) {
+	connection := conf.NewDBConnection()
+	defer connection.Close()
+
 	var (
 		users []*model.User
 		err   error
 	)
-	err = repository.connection.Order("id desc").Find(&users).Error
+	err = connection.Order("id desc").Find(&users).Error
 	return users, err
 }
 
 func (repository *userRepository) FetchByID(id int) (*model.User, error) {
+	connection := conf.NewDBConnection()
+	defer connection.Close()
+
 	u := &model.User{ID: id}
-	err := repository.connection.First(u).Error
+	err := connection.First(u).Error
 	return u, err
 }
 
 func (repository *userRepository) Create(u *model.User) (*model.User, error) {
-	err := repository.connection.Create(u).Error
+	connection := conf.NewDBConnection()
+	defer connection.Close()
+
+	err := connection.Create(u).Error
 	return u, err
 }
 
 func (repository *userRepository) Update(u *model.User) (*model.User, error) {
-	err := repository.connection.Model(u).Update(u).Error
+	connection := conf.NewDBConnection()
+	defer connection.Close()
+
+	err := connection.Model(u).Update(u).Error
 	return u, err
 }
 
 func (repository *userRepository) Delete(id int) error {
+	connection := conf.NewDBConnection()
+	defer connection.Close()
+
 	u := &model.User{ID: id}
-	err := repository.connection.Delete(u).Error
+	err := connection.Delete(u).Error
 	return err
 }

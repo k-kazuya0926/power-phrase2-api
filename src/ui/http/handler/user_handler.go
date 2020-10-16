@@ -51,7 +51,7 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 }
 
 func (handler *userHandler) CreateUser(c echo.Context) error {
-	user := &model.User{} // TODO UseCaseで生成するべきでは？
+	user := &model.User{}
 	if err := c.Bind(user); err != nil {
 		return err
 	}
