@@ -5,6 +5,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql" //mysql
 	"github.com/jinzhu/gorm"
+	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 )
 
 // NewDBConnection 新規データベースコネクションを取得します.
@@ -37,6 +38,8 @@ func getMysqlConnection() *gorm.DB {
 	connection.DB().SetMaxOpenConns(20)
 
 	connection.Set("gorm:table_options", "ENGINE=InnoDB")
+
+	connection.AutoMigrate(&model.User{})
 
 	return connection
 }
