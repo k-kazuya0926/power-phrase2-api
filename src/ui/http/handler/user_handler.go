@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"net/http"
 	"strconv"
 
@@ -29,12 +28,7 @@ func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 }
 
 func (handler *userHandler) GetUsers(c echo.Context) error {
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	users, err := handler.UserUseCase.GetUsers(ctx)
+	users, err := handler.UserUseCase.GetUsers()
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Users does not exist.")
 	}
@@ -48,12 +42,7 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "User ID must be int")
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	user, err := handler.UserUseCase.GetUser(ctx, id)
+	user, err := handler.UserUseCase.GetUser(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "User does not exist.")
 	}
@@ -67,12 +56,7 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return err
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	user, err := handler.UserUseCase.CreateUser(ctx, user)
+	user, err := handler.UserUseCase.CreateUser(user)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Create.")
 	}
@@ -86,18 +70,13 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "User ID must be int")
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
 	newUser := new(model.User)
 	if err := c.Bind(newUser); err != nil {
 		return err
 	}
 	newUser.ID = id
 
-	user, err := handler.UserUseCase.UpdateUser(ctx, newUser)
+	user, err := handler.UserUseCase.UpdateUser(newUser)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Create.")
 	}
@@ -111,12 +90,7 @@ func (handler *userHandler) DeleteUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "User ID must be int")
 	}
 
-	ctx := c.Request().Context()
-	if ctx == nil {
-		ctx = context.Background()
-	}
-
-	if err := handler.UserUseCase.DeleteUser(ctx, id); err != nil {
+	if err := handler.UserUseCase.DeleteUser(id); err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Delete.")
 	}
 

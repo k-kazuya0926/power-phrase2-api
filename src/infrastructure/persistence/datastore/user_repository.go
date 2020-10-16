@@ -1,8 +1,6 @@
 package datastore
 
 import (
-	"context"
-
 	"github.com/jinzhu/gorm"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
@@ -17,7 +15,7 @@ func NewUserRepository(connection *gorm.DB) repository.UserRepository {
 	return &userRepository{connection}
 }
 
-func (repository *userRepository) Fetch(ctx context.Context) ([]*model.User, error) {
+func (repository *userRepository) Fetch() ([]*model.User, error) {
 	var (
 		users []*model.User
 		err   error
@@ -26,23 +24,23 @@ func (repository *userRepository) Fetch(ctx context.Context) ([]*model.User, err
 	return users, err
 }
 
-func (repository *userRepository) FetchByID(ctx context.Context, id int) (*model.User, error) {
+func (repository *userRepository) FetchByID(id int) (*model.User, error) {
 	u := &model.User{ID: id}
 	err := repository.connection.First(u).Error
 	return u, err
 }
 
-func (repository *userRepository) Create(ctx context.Context, u *model.User) (*model.User, error) {
+func (repository *userRepository) Create(u *model.User) (*model.User, error) {
 	err := repository.connection.Create(u).Error
 	return u, err
 }
 
-func (repository *userRepository) Update(ctx context.Context, u *model.User) (*model.User, error) {
+func (repository *userRepository) Update(u *model.User) (*model.User, error) {
 	err := repository.connection.Model(u).Update(u).Error
 	return u, err
 }
 
-func (repository *userRepository) Delete(ctx context.Context, id int) error {
+func (repository *userRepository) Delete(id int) error {
 	u := &model.User{ID: id}
 	err := repository.connection.Delete(u).Error
 	return err
