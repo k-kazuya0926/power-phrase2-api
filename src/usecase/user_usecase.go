@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"log"
 
 	"github.com/dgrijalva/jwt-go"
@@ -29,6 +30,29 @@ func NewUserUseCase(repository repository.UserRepository) UserUseCase {
 }
 
 func (usecase *userUseCase) CreateUser(user *model.User) (*model.User, error) {
+	// TODO 整理
+	var errorList []string
+	if user.Name == "" {
+		errorList = append(errorList, "名前は必須です。")
+	}
+	if user.Email == "" {
+		errorList = append(errorList, "Emailは必須です。")
+	}
+	if user.Password == "" {
+		errorList = append(errorList, "パスワードは必須です。")
+	}
+
+	if len(errorList) > 0 {
+		return nil, errors.New("バリデーションエラー") // TODO 戻り値修正
+	}
+
+	// パスワード暗号化
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = string(passwordHash)
+
 	return usecase.UserRepository.Create(user)
 }
 
@@ -44,7 +68,7 @@ func (usecase *userUseCase) Login(email, password string) (int, string, error) {
 	}
 
 	// JWTトークン生成
-	token, err := createToken(email)
+	token, err := createToken(user)
 	if err != nil {
 		return -1, "", err
 	}
@@ -52,15 +76,15 @@ func (usecase *userUseCase) Login(email, password string) (int, string, error) {
 	return user.ID, token, err
 }
 
-func createToken(email string) (string, error) {
+func createToken(user *model.User) (string, error) {
 	var err error
 
 	// 鍵となる文字列
 	// secret := os.Getenv("SECRET_KEY")
 	secret := "secret" // TODO 変更
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": email,
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{ // TODO 見直し
+		"email": user.Email,
 		"iss":   "__init__", // JWT の発行者が入る(文字列(__init__)は任意)
 	})
 

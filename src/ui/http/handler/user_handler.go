@@ -8,7 +8,6 @@ import (
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/usecase"
 	"github.com/labstack/echo"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // UserHandler interface
@@ -31,34 +30,28 @@ func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 }
 
 func (handler *userHandler) CreateUser(c echo.Context) error {
-	// TODO バリデーション
-
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(c.FormValue("password")), bcrypt.DefaultCost)
-	if err != nil {
-		return err
+	userParam := model.User{
+		Name:     c.FormValue("name"),
+		Email:    c.FormValue("email"),
+		Password: c.FormValue("password"),
+		ImageURL: c.FormValue("image_url"),
 	}
 
-	user := &model.User{}
-	user.Name = c.FormValue("name")
-	user.Email = c.FormValue("email")
-	user.Password = string(passwordHash)
-	user.ImageURL = c.FormValue("image_url")
-
-	user, err = handler.UserUseCase.CreateUser(user)
+	user, err := handler.UserUseCase.CreateUser(&userParam)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Create.")
+		return echo.NewHTTPError(http.StatusInternalServerError, "ユーザー登録時にエラーが発生しました。")
 	}
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, user.ID)
 }
 
 func (handler *userHandler) Login(c echo.Context) error {
 	// TODO バリデーション
 
-	userID, token, err := handler.UserUseCase.Login(c.FormValue("email"), c.FormValue("password"))
+	userID, token, _ := handler.UserUseCase.Login(c.FormValue("email"), c.FormValue("password"))
 	// TODO エラー処理
 
-	return c.JSON(http.StatusCreated, fmt.Sprintf("UserID: %d, token: %s, $s", userID, token, err))
+	return c.JSON(http.StatusCreated, fmt.Sprintf("UserID: %d, token: %s", userID, token))
 }
 
 func (handler *userHandler) GetUsers(c echo.Context) error {
