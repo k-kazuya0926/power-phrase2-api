@@ -46,12 +46,12 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 }
 
 func (handler *userHandler) Login(c echo.Context) error {
-	// TODO バリデーション
+	userID, token, err := handler.UserUseCase.Login(c.FormValue("email"), c.FormValue("password"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "ログイン時にエラーが発生しました。")
+	}
 
-	userID, token, _ := handler.UserUseCase.Login(c.FormValue("email"), c.FormValue("password"))
-	// TODO エラー処理
-
-	return c.JSON(http.StatusCreated, fmt.Sprintf("UserID: %d, token: %s", userID, token))
+	return c.JSON(http.StatusCreated, fmt.Sprintf("UserID: %d, token: %s", userID, token)) // TODO 戻り値修正
 }
 
 func (handler *userHandler) GetUsers(c echo.Context) error {

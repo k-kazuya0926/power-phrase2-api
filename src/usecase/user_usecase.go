@@ -56,11 +56,24 @@ func (usecase *userUseCase) CreateUser(user *model.User) (*model.User, error) {
 	return usecase.UserRepository.Create(user)
 }
 
-func (usecase *userUseCase) Login(email, password string) (int, string, error) {
-	// TODO バリデーション
+func (usecase *userUseCase) Login(email, password string) (userID int, token string, err error) {
+	// TODO 整理
+	var errorList []string
+	if email == "" {
+		errorList = append(errorList, "Emailは必須です。")
+	}
+	if password == "" {
+		errorList = append(errorList, "パスワードは必須です。")
+	}
+
+	if len(errorList) > 0 {
+		return -1, "", errors.New("バリデーションエラー") // TODO 戻り値修正
+	}
 
 	user, err := usecase.UserRepository.FetchByEmail(email)
-	// TODO エラー処理
+	if err != nil {
+		return -1, "", err
+	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
@@ -68,7 +81,7 @@ func (usecase *userUseCase) Login(email, password string) (int, string, error) {
 	}
 
 	// JWTトークン生成
-	token, err := createToken(user)
+	token, err = createToken(user)
 	if err != nil {
 		return -1, "", err
 	}
