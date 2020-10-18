@@ -11,7 +11,7 @@ type User struct {
 	UpdatedAt time.Time  `json:"updated_at" gorm:"not null;default:current_timestamp"`
 	DeletedAt *time.Time `json:"deleted_at"`
 	Name      string     `json:"name" gorm:"type:varchar(256);not null;default:''"`
-	Email     string     `json:"email" gorm:"type:varchar(256);not null;default:''"`
+	Email     string     `json:"email" gorm:"type:varchar(256);not null;default:''"` // TODO unique制約
 	Password  string     `json:"password" gorm:"type:varchar(256);not null;default:''"`
 	ImageURL  string     `json:"image_url" gorm:"type:varchar(256);not null;default:''"`
 }

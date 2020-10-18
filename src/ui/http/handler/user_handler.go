@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -12,9 +13,10 @@ import (
 
 // UserHandler interface
 type UserHandler interface {
+	CreateUser(c echo.Context) error
+	Login(c echo.Context) error
 	GetUsers(c echo.Context) error
 	GetUser(c echo.Context) error
-	CreateUser(c echo.Context) error
 	UpdateUser(c echo.Context) error
 	DeleteUser(c echo.Context) error
 }
@@ -50,7 +52,14 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 	return c.JSON(http.StatusCreated, user)
 }
 
-// TODO ログイン
+func (handler *userHandler) Login(c echo.Context) error {
+	// TODO バリデーション
+
+	userID, token, err := handler.UserUseCase.Login(c.FormValue("email"), c.FormValue("password"))
+	// TODO エラー処理
+
+	return c.JSON(http.StatusCreated, fmt.Sprintf("UserID: %d, token: %s, $s", userID, token, err))
+}
 
 func (handler *userHandler) GetUsers(c echo.Context) error {
 	users, err := handler.UserUseCase.GetUsers()
