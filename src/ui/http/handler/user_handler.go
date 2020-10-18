@@ -7,6 +7,7 @@ import (
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/usecase"
 	"github.com/labstack/echo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // UserHandler interface
@@ -26,6 +27,30 @@ type userHandler struct {
 func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 	return &userHandler{usecase}
 }
+
+func (handler *userHandler) CreateUser(c echo.Context) error {
+	// TODO バリデーション
+
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(c.FormValue("password")), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	user := &model.User{}
+	user.Name = c.FormValue("name")
+	user.Email = c.FormValue("email")
+	user.Password = string(passwordHash)
+	user.ImageURL = c.FormValue("image_url")
+
+	user, err = handler.UserUseCase.CreateUser(user)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Create.")
+	}
+
+	return c.JSON(http.StatusCreated, user)
+}
+
+// TODO ログイン
 
 func (handler *userHandler) GetUsers(c echo.Context) error {
 	users, err := handler.UserUseCase.GetUsers()
@@ -48,20 +73,6 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, user)
-}
-
-func (handler *userHandler) CreateUser(c echo.Context) error {
-	user := &model.User{}
-	if err := c.Bind(user); err != nil {
-		return err
-	}
-
-	user, err := handler.UserUseCase.CreateUser(user)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Create.")
-	}
-
-	return c.JSON(http.StatusCreated, user)
 }
 
 func (handler *userHandler) UpdateUser(c echo.Context) error {

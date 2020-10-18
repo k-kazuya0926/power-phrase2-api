@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 
-	_ "github.com/jinzhu/gorm"
 	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/interactor"
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/middleware"
