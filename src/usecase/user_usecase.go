@@ -30,22 +30,6 @@ func NewUserUseCase(repository repository.UserRepository) UserUseCase {
 }
 
 func (usecase *userUseCase) CreateUser(user *model.User) (*model.User, error) {
-	// TODO 整理
-	var errorList []string
-	if user.Name == "" {
-		errorList = append(errorList, "名前は必須です。")
-	}
-	if user.Email == "" {
-		errorList = append(errorList, "Emailは必須です。")
-	}
-	if user.Password == "" {
-		errorList = append(errorList, "パスワードは必須です。")
-	}
-
-	if len(errorList) > 0 {
-		return nil, errors.New("バリデーションエラー") // TODO 戻り値修正
-	}
-
 	// パスワード暗号化
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {

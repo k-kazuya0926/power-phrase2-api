@@ -30,16 +30,19 @@ func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 }
 
 func (handler *userHandler) CreateUser(c echo.Context) error {
-	userParam := model.User{
-		Name:     c.FormValue("name"),
-		Email:    c.FormValue("email"),
-		Password: c.FormValue("password"),
-		ImageURL: c.FormValue("image_url"),
+	userParam := new(model.User)
+	if err := c.Bind(userParam); err != nil {
+		return err
 	}
 
-	user, err := handler.UserUseCase.CreateUser(&userParam)
+	if err := c.Validate(userParam); err != nil {
+		// return echo.NewHTTPError(http.StatusBadRequest, err.(validator.ValidationErrors).Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	user, err := handler.UserUseCase.CreateUser(userParam)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "ユーザー登録時にエラーが発生しました。")
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusCreated, user.ID)
