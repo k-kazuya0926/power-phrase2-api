@@ -6,38 +6,34 @@ import (
 	"strconv"
 
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
+	"github.com/k-kazuya0926/power-phrase2-api/ui/http/request"
 	"github.com/k-kazuya0926/power-phrase2-api/usecase"
 	"github.com/labstack/echo"
 )
 
-// UserHandler interface
-type UserHandler interface {
-	CreateUser(c echo.Context) error
-	Login(c echo.Context) error
-	GetUsers(c echo.Context) error
-	GetUser(c echo.Context) error
-	UpdateUser(c echo.Context) error
-	DeleteUser(c echo.Context) error
-}
+type (
+	// UserHandler interface
+	UserHandler interface {
+		CreateUser(c echo.Context) error
+		Login(c echo.Context) error
+		GetUsers(c echo.Context) error
+		GetUser(c echo.Context) error
+		UpdateUser(c echo.Context) error
+		DeleteUser(c echo.Context) error
+	}
 
-type userHandler struct {
-	UserUseCase usecase.UserUseCase
-}
+	userHandler struct {
+		UserUseCase usecase.UserUseCase
+	}
+)
 
 // NewUserHandler UserHandlerを取得します.
 func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 	return &userHandler{usecase}
 }
 
-type CreateUserRequest struct {
-	Name     string `validate:"required,max=50"`
-	Email    string `validate:"required,email,max=100"`
-	Password string `validate:"required,max=100"`
-	ImageURL string `validate:"max=100"`
-}
-
 func (handler *userHandler) CreateUser(c echo.Context) error {
-	request := new(CreateUserRequest)
+	request := new(request.CreateUserRequest)
 	if err := c.Bind(request); err != nil {
 		return err
 	}
