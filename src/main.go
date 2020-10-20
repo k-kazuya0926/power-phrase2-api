@@ -26,25 +26,16 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 
 	var errorMessages []string //バリデーションでNGとなった独自エラーメッセージを格納
 	for _, err := range err.(validator.ValidationErrors) {
-
-		// TODO 整理
 		var errorMessage string
-		fieldName := err.Field() //バリデーションでNGになった変数名を取得
 
-		switch fieldName {
-		case "Name":
-			errorMessage = "error message for Name"
-		case "Password":
-			errorMessage = "error message for Password"
-		case "Email":
-			var typ = err.Tag() //バリデーションでNGになったタグ名を取得
-			switch typ {
-			case "required":
-				errorMessage = "emailは必須です。"
-			case "email":
-				errorMessage = "emailの形式が正しくありません。"
-			}
+		var typ = err.Tag()
+		switch typ {
+		case "required":
+			errorMessage = fmt.Sprintf("%s: 必須です。", err.Field())
+		case "email":
+			errorMessage = fmt.Sprintf("%s: 形式が正しくありません。", err.Field())
 		}
+
 		errorMessages = append(errorMessages, errorMessage)
 	}
 	return errors.New(strings.Join(errorMessages, "\n"))
