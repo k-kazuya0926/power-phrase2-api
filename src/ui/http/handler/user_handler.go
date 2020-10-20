@@ -29,18 +29,29 @@ func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 	return &userHandler{usecase}
 }
 
+type CreateUserRequest struct {
+	Name     string `validate:"required,max=50"`
+	Email    string `validate:"required,email,max=100"`
+	Password string `validate:"required,max=100"`
+	ImageURL string `validate:"max=100"`
+}
+
 func (handler *userHandler) CreateUser(c echo.Context) error {
-	userParam := new(model.User)
-	if err := c.Bind(userParam); err != nil {
+	request := new(CreateUserRequest)
+	if err := c.Bind(request); err != nil {
 		return err
 	}
 
-	if err := c.Validate(userParam); err != nil {
-		// return echo.NewHTTPError(http.StatusBadRequest, err.(validator.ValidationErrors).Error())
+	if err := c.Validate(request); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	user, err := handler.UserUseCase.CreateUser(userParam)
+	user, err := handler.UserUseCase.CreateUser(
+		request.Name,
+		request.Email,
+		request.Password,
+		request.ImageURL,
+	)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
