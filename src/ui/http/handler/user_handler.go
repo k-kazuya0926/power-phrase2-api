@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -35,7 +34,7 @@ func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 func (handler *userHandler) CreateUser(c echo.Context) error {
 	request := new(request.CreateUserRequest)
 	if err := c.Bind(request); err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := c.Validate(request); err != nil {
@@ -52,16 +51,25 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, userID)
+	return c.JSON(http.StatusOK, userID)
 }
 
 func (handler *userHandler) Login(c echo.Context) error {
-	userID, token, err := handler.UserUseCase.Login(c.FormValue("email"), c.FormValue("password"))
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "ログイン時にエラーが発生しました。")
+	request := new(request.LoginRequest)
+	if err := c.Bind(request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, fmt.Sprintf("UserID: %d, token: %s", userID, token)) // TODO 戻り値修正
+	if err := c.Validate(request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	token, err := handler.UserUseCase.Login(request.Email, request.Password)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, token)
 }
 
 func (handler *userHandler) GetUsers(c echo.Context) error {

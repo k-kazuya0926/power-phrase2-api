@@ -23,13 +23,13 @@ func (repository *userRepository) Create(user *model.User) error {
 }
 
 func (repository *userRepository) FetchByEmail(email string) (*model.User, error) {
-	var u model.User
+	var user model.User
 
 	connection := conf.NewDBConnection()
 	defer connection.Close()
 
-	err := connection.Where("email = ?", email).First(&u).Error
-	return &u, err
+	err := connection.Where("email = ?", email).First(&user).Error
+	return &user, err
 }
 
 func (repository *userRepository) Fetch() ([]*model.User, error) {

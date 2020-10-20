@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"log"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
@@ -13,7 +12,7 @@ import (
 // UserUseCase interfase
 type UserUseCase interface {
 	CreateUser(name, email, password, imageURL string) (userID int, err error)
-	Login(email, password string) (int, string, error)
+	Login(email, password string) (token string, err error)
 	GetUsers() ([]*model.User, error)
 	GetUser(id int) (*model.User, error)
 	UpdateUser(user *model.User) (*model.User, error)
@@ -47,37 +46,23 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (
 	return user.ID, err
 }
 
-func (usecase *userUseCase) Login(email, password string) (userID int, token string, err error) {
-	// TODO 整理
-	var errorList []string
-	if email == "" {
-		errorList = append(errorList, "Emailは必須です。")
-	}
-	if password == "" {
-		errorList = append(errorList, "パスワードは必須です。")
-	}
-
-	if len(errorList) > 0 {
-		return -1, "", errors.New("バリデーションエラー") // TODO 戻り値修正
-	}
-
+func (usecase *userUseCase) Login(email, password string) (token string, err error) {
 	user, err := usecase.UserRepository.FetchByEmail(email)
 	if err != nil {
-		return -1, "", err
+		return "", errors.New("ユーザーが存在しません。")
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
-		return -1, "", err
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return "", errors.New("メールアドレスまたはパスワードに誤りがあります。")
 	}
 
 	// JWTトークン生成
 	token, err = createToken(user)
 	if err != nil {
-		return -1, "", err
+		return "", errors.New("トークンの生成に失敗しました。")
 	}
 
-	return user.ID, token, err
+	return token, nil
 }
 
 func createToken(user *model.User) (string, error) {
@@ -87,18 +72,14 @@ func createToken(user *model.User) (string, error) {
 	// secret := os.Getenv("SECRET_KEY")
 	secret := "secret" // TODO 変更
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{ // TODO 見直し
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{ // TODO UserIDを含める
 		"email": user.Email,
 		"iss":   "__init__", // JWT の発行者が入る(文字列(__init__)は任意)
 	})
 
 	tokenString, err := token.SignedString([]byte(secret))
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return tokenString, nil
+	return tokenString, err
 }
 
 func (usecase *userUseCase) GetUsers() ([]*model.User, error) {
