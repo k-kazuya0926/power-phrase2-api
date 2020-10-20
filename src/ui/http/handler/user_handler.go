@@ -42,7 +42,7 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	user, err := handler.UserUseCase.CreateUser(
+	userID, err := handler.UserUseCase.CreateUser(
 		request.Name,
 		request.Email,
 		request.Password,
@@ -52,7 +52,7 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, user.ID)
+	return c.JSON(http.StatusCreated, userID)
 }
 
 func (handler *userHandler) Login(c echo.Context) error {

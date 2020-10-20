@@ -55,7 +55,7 @@ func main() {
 	router.SetRoutes(e, handler)
 	middleware.SetMiddlewares(e)
 
-	e.Validator = &CustomValidator{validator: validator.New()}
+	e.Validator = &CustomValidator{validator.New()}
 
 	if err := e.Start(fmt.Sprintf(":%d", conf.Current.Server.Port)); err != nil {
 		e.Logger.Fatal(fmt.Sprintf("Failed to start: %v", err))

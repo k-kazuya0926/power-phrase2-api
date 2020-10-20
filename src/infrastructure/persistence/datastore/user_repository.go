@@ -14,12 +14,12 @@ func NewUserRepository() repository.UserRepository {
 	return &userRepository{}
 }
 
-func (repository *userRepository) Create(user *model.User) (*model.User, error) {
+func (repository *userRepository) Create(user *model.User) error {
 	connection := conf.NewDBConnection()
 	defer connection.Close()
 
 	err := connection.Create(user).Error
-	return user, err
+	return err
 }
 
 func (repository *userRepository) FetchByEmail(email string) (*model.User, error) {
