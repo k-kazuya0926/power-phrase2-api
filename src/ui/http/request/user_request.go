@@ -12,4 +12,8 @@ type (
 		Email    string `validate:"required,email,max=100"`
 		Password string `validate:"required,max=100"`
 	}
+
+	GetUserRequest struct {
+		UserID int `validate:"min=1"`
+	}
 )

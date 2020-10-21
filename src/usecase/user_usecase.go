@@ -50,7 +50,7 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (
 func (usecase *userUseCase) Login(email, password string) (token string, err error) {
 	user, err := usecase.UserRepository.FetchByEmail(email)
 	if err != nil {
-		return "", errors.New("ユーザーが存在しません。")
+		return "", errors.New("ユーザーの取得に失敗しました。")
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
@@ -92,7 +92,11 @@ func (usecase *userUseCase) GetUsers() ([]*model.User, error) {
 }
 
 func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
-	return usecase.UserRepository.FetchByID(id)
+	user, err := usecase.UserRepository.FetchByID(id)
+	if (err != nil) {
+		return nil, errors.New("ユーザーの取得に失敗しました。")
+	}
+	return user, nil
 }
 
 func (usecase *userUseCase) UpdateUser(user *model.User) (*model.User, error) {

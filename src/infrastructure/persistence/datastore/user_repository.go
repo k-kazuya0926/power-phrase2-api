@@ -48,9 +48,11 @@ func (repository *userRepository) FetchByID(id int) (*model.User, error) {
 	connection := conf.NewDBConnection()
 	defer connection.Close()
 
-	u := &model.User{ID: id}
-	err := connection.First(u).Error
-	return u, err
+	u := model.User{ID: id}
+	err := connection.First(&u).Error
+	u.Password = ""
+
+	return &u, err
 }
 
 func (repository *userRepository) Update(u *model.User) (*model.User, error) {

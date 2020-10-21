@@ -66,7 +66,7 @@ func (handler *userHandler) Login(c echo.Context) error {
 
 	token, err := handler.UserUseCase.Login(request.Email, request.Password)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, token)
@@ -84,12 +84,16 @@ func (handler *userHandler) GetUsers(c echo.Context) error {
 func (handler *userHandler) GetUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "User ID must be int")
+		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
+	}
+	request := &request.GetUserRequest{UserID: id}
+	if err := c.Validate(request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	user, err := handler.UserUseCase.GetUser(id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "User does not exist.")
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)
