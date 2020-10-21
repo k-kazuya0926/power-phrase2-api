@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
@@ -66,20 +67,24 @@ func (usecase *userUseCase) Login(email, password string) (token string, err err
 }
 
 func createToken(user *model.User) (string, error) {
-	var err error
-
 	// 鍵となる文字列
 	// secret := os.Getenv("SECRET_KEY")
 	secret := "secret" // TODO 変更
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{ // TODO UserIDを含める
-		"email": user.Email,
-		"iss":   "__init__", // JWT の発行者が入る(文字列(__init__)は任意)
-	})
+	// Create token
+	token := jwt.New(jwt.SigningMethodHS256)
 
-	tokenString, err := token.SignedString([]byte(secret))
+	// Set claims
+	claims := token.Claims.(jwt.MapClaims)
+	claims["sub"] = user.ID
+	claims["name"] = user.Name
+	claims["picture"] = "TODO" // TODO
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-	return tokenString, err
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte(secret))
+
+	return t, err
 }
 
 func (usecase *userUseCase) GetUsers() ([]*model.User, error) {
