@@ -85,6 +85,7 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
 	}
+
 	request := &request.GetUserRequest{UserID: id}
 	if err := c.Validate(request); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -123,7 +124,7 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, id)
+	return c.JSON(http.StatusOK, "ユーザーの更新に成功しました。")
 }
 
 func (handler *userHandler) DeleteUser(c echo.Context) error {
@@ -132,9 +133,14 @@ func (handler *userHandler) DeleteUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
 	}
 
-	if err := handler.UserUseCase.DeleteUser(id); err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Delete.")
+	request := request.DeleteUserRequest{UserID: id}
+	if err := c.Validate(&request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.NoContent(http.StatusNoContent)
+	if err := handler.UserUseCase.DeleteUser(id); err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "ユーザーの削除に成功しました。")
 }

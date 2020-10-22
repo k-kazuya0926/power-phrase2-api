@@ -18,8 +18,7 @@ func (repository *userRepository) Create(user *model.User) error {
 	connection := conf.NewDBConnection()
 	defer connection.Close()
 
-	err := connection.Create(user).Error
-	return err
+	return connection.Create(user).Error
 }
 
 func (repository *userRepository) FetchByEmail(email string) (*model.User, error) {
@@ -66,7 +65,6 @@ func (repository *userRepository) Delete(id int) error {
 	connection := conf.NewDBConnection()
 	defer connection.Close()
 
-	u := &model.User{ID: id}
-	err := connection.Delete(u).Error
-	return err
+	user := model.User{ID: id}
+	return connection.Delete(&user).Error
 }

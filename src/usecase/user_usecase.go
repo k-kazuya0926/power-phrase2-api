@@ -114,13 +114,15 @@ func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageU
 		Password: newPassword,
 		ImageURL: imageURL,
 	}
-	err := usecase.UserRepository.Update(&user)
-	if err != nil {
+	if err := usecase.UserRepository.Update(&user); err != nil {
 		return errors.New("ユーザーの更新に失敗しました。")
 	}
 	return nil
 }
 
 func (usecase *userUseCase) DeleteUser(id int) error {
-	return usecase.UserRepository.Delete(id)
+	if err := usecase.UserRepository.Delete(id); err != nil {
+		return errors.New("ユーザーの削除に失敗しました。")
+	}
+	return nil
 }
