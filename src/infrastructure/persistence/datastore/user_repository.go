@@ -31,18 +31,6 @@ func (repository *userRepository) FetchByEmail(email string) (*model.User, error
 	return &user, err
 }
 
-func (repository *userRepository) Fetch() ([]*model.User, error) {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
-
-	var (
-		users []*model.User
-		err   error
-	)
-	err = connection.Order("id desc").Find(&users).Error
-	return users, err
-}
-
 func (repository *userRepository) FetchByID(id int) (*model.User, error) {
 	connection := conf.NewDBConnection()
 	defer connection.Close()

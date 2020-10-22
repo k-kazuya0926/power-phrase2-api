@@ -14,7 +14,6 @@ import (
 type UserUseCase interface {
 	CreateUser(name, email, password, imageURL string) (userID int, err error)
 	Login(email, password string) (token string, err error)
-	GetUsers() ([]*model.User, error)
 	GetUser(id int) (*model.User, error)
 	UpdateUser(userID int, name, email, password, imageURL string) error
 	DeleteUser(id int) error
@@ -82,10 +81,6 @@ func createToken(user *model.User) (string, error) {
 	t, err := token.SignedString([]byte(secret))
 
 	return t, err
-}
-
-func (usecase *userUseCase) GetUsers() ([]*model.User, error) {
-	return usecase.UserRepository.Fetch()
 }
 
 func (usecase *userUseCase) GetUser(id int) (*model.User, error) {

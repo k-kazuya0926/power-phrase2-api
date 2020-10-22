@@ -14,7 +14,6 @@ type (
 	UserHandler interface {
 		CreateUser(c echo.Context) error
 		Login(c echo.Context) error
-		GetUsers(c echo.Context) error
 		GetUser(c echo.Context) error
 		UpdateUser(c echo.Context) error
 		DeleteUser(c echo.Context) error
@@ -50,7 +49,10 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, userID)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "ユーザーの登録に成功しました。",
+		"userID":  userID,
+	})
 }
 
 func (handler *userHandler) Login(c echo.Context) error {
@@ -68,16 +70,10 @@ func (handler *userHandler) Login(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, token)
-}
-
-func (handler *userHandler) GetUsers(c echo.Context) error {
-	users, err := handler.UserUseCase.GetUsers()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Users does not exist.")
-	}
-
-	return c.JSON(http.StatusOK, users)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "ログインに成功しました。",
+		"token":   token,
+	})
 }
 
 func (handler *userHandler) GetUser(c echo.Context) error {
@@ -96,7 +92,10 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "ユーザーの取得に成功しました。",
+		"user":    user,
+	})
 }
 
 func (handler *userHandler) UpdateUser(c echo.Context) error {
@@ -124,7 +123,9 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "ユーザーの更新に成功しました。")
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "ユーザーの更新に成功しました。",
+	})
 }
 
 func (handler *userHandler) DeleteUser(c echo.Context) error {
@@ -142,5 +143,7 @@ func (handler *userHandler) DeleteUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "ユーザーの削除に成功しました。")
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message": "ユーザーの削除に成功しました。",
+	})
 }
