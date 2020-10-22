@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/request"
 	"github.com/k-kazuya0926/power-phrase2-api/usecase"
 	"github.com/labstack/echo"
@@ -102,27 +101,35 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 func (handler *userHandler) UpdateUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "User ID must be int")
+		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
 	}
 
-	newUser := new(model.User)
-	if err := c.Bind(newUser); err != nil {
-		return err
+	request := &request.UpdateUserRequest{UserID: id}
+	if err := c.Bind(request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	newUser.ID = id
+	if err := c.Validate(request); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
-	user, err := handler.UserUseCase.UpdateUser(newUser)
+	err = handler.UserUseCase.UpdateUser(
+		id,
+		request.Name,
+		request.Email,
+		request.Password,
+		request.ImageURL,
+	)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "User can not Create.")
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, id)
 }
 
 func (handler *userHandler) DeleteUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "User ID must be int")
+		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
 	}
 
 	if err := handler.UserUseCase.DeleteUser(id); err != nil {

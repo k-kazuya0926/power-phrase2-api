@@ -16,7 +16,7 @@ type UserUseCase interface {
 	Login(email, password string) (token string, err error)
 	GetUsers() ([]*model.User, error)
 	GetUser(id int) (*model.User, error)
-	UpdateUser(user *model.User) (*model.User, error)
+	UpdateUser(userID int, name, email, password, imageURL string) error
 	DeleteUser(id int) error
 }
 
@@ -59,11 +59,8 @@ func (usecase *userUseCase) Login(email, password string) (token string, err err
 
 	// JWTトークン生成
 	token, err = createToken(user)
-	if err != nil {
-		return "", errors.New("トークンの生成に失敗しました。")
-	}
 
-	return token, nil
+	return token, err
 }
 
 func createToken(user *model.User) (string, error) {
@@ -93,14 +90,35 @@ func (usecase *userUseCase) GetUsers() ([]*model.User, error) {
 
 func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
 	user, err := usecase.UserRepository.FetchByID(id)
-	if (err != nil) {
+	if err != nil {
 		return nil, errors.New("ユーザーの取得に失敗しました。")
 	}
 	return user, nil
 }
 
-func (usecase *userUseCase) UpdateUser(user *model.User) (*model.User, error) {
-	return usecase.UserRepository.Update(user)
+func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageURL string) error {
+	// パスワード暗号化
+	newPassword := ""
+	if password != "" {
+		passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+		newPassword = string(passwordHash)
+	}
+
+	user := model.User{
+		ID:       userID,
+		Name:     name,
+		Email:    email,
+		Password: newPassword,
+		ImageURL: imageURL,
+	}
+	err := usecase.UserRepository.Update(&user)
+	if err != nil {
+		return errors.New("ユーザーの更新に失敗しました。")
+	}
+	return nil
 }
 
 func (usecase *userUseCase) DeleteUser(id int) error {

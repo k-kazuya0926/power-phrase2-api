@@ -16,4 +16,12 @@ type (
 	GetUserRequest struct {
 		UserID int `validate:"min=1"`
 	}
+
+	UpdateUserRequest struct {
+		UserID   int    `validate:"required,min=1"`
+		Name     string `validate:"max=50"`
+		Email    string `validate:"max=100"` // TODO 形式
+		Password string `validate:"max=100"`
+		ImageURL string `validate:"max=100"`
+	}
 )

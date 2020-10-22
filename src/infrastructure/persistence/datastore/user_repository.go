@@ -55,12 +55,11 @@ func (repository *userRepository) FetchByID(id int) (*model.User, error) {
 	return &u, err
 }
 
-func (repository *userRepository) Update(u *model.User) (*model.User, error) {
+func (repository *userRepository) Update(u *model.User) error {
 	connection := conf.NewDBConnection()
 	defer connection.Close()
 
-	err := connection.Model(u).Update(u).Error
-	return u, err
+	return connection.Model(u).Update(u).Error
 }
 
 func (repository *userRepository) Delete(id int) error {
