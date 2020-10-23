@@ -16,7 +16,7 @@ type (
 	}
 
 	GetUserRequest struct {
-		UserID int `validate:"min=1"`
+		ID int `validate:"min=1"`
 	}
 
 	UpdateUserRequest struct {

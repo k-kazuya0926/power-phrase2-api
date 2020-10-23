@@ -79,12 +79,12 @@ func (handler *userHandler) Login(c echo.Context) error {
 func (handler *userHandler) GetUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
+		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
 
-	request := &request.GetUserRequest{UserID: id}
+	request := &request.GetUserRequest{ID: id}
 	if err := c.Validate(request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	user, err := handler.UserUseCase.GetUser(id)
@@ -92,10 +92,7 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "ユーザーの取得に成功しました。",
-		"user":    user,
-	})
+	return c.JSON(http.StatusOK, user)
 }
 
 func (handler *userHandler) UpdateUser(c echo.Context) error {
