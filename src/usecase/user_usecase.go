@@ -10,7 +10,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserUseCase interfase
 type UserUseCase interface {
 	CreateUser(name, email, password, imageURL string) (err error)
 	Login(email, password string) (token string, err error)
@@ -49,7 +48,7 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (
 func (usecase *userUseCase) Login(email, password string) (token string, err error) {
 	user, err := usecase.UserRepository.FetchByEmail(email)
 	if err != nil {
-		return "", errors.New("ユーザーの取得に失敗しました。")
+		return "", err
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
@@ -86,7 +85,7 @@ func createToken(user *model.User) (string, error) {
 func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
 	user, err := usecase.UserRepository.FetchByID(id)
 	if err != nil {
-		return nil, errors.New("ユーザーの取得に失敗しました。")
+		return nil, err
 	}
 	return user, nil
 }
@@ -110,14 +109,14 @@ func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageU
 		ImageURL: imageURL,
 	}
 	if err := usecase.UserRepository.Update(&user); err != nil {
-		return errors.New("ユーザーの更新に失敗しました。")
+		return err
 	}
 	return nil
 }
 
 func (usecase *userUseCase) DeleteUser(id int) error {
 	if err := usecase.UserRepository.Delete(id); err != nil {
-		return errors.New("ユーザーの削除に失敗しました。")
+		return err
 	}
 	return nil
 }

@@ -25,17 +25,6 @@ func NewInteractor() Interactor {
 	return &interactor{}
 }
 
-type appHandler struct {
-	handler.UserHandler
-	// embed all handler interfaces
-}
-
-func (interactor *interactor) NewAppHandler() handler.AppHandler {
-	appHandler := &appHandler{}
-	appHandler.UserHandler = interactor.NewUserHandler()
-	return appHandler
-}
-
 func (interactor *interactor) NewUserRepository() repository.UserRepository {
 	return datastore.NewUserRepository()
 }
@@ -50,4 +39,8 @@ func (interactor *interactor) NewUserUseCase() usecase.UserUseCase {
 
 func (interactor *interactor) NewUserHandler() handler.UserHandler {
 	return handler.NewUserHandler(interactor.NewUserUseCase())
+}
+
+func (interactor *interactor) NewAppHandler() handler.AppHandler {
+	return handler.NewAppHandler(interactor.NewUserHandler())
 }

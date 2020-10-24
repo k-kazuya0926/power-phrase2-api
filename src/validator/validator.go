@@ -5,18 +5,19 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/labstack/echo"
 	"gopkg.in/go-playground/validator.v9"
 )
 
-type CustomValidator struct {
+type customValidator struct {
 	validator *validator.Validate
 }
 
-func NewValidator() *CustomValidator {
-	return &CustomValidator{validator.New()}
+func NewValidator() echo.Validator {
+	return &customValidator{validator.New()}
 }
 
-func (cv *CustomValidator) Validate(i interface{}) error {
+func (cv *customValidator) Validate(i interface{}) error {
 	err := cv.validator.Struct(i)
 	if err == nil {
 		return err

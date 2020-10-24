@@ -3,7 +3,7 @@ package conf
 import (
 	"fmt"
 
-	_ "github.com/go-sql-driver/mysql" //mysql
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 )

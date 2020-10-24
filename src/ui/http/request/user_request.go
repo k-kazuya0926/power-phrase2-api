@@ -1,8 +1,6 @@
 package request
 
 type (
-	// TODO DB存在チェックはできるか？
-
 	CreateUserRequest struct {
 		Name     string `validate:"required,max=50"`
 		Email    string `validate:"required,email,max=100"`

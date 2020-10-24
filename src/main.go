@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo"
 )
 
+// TODO調査
 //Dockerコンテナで実行する時(production.confをもとに起動するとき)は起動時に-serverを指定
 var runServer = flag.Bool("server", false, "production is -server option require")
 

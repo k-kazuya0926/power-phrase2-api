@@ -6,3 +6,12 @@ type AppHandler interface {
 	UserHandler
 	// embed all handler interfaces
 }
+
+type appHandler struct {
+	UserHandler
+	// embed all handler interfaces
+}
+
+func NewAppHandler(userHandler UserHandler) AppHandler {
+	return &appHandler{userHandler}
+}
