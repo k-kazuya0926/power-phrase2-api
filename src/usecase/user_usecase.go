@@ -12,7 +12,7 @@ import (
 
 // UserUseCase interfase
 type UserUseCase interface {
-	CreateUser(name, email, password, imageURL string) (userID int, err error)
+	CreateUser(name, email, password, imageURL string) (err error)
 	Login(email, password string) (token string, err error)
 	GetUser(id int) (*model.User, error)
 	UpdateUser(userID int, name, email, password, imageURL string) error
@@ -28,11 +28,11 @@ func NewUserUseCase(repository repository.UserRepository) UserUseCase {
 	return &userUseCase{repository}
 }
 
-func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (userID int, err error) {
+func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (err error) {
 	// パスワード暗号化
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	user := model.User{
@@ -43,7 +43,7 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (
 	}
 	err = usecase.UserRepository.Create(&user)
 
-	return user.ID, err
+	return err
 }
 
 func (usecase *userUseCase) Login(email, password string) (token string, err error) {
