@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -37,6 +38,7 @@ func setUp() {
 func tearDown() {
 }
 
+// Mock
 type mockUserUseCase struct{}
 
 func (u *mockUserUseCase) CreateUser(name, email, password, imageURL string) (err error) {
@@ -59,63 +61,134 @@ func (u *mockUserUseCase) DeleteUser(id int) error {
 	return nil
 }
 
-// TODO 見直し
-// func getMockUsers(n int) []*model.User {
-// 	ret := []*model.User{}
-// 	for i := 0; i < n; i++ {
-// 		u := getMockUser(int(i))
-// 		ret = append(ret, u)
-// 	}
-// 	return ret
-// }
-
 func getMockUser(id int) *model.User {
 	u := &model.User{
 		ID:        id,
+		CreatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
+		UpdatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
 		Name:      fmt.Sprintf("testuser%d", id),
 		Email:     fmt.Sprintf("testuser%d@example.com", id),
 		Password:  fmt.Sprintf("testuser%d", id),
 		ImageURL:  fmt.Sprintf("http://www.example.com/%d", id),
-		CreatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
-		UpdatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
 	}
 	return u
 }
 
-func getMockUserNoID() *model.User {
-	u := &model.User{
-		Name:      fmt.Sprintf("name_%d", 1),
-		CreatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
-		UpdatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
+// ユーザー登録テスト
+func TestCreateUser_success(t *testing.T) {
+	jsonBytes, err := json.Marshal(getMockUser(1))
+	if err != nil {
+		t.Fatal(err)
 	}
-	return u
+
+	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Assertions
+	if assert.NoError(t, handler.CreateUser(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+	}
 }
 
+// TODO 可能であればエラー系をまとめる
+func TestCreateUser_error_nameIsEmpty(t *testing.T) {
+	user := getMockUser(1)
+	user.Name = ""
+	jsonBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// assertions
+	if assert.NoError(t, handler.CreateUser(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+	}
+}
+
+func TestCreateUser_error_emailIsEmpty(t *testing.T) {
+	user := getMockUser(1)
+	user.Email = ""
+	jsonBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// assertions
+	if assert.NoError(t, handler.CreateUser(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+	}
+}
+
+func TestCreateUser_error_emailIsInvalid(t *testing.T) {
+	user := getMockUser(1)
+	user.Email = "testuserexample.com"
+	jsonBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// assertions
+	if assert.NoError(t, handler.CreateUser(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+	}
+}
+
+func TestCreateUser_error_passwordIsEmpty(t *testing.T) {
+	user := getMockUser(1)
+	user.Password = ""
+	jsonBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// assertions
+	if assert.NoError(t, handler.CreateUser(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+	}
+}
+
+// TODO ログインテスト
+
+// ユーザー詳細テスト
 func TestGetUser_success(t *testing.T) {
-	cases := []struct {
-		ID   int
-		User *model.User
-	}{
-		{1, getMockUser(1)},
-	}
+	req := httptest.NewRequest(echo.GET, "/users", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-	for _, test := range cases {
-		req := httptest.NewRequest(echo.GET, "/users", nil)
-		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
-		c.SetPath("/users/:id")
-		c.SetParamNames("id")
-		c.SetParamValues(fmt.Sprint(test.ID))
-
-		// assertions
-		if assert.NoError(t, handler.GetUser(c)) {
-			user := &model.User{}
-			if err := json.Unmarshal(rec.Body.Bytes(), user); err != nil {
-				t.Fatal(err)
-			}
-			assert.Equal(t, http.StatusOK, rec.Code)
-			assert.Equal(t, test.User, user)
+	// assertions
+	if assert.NoError(t, handler.GetUser(c)) {
+		user := &model.User{}
+		if err := json.Unmarshal(rec.Body.Bytes(), user); err != nil {
+			t.Fatal(err)
 		}
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, getMockUser(id), user)
 	}
 }
 
@@ -146,40 +219,7 @@ func TestGetUser_error(t *testing.T) {
 	}
 }
 
-// TODO
-// func TestUserHandler_CreateUser(t *testing.T) {
-// 	// expected
-// 	expected := getMockUser(1)
-
-// 	// set stub
-// 	usecase := &mockUserUseCase{}
-// 	handler := NewUserHandler(usecase)
-
-// 	e := echo.New()
-// 	jsonBytes, err := json.Marshal(getMockUserNoID())
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-
-// 	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
-// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
-// 	// Assertions
-// 	if assert.NoError(t, handler.CreateUser(c)) {
-// 		user := &model.User{}
-// 		if err := json.Unmarshal(rec.Body.Bytes(), &user); err != nil {
-// 			t.Fatal(err)
-// 		}
-
-// 		t.Log(rec.Code)
-// 		assert.Equal(t, http.StatusCreated, rec.Code)
-// 		t.Log(user)
-// 		assert.Equal(t, expected, user)
-// 	}
-// }
-
-// TODO
+// TODO ユーザー更新テスト
 // type updateUserTest struct {
 // 	ID       int
 // 	UserName string
@@ -221,7 +261,7 @@ func TestGetUser_error(t *testing.T) {
 // 	}
 // }
 
-// TODO
+// TODO ユーザー削除テスト
 // func TestUserHandler_DeleteUser(t *testing.T) {
 // 	// set stub
 // 	usecase := &mockUserUseCase{}
