@@ -32,11 +32,11 @@ func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 func (handler *userHandler) CreateUser(c echo.Context) error {
 	request := new(request.CreateUserRequest)
 	if err := c.Bind(request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	if err := c.Validate(request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	userID, err := handler.UserUseCase.CreateUser(
@@ -58,16 +58,16 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 func (handler *userHandler) Login(c echo.Context) error {
 	request := new(request.LoginRequest)
 	if err := c.Bind(request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	if err := c.Validate(request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	token, err := handler.UserUseCase.Login(request.Email, request.Password)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -89,7 +89,7 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 
 	user, err := handler.UserUseCase.GetUser(id)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)
@@ -98,15 +98,15 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 func (handler *userHandler) UpdateUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
 
 	request := &request.UpdateUserRequest{UserID: id}
 	if err := c.Bind(request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 	if err := c.Validate(request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	err = handler.UserUseCase.UpdateUser(
@@ -117,7 +117,7 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		request.ImageURL,
 	)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -128,12 +128,12 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 func (handler *userHandler) DeleteUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "ID：数値で入力してください。")
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
 
 	request := request.DeleteUserRequest{UserID: id}
 	if err := c.Validate(&request); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	if err := handler.UserUseCase.DeleteUser(id); err != nil {
