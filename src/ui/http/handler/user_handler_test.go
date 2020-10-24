@@ -3,9 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -15,11 +15,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO:mock生成を共通化する
+func TestMain(m *testing.M) {
+	setUp()
+	code := m.Run()
+	tearDown()
+	os.Exit(code)
+}
+
+var handler UserHandler
+var e *echo.Echo
+
+func setUp() {
+	// set stub
+	usecase := &mockUserUseCase{}
+	handler = NewUserHandler(usecase)
+
+	e = echo.New()
+	e.Validator = validator.NewValidator()
+}
+
+func tearDown() {
+}
+
 type mockUserUseCase struct{}
 
-func (u *mockUserUseCase) CreateUser(name, email, password, imageURL string) (userID int, err error) {
-	return 1, nil
+func (u *mockUserUseCase) CreateUser(name, email, password, imageURL string) (err error) {
+	return nil
 }
 
 func (u *mockUserUseCase) Login(email, password string) (token string, err error) {
@@ -38,14 +59,15 @@ func (u *mockUserUseCase) DeleteUser(id int) error {
 	return nil
 }
 
-func getMockUsers(n int) []*model.User {
-	ret := []*model.User{}
-	for i := 0; i < n; i++ {
-		u := getMockUser(int(i))
-		ret = append(ret, u)
-	}
-	return ret
-}
+// TODO 見直し
+// func getMockUsers(n int) []*model.User {
+// 	ret := []*model.User{}
+// 	for i := 0; i < n; i++ {
+// 		u := getMockUser(int(i))
+// 		ret = append(ret, u)
+// 	}
+// 	return ret
+// }
 
 func getMockUser(id int) *model.User {
 	u := &model.User{
@@ -70,10 +92,6 @@ func getMockUserNoID() *model.User {
 }
 
 func TestGetUser_success(t *testing.T) {
-	// set stub
-	usecase := &mockUserUseCase{}
-	h := NewUserHandler(usecase)
-
 	cases := []struct {
 		ID   int
 		User *model.User
@@ -82,9 +100,6 @@ func TestGetUser_success(t *testing.T) {
 	}
 
 	for _, test := range cases {
-		// set request
-		e := echo.New()
-		e.Validator = validator.NewValidator()
 		req := httptest.NewRequest(echo.GET, "/users", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
@@ -93,7 +108,7 @@ func TestGetUser_success(t *testing.T) {
 		c.SetParamValues(fmt.Sprint(test.ID))
 
 		// assertions
-		if assert.NoError(t, h.GetUser(c)) {
+		if assert.NoError(t, handler.GetUser(c)) {
 			user := &model.User{}
 			if err := json.Unmarshal(rec.Body.Bytes(), user); err != nil {
 				t.Fatal(err)
@@ -105,23 +120,18 @@ func TestGetUser_success(t *testing.T) {
 }
 
 func TestGetUser_error(t *testing.T) {
-	// set stub
-	usecase := &mockUserUseCase{}
-	h := NewUserHandler(usecase)
-
 	cases := []struct {
+		label   string
 		id      interface{}
 		message string
 	}{
-		{0, "\"ID：1以上の値を入力してください。\"\n"},
-		{"a", "\"ID：数値で入力してください。\"\n"},
+		{"必須", "", "\"ID：数値で入力してください。\"\n"},
+		{"型", "a", "\"ID：数値で入力してください。\"\n"},
+		{"下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
 	}
 
+	req := httptest.NewRequest(echo.GET, "/users", nil)
 	for _, test := range cases {
-		// set request
-		e := echo.New()
-		e.Validator = validator.NewValidator()
-		req := httptest.NewRequest(echo.GET, "/users", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.SetPath("/users/:id")
@@ -129,20 +139,21 @@ func TestGetUser_error(t *testing.T) {
 		c.SetParamValues(fmt.Sprint(test.id))
 
 		// assertions
-		if assert.NoError(t, h.GetUser(c)) {
-			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-			assert.Equal(t, test.message, rec.Body.String())
+		if assert.NoError(t, handler.GetUser(c), test.label) {
+			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+			assert.Equal(t, test.message, rec.Body.String(), test.label)
 		}
 	}
 }
 
+// TODO
 // func TestUserHandler_CreateUser(t *testing.T) {
 // 	// expected
 // 	expected := getMockUser(1)
 
 // 	// set stub
 // 	usecase := &mockUserUseCase{}
-// 	h := NewUserHandler(usecase)
+// 	handler := NewUserHandler(usecase)
 
 // 	e := echo.New()
 // 	jsonBytes, err := json.Marshal(getMockUserNoID())
@@ -155,7 +166,7 @@ func TestGetUser_error(t *testing.T) {
 // 	rec := httptest.NewRecorder()
 // 	c := e.NewContext(req, rec)
 // 	// Assertions
-// 	if assert.NoError(t, h.CreateUser(c)) {
+// 	if assert.NoError(t, handler.CreateUser(c)) {
 // 		user := &model.User{}
 // 		if err := json.Unmarshal(rec.Body.Bytes(), &user); err != nil {
 // 			t.Fatal(err)
@@ -168,22 +179,23 @@ func TestGetUser_error(t *testing.T) {
 // 	}
 // }
 
-type updateUserTest struct {
-	ID       int
-	UserName string
-}
+// TODO
+// type updateUserTest struct {
+// 	ID       int
+// 	UserName string
+// }
 
-var updateUserTests = []updateUserTest{
-	{math.MaxInt8, fmt.Sprintf("name_%d_updated", math.MaxInt8)},
-	{math.MaxInt16, fmt.Sprintf("name_%d_updated", math.MaxInt16)},
-	{math.MaxInt32, fmt.Sprintf("name_%d_updated", math.MaxInt32)},
-	{math.MaxInt64, fmt.Sprintf("name_%d_updated", math.MaxInt64)},
-}
+// var updateUserTests = []updateUserTest{
+// 	{math.MaxInt8, fmt.Sprintf("name_%d_updated", math.MaxInt8)},
+// 	{math.MaxInt16, fmt.Sprintf("name_%d_updated", math.MaxInt16)},
+// 	{math.MaxInt32, fmt.Sprintf("name_%d_updated", math.MaxInt32)},
+// 	{math.MaxInt64, fmt.Sprintf("name_%d_updated", math.MaxInt64)},
+// }
 
 // func TestUserHandler_UpdateUser(t *testing.T) {
 // 	// set stub
 // 	usecase := &mockUserUseCase{}
-// 	h := NewUserHandler(usecase)
+// 	handler := NewUserHandler(usecase)
 
 // 	for _, test := range updateUserTests {
 // 		// set request
@@ -196,7 +208,7 @@ var updateUserTests = []updateUserTest{
 // 		c.SetParamValues(fmt.Sprint(test.ID))
 
 // 		// assertions
-// 		if assert.NoError(t, h.UpdateUser(c)) {
+// 		if assert.NoError(t, handler.UpdateUser(c)) {
 // 			user := &model.User{}
 // 			if err := json.Unmarshal(rec.Body.Bytes(), &user); err != nil {
 // 				t.Fatal(err)
@@ -209,10 +221,11 @@ var updateUserTests = []updateUserTest{
 // 	}
 // }
 
+// TODO
 // func TestUserHandler_DeleteUser(t *testing.T) {
 // 	// set stub
 // 	usecase := &mockUserUseCase{}
-// 	h := NewUserHandler(usecase)
+// 	handler := NewUserHandler(usecase)
 
 // 	// set request
 // 	e := echo.New()
@@ -224,7 +237,7 @@ var updateUserTests = []updateUserTest{
 // 	c.SetParamValues(fmt.Sprint(1))
 
 // 	// assertions
-// 	if assert.NoError(t, h.DeleteUser(c)) {
+// 	if assert.NoError(t, handler.DeleteUser(c)) {
 // 		t.Log(rec.Code)
 // 		assert.Equal(t, http.StatusNoContent, rec.Code)
 // 	}
