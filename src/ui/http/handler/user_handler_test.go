@@ -339,19 +339,6 @@ func TestGetUser_error_usecaseError(t *testing.T) {
 	uc.returnsError = false
 }
 
-// TODO ユーザー更新テスト
-// type updateUserTest struct {
-// 	ID       int
-// 	UserName string
-// }
-
-// var updateUserTests = []updateUserTest{
-// 	{math.MaxInt8, fmt.Sprintf("name_%d_updated", math.MaxInt8)},
-// 	{math.MaxInt16, fmt.Sprintf("name_%d_updated", math.MaxInt16)},
-// 	{math.MaxInt32, fmt.Sprintf("name_%d_updated", math.MaxInt32)},
-// 	{math.MaxInt64, fmt.Sprintf("name_%d_updated", math.MaxInt64)},
-// }
-
 func TestUpdateUser_success(t *testing.T) {
 	reader := strings.NewReader(`{}`)
 	req := httptest.NewRequest(echo.PUT, "/users", reader)
@@ -418,12 +405,6 @@ func TestUpdateUser_error_usecaseError(t *testing.T) {
 
 // ユーザー削除テスト
 func TestDeleteUser_success(t *testing.T) {
-	// // set stub
-	// uc := &mockUserUseCase{}
-	// handler := NewUserHandler(uc)
-
-	// set request
-	// e := echo.New()
 	req := httptest.NewRequest(echo.DELETE, "/users", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
@@ -433,7 +414,6 @@ func TestDeleteUser_success(t *testing.T) {
 
 	// assertions
 	if assert.NoError(t, handler.DeleteUser(c)) {
-		// t.Log(rec.Code)
 		assert.Equal(t, http.StatusOK, rec.Code)
 	}
 }
