@@ -109,7 +109,7 @@ func TestCreateUser_success(t *testing.T) {
 }
 
 // TODO 可能であればエラー系をまとめる
-func TestCreateUser_error_nameIsEmpty(t *testing.T) {
+func TestCreateUser_error_emptyName(t *testing.T) {
 	user := getMockUser(1)
 	user.Name = ""
 	jsonBytes, err := json.Marshal(user)
@@ -128,45 +128,36 @@ func TestCreateUser_error_nameIsEmpty(t *testing.T) {
 	}
 }
 
-func TestCreateUser_error_emailIsEmpty(t *testing.T) {
-	user := getMockUser(1)
-	user.Email = ""
-	jsonBytes, err := json.Marshal(user)
-	if err != nil {
-		t.Fatal(err)
+func TestCreateUser_error_invalidEmail(t *testing.T) {
+	cases := []struct {
+		label string
+		email string
+	}{
+		{"空", ""},
+		{"形式", "testuserexample.com"},
 	}
 
-	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	for _, test := range cases {
+		user := getMockUser(1)
+		user.Email = test.email
+		jsonBytes, err := json.Marshal(user)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	// assertions
-	if assert.NoError(t, handler.CreateUser(c)) {
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-	}
-}
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
 
-func TestCreateUser_error_emailIsInvalid(t *testing.T) {
-	user := getMockUser(1)
-	user.Email = "testuserexample.com"
-	jsonBytes, err := json.Marshal(user)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	// assertions
-	if assert.NoError(t, handler.CreateUser(c)) {
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		// assertions
+		if assert.NoError(t, handler.CreateUser(c)) {
+			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		}
 	}
 }
 
-func TestCreateUser_error_passwordIsEmpty(t *testing.T) {
+func TestCreateUser_error_emptyPassword(t *testing.T) {
 	user := getMockUser(1)
 	user.Password = ""
 	jsonBytes, err := json.Marshal(user)
@@ -200,35 +191,30 @@ func TestLogin_success(t *testing.T) {
 	}
 }
 
-func TestLogin_error_emailIsEmpty(t *testing.T) {
-	reader := strings.NewReader(`{"email": "", "password": "testuser"}`)
-	req := httptest.NewRequest(echo.POST, "/users", reader)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+func TestLogin_error_invalidEmail(t *testing.T) {
+	cases := []struct {
+		label string
+		email string
+	}{
+		{"空", ""},
+		{"形式", "testuserexample.com"},
+	}
 
-	// Assertions
-	if assert.NoError(t, handler.Login(c)) {
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-		assert.Equal(t, "\"Email：必須です。\"\n", rec.Body.String())
+	for _, test := range cases {
+		reader := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "testuser"}`, test.email))
+		req := httptest.NewRequest(echo.POST, "/users", reader)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		// Assertions
+		if assert.NoError(t, handler.Login(c)) {
+			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		}
 	}
 }
 
-func TestLogin_error_emailIsInvalid(t *testing.T) {
-	reader := strings.NewReader(`{"email": "testuserexample.com", "password": "testuser"}`)
-	req := httptest.NewRequest(echo.POST, "/users", reader)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-
-	// Assertions
-	if assert.NoError(t, handler.Login(c)) {
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
-		assert.Equal(t, "\"Email：正しい形式で入力してください。\"\n", rec.Body.String())
-	}
-}
-
-func TestLogin_error_passwordIsEmpty(t *testing.T) {
+func TestLogin_error_emptyPassword(t *testing.T) {
 	reader := strings.NewReader(`{"email": "testuser@exampl.com", "password": ""}`)
 	req := httptest.NewRequest(echo.POST, "/users", reader)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -254,6 +240,8 @@ func TestLogin_error_usecaseError(t *testing.T) {
 	if assert.NoError(t, handler.Login(c)) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	}
+
+	uc.returnsError = false
 }
 
 // ユーザー詳細テスト
@@ -277,7 +265,7 @@ func TestGetUser_success(t *testing.T) {
 	}
 }
 
-func TestGetUser_error_idIsInvalid(t *testing.T) {
+func TestGetUser_error_invalidID(t *testing.T) {
 	cases := []struct {
 		label   string
 		id      interface{}
@@ -317,6 +305,8 @@ func TestGetUser_error_usecaseError(t *testing.T) {
 	if assert.NoError(t, handler.GetUser(c)) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	}
+
+	uc.returnsError = false
 }
 
 // TODO ユーザー更新テスト
@@ -348,7 +338,7 @@ func TestUpdateUser_success(t *testing.T) {
 	}
 }
 
-func TestUpdateUser_error_idIsInvalid(t *testing.T) {
+func TestUpdateUser_error_invalidID(t *testing.T) {
 	cases := []struct {
 		label   string
 		id      interface{}
@@ -392,6 +382,8 @@ func TestUpdateUser_error_usecaseError(t *testing.T) {
 	if assert.NoError(t, handler.UpdateUser(c)) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	}
+
+	uc.returnsError = false
 }
 
 // TODO ユーザー削除テスト
