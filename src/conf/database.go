@@ -40,6 +40,7 @@ func getMysqlConnection() *gorm.DB {
 	connection.Set("gorm:table_options", "ENGINE=InnoDB")
 
 	connection.AutoMigrate(&model.User{})
+	connection.AutoMigrate(&model.Post{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
 
 	return connection
 }
