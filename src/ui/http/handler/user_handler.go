@@ -46,7 +46,7 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		request.ImageURL,
 	)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.NoContent(http.StatusOK)
@@ -123,7 +123,7 @@ func (handler *userHandler) DeleteUser(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
 
-	request := request.DeleteUserRequest{UserID: id}
+	request := request.DeleteUserRequest{ID: id}
 	if err := c.Validate(&request); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}

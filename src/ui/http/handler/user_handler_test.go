@@ -46,6 +46,10 @@ type mockUserUseCase struct {
 }
 
 func (uc *mockUserUseCase) CreateUser(name, email, password, imageURL string) (err error) {
+	if uc.returnsError {
+		return errors.New("error")
+	}
+
 	return nil
 }
 
@@ -74,6 +78,10 @@ func (uc *mockUserUseCase) UpdateUser(userID int, name, email, password, imageUR
 }
 
 func (uc *mockUserUseCase) DeleteUser(id int) error {
+	if uc.returnsError {
+		return errors.New("error")
+	}
+
 	return nil
 }
 
@@ -174,6 +182,28 @@ func TestCreateUser_error_emptyPassword(t *testing.T) {
 	if assert.NoError(t, handler.CreateUser(c)) {
 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 	}
+}
+
+func TestCreateUser_error_usecaseError(t *testing.T) {
+	uc.returnsError = true
+
+	user := getMockUser(1)
+	jsonBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(echo.POST, "/users", strings.NewReader(string(jsonBytes)))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// assertions
+	if assert.NoError(t, handler.CreateUser(c)) {
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	}
+
+	uc.returnsError = false
 }
 
 // ログインテスト
@@ -386,24 +416,68 @@ func TestUpdateUser_error_usecaseError(t *testing.T) {
 	uc.returnsError = false
 }
 
-// TODO ユーザー削除テスト
-// func TestUserHandler_DeleteUser(t *testing.T) {
-// 	// set stub
-// 	uc := &mockUserUseCase{}
-// 	handler := NewUserHandler(uc)
+// ユーザー削除テスト
+func TestDeleteUser_success(t *testing.T) {
+	// // set stub
+	// uc := &mockUserUseCase{}
+	// handler := NewUserHandler(uc)
 
-// 	// set request
-// 	e := echo.New()
-// 	req := httptest.NewRequest(echo.DELETE, "/users", nil)
-// 	rec := httptest.NewRecorder()
-// 	c := e.NewContext(req, rec)
-// 	c.SetPath("/users/:id")
-// 	c.SetParamNames("id")
-// 	c.SetParamValues(fmt.Sprint(1))
+	// set request
+	// e := echo.New()
+	req := httptest.NewRequest(echo.DELETE, "/users", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(1))
 
-// 	// assertions
-// 	if assert.NoError(t, handler.DeleteUser(c)) {
-// 		t.Log(rec.Code)
-// 		assert.Equal(t, http.StatusNoContent, rec.Code)
-// 	}
-// }
+	// assertions
+	if assert.NoError(t, handler.DeleteUser(c)) {
+		// t.Log(rec.Code)
+		assert.Equal(t, http.StatusOK, rec.Code)
+	}
+}
+
+func TestDeleteUser_error_invalidID(t *testing.T) {
+	cases := []struct {
+		label   string
+		id      interface{}
+		message string
+	}{
+		{"必須", "", "\"ID：数値で入力してください。\"\n"},
+		{"型", "a", "\"ID：数値で入力してください。\"\n"},
+		{"下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
+	}
+
+	req := httptest.NewRequest(echo.DELETE, "/users", nil)
+	for _, test := range cases {
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/users/:id")
+		c.SetParamNames("id")
+		c.SetParamValues(fmt.Sprint(test.id))
+
+		// assertions
+		if assert.NoError(t, handler.DeleteUser(c), test.label) {
+			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+			assert.Equal(t, test.message, rec.Body.String(), test.label)
+		}
+	}
+}
+
+func TestDeleteUser_error_usecaseError(t *testing.T) {
+	uc.returnsError = true
+	req := httptest.NewRequest(echo.DELETE, "/users", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(1))
+
+	// assertions
+	if assert.NoError(t, handler.DeleteUser(c)) {
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	}
+
+	uc.returnsError = false
+}
