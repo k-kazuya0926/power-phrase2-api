@@ -95,7 +95,7 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
 
-	request := &request.UpdateUserRequest{UserID: id}
+	request := &request.UpdateUserRequest{ID: id}
 	if err := c.Bind(request); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}

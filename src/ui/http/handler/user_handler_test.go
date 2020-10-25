@@ -51,7 +51,7 @@ func (uc *mockUserUseCase) CreateUser(name, email, password, imageURL string) (e
 
 func (uc *mockUserUseCase) Login(email, password string) (token string, err error) {
 	if uc.returnsError {
-		return "", errors.New("メールアドレスまたはパスワードに誤りがあります。")
+		return "", errors.New("error")
 	}
 
 	return token, err
@@ -59,13 +59,17 @@ func (uc *mockUserUseCase) Login(email, password string) (token string, err erro
 
 func (uc *mockUserUseCase) GetUser(id int) (*model.User, error) {
 	if uc.returnsError {
-		return nil, errors.New("ユーザーが存在しません。")
+		return nil, errors.New("error")
 	}
 
 	return getMockUser(id), nil
 }
 
 func (uc *mockUserUseCase) UpdateUser(userID int, name, email, password, imageURL string) error {
+	if uc.returnsError {
+		return errors.New("error")
+	}
+
 	return nil
 }
 
@@ -238,7 +242,7 @@ func TestLogin_error_passwordIsEmpty(t *testing.T) {
 	}
 }
 
-func TestLogin_error_notMatch(t *testing.T) {
+func TestLogin_error_usecaseError(t *testing.T) {
 	uc.returnsError = true
 	reader := strings.NewReader(`{"email": "testuser@example.com", "password": "testuser"}`)
 	req := httptest.NewRequest(echo.POST, "/users", reader)
@@ -300,7 +304,7 @@ func TestGetUser_error_idIsInvalid(t *testing.T) {
 	}
 }
 
-func TestGetUser_error_notExists(t *testing.T) {
+func TestGetUser_error_usecaseError(t *testing.T) {
 	uc.returnsError = true
 	req := httptest.NewRequest(echo.GET, "/users", nil)
 	rec := httptest.NewRecorder()
@@ -328,34 +332,67 @@ func TestGetUser_error_notExists(t *testing.T) {
 // 	{math.MaxInt64, fmt.Sprintf("name_%d_updated", math.MaxInt64)},
 // }
 
-// func TestUserHandler_UpdateUser(t *testing.T) {
-// 	// set stub
-// 	uc := &mockUserUseCase{}
-// 	handler := NewUserHandler(uc)
+func TestUpdateUser_success(t *testing.T) {
+	reader := strings.NewReader(`{}`)
+	req := httptest.NewRequest(echo.PUT, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(1))
 
-// 	for _, test := range updateUserTests {
-// 		// set request
-// 		e := echo.New()
-// 		req := httptest.NewRequest(echo.PUT, "/users", nil)
-// 		rec := httptest.NewRecorder()
-// 		c := e.NewContext(req, rec)
-// 		c.SetPath("/users/:id")
-// 		c.SetParamNames("id")
-// 		c.SetParamValues(fmt.Sprint(test.ID))
+	// assertions
+	if assert.NoError(t, handler.UpdateUser(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+	}
+}
 
-// 		// assertions
-// 		if assert.NoError(t, handler.UpdateUser(c)) {
-// 			user := &model.User{}
-// 			if err := json.Unmarshal(rec.Body.Bytes(), &user); err != nil {
-// 				t.Fatal(err)
-// 			}
-// 			t.Log(rec.Code)
-// 			assert.Equal(t, http.StatusOK, rec.Code)
-// 			t.Log(user)
-// 			assert.Equal(t, test.UserName, user.Name)
-// 		}
-// 	}
-// }
+func TestUpdateUser_error_idIsInvalid(t *testing.T) {
+	cases := []struct {
+		label   string
+		id      interface{}
+		message string
+	}{
+		{"必須", "", "\"ID：数値で入力してください。\"\n"},
+		{"型", "a", "\"ID：数値で入力してください。\"\n"},
+		{"下限", 0, "\"ID：必須です。\"\n"},
+	}
+
+	reader := strings.NewReader(`{}`)
+	req := httptest.NewRequest(echo.PUT, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	for _, test := range cases {
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/users/:id")
+		c.SetParamNames("id")
+		c.SetParamValues(fmt.Sprint(test.id))
+
+		// assertions
+		if assert.NoError(t, handler.UpdateUser(c)) {
+			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+			assert.Equal(t, test.message, rec.Body.String(), test.label)
+		}
+	}
+}
+
+func TestUpdateUser_error_usecaseError(t *testing.T) {
+	uc.returnsError = true
+	reader := strings.NewReader(`{}`)
+	req := httptest.NewRequest(echo.PUT, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(1))
+
+	// assertions
+	if assert.NoError(t, handler.UpdateUser(c)) {
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	}
+}
 
 // TODO ユーザー削除テスト
 // func TestUserHandler_DeleteUser(t *testing.T) {
