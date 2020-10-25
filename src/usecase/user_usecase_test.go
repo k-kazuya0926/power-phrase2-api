@@ -97,14 +97,14 @@ func getMockUserForRead(id int) *model.User {
 }
 
 // ユーザー登録テスト
-func TestCreate_success(t *testing.T) {
+func TestCreateUser_success(t *testing.T) {
 	user := getMockUserForInput(1)
 
 	// Assertions
 	assert.NoError(t, uc.CreateUser(user.Name, user.Email, user.Password, user.ImageURL))
 }
 
-func TestCreate_error(t *testing.T) {
+func TestCreateUser_error(t *testing.T) {
 	ur.returnsError = true
 	user := getMockUserForInput(1)
 
@@ -146,8 +146,69 @@ func TestLogin_error_repositoryError(t *testing.T) {
 	ur.returnsError = false
 }
 
-// TODO GetUser
+// ユーザー詳細テスト
+func TestGetUser_success(t *testing.T) {
+	id := 1
+	expected := getMockUserForRead(id)
 
-// TODO UpdateUser
+	user, err := uc.GetUser(id)
 
-// TODO DeleteUser
+	// Assertions
+	assert.NoError(t, err)
+	assert.Equal(t, expected.ID, user.ID)
+	assert.Equal(t, expected.Name, user.Name)
+	assert.Equal(t, expected.Email, user.Email)
+	assert.Equal(t, expected.CreatedAt, user.CreatedAt)
+	assert.Equal(t, expected.UpdatedAt, user.UpdatedAt)
+	assert.Equal(t, expected.DeletedAt, user.DeletedAt)
+}
+
+func TestGetUser_error(t *testing.T) {
+	ur.returnsError = true
+	id := 1
+	user, err := uc.GetUser(id)
+
+	// Assertions
+	assert.Error(t, err)
+	assert.Empty(t, user)
+
+	ur.returnsError = false
+}
+
+// ユーザー更新テスト
+func TestUpdateUser_success(t *testing.T) {
+	id := 1
+	user := getMockUserForInput(id)
+
+	// Assertions
+	assert.NoError(t, uc.UpdateUser(id, user.Name, user.Email, user.Password, user.ImageURL))
+}
+
+func TestUpdateUser_error(t *testing.T) {
+	ur.returnsError = true
+	id := 1
+	user := getMockUserForInput(id)
+
+	// Assertions
+	assert.Error(t, uc.UpdateUser(id, user.Name, user.Email, user.Password, user.ImageURL))
+
+	ur.returnsError = false
+}
+
+// ユーザー削除テスト
+func TestDeleteUser_success(t *testing.T) {
+	id := 1
+
+	// Assertions
+	assert.NoError(t, uc.DeleteUser(id))
+}
+
+func TestDeleteUser_error(t *testing.T) {
+	ur.returnsError = true
+	id := 1
+
+	// Assertions
+	assert.Error(t, uc.DeleteUser(id))
+
+	ur.returnsError = false
+}
