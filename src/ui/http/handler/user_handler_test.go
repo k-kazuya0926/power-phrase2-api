@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -23,13 +24,14 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+var uc mockUserUseCase
 var handler UserHandler
 var e *echo.Echo
 
 func setUp() {
 	// set stub
-	usecase := &mockUserUseCase{}
-	handler = NewUserHandler(usecase)
+	uc = mockUserUseCase{}
+	handler = NewUserHandler(&uc)
 
 	e = echo.New()
 	e.Validator = validator.NewValidator()
@@ -39,30 +41,36 @@ func tearDown() {
 }
 
 // Mock
-type mockUserUseCase struct{}
+type mockUserUseCase struct {
+	returnsError bool
+}
 
-func (u *mockUserUseCase) CreateUser(name, email, password, imageURL string) (err error) {
+func (uc *mockUserUseCase) CreateUser(name, email, password, imageURL string) (err error) {
 	return nil
 }
 
-func (u *mockUserUseCase) Login(email, password string) (token string, err error) {
+func (uc *mockUserUseCase) Login(email, password string) (token string, err error) {
+	if uc.returnsError {
+		return "", errors.New("メールアドレスまたはパスワードに誤りがあります。")
+	}
+
 	return token, err
 }
 
-func (u *mockUserUseCase) GetUser(id int) (*model.User, error) {
+func (uc *mockUserUseCase) GetUser(id int) (*model.User, error) {
 	return getMockUser(id), nil
 }
 
-func (u *mockUserUseCase) UpdateUser(userID int, name, email, password, imageURL string) error {
+func (uc *mockUserUseCase) UpdateUser(userID int, name, email, password, imageURL string) error {
 	return nil
 }
 
-func (u *mockUserUseCase) DeleteUser(id int) error {
+func (uc *mockUserUseCase) DeleteUser(id int) error {
 	return nil
 }
 
 func getMockUser(id int) *model.User {
-	u := &model.User{
+	user := &model.User{
 		ID:        id,
 		CreatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
 		UpdatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
@@ -71,7 +79,7 @@ func getMockUser(id int) *model.User {
 		Password:  fmt.Sprintf("testuser%d", id),
 		ImageURL:  fmt.Sprintf("http://www.example.com/%d", id),
 	}
-	return u
+	return user
 }
 
 // ユーザー登録テスト
@@ -169,7 +177,77 @@ func TestCreateUser_error_passwordIsEmpty(t *testing.T) {
 	}
 }
 
-// TODO ログインテスト
+// ログインテスト
+func TestLogin_success(t *testing.T) {
+	reader := strings.NewReader(`{"email": "testuser@example.com", "password": "testuser"}`)
+	req := httptest.NewRequest(echo.POST, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Assertions
+	if assert.NoError(t, handler.Login(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.NotEqual(t, "", rec.Body.String())
+	}
+}
+
+func TestLogin_error_emailIsEmpty(t *testing.T) {
+	reader := strings.NewReader(`{"email": "", "password": "testuser"}`)
+	req := httptest.NewRequest(echo.POST, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Assertions
+	if assert.NoError(t, handler.Login(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		assert.Equal(t, "\"Email：必須です。\"\n", rec.Body.String())
+	}
+}
+
+func TestLogin_error_emailIsInvalid(t *testing.T) {
+	reader := strings.NewReader(`{"email": "testuserexample.com", "password": "testuser"}`)
+	req := httptest.NewRequest(echo.POST, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Assertions
+	if assert.NoError(t, handler.Login(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		assert.Equal(t, "\"Email：正しい形式で入力してください。\"\n", rec.Body.String())
+	}
+}
+
+func TestLogin_error_passwordIsEmpty(t *testing.T) {
+	reader := strings.NewReader(`{"email": "testuser@exampl.com", "password": ""}`)
+	req := httptest.NewRequest(echo.POST, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Assertions
+	if assert.NoError(t, handler.Login(c)) {
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		assert.Equal(t, "\"Password：必須です。\"\n", rec.Body.String())
+	}
+}
+
+func TestLogin_error_notMatch(t *testing.T) {
+	uc.returnsError = true
+	reader := strings.NewReader(`{"email": "testuser@example.com", "password": "testuser"}`)
+	req := httptest.NewRequest(echo.POST, "/users", reader)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// Assertions
+	if assert.NoError(t, handler.Login(c)) {
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		assert.Equal(t, "\"メールアドレスまたはパスワードに誤りがあります。\"\n", rec.Body.String())
+	}
+}
 
 // ユーザー詳細テスト
 func TestGetUser_success(t *testing.T) {
@@ -192,7 +270,7 @@ func TestGetUser_success(t *testing.T) {
 	}
 }
 
-func TestGetUser_error(t *testing.T) {
+func TestGetUser_error_idIsInvalid(t *testing.T) {
 	cases := []struct {
 		label   string
 		id      interface{}
@@ -234,8 +312,8 @@ func TestGetUser_error(t *testing.T) {
 
 // func TestUserHandler_UpdateUser(t *testing.T) {
 // 	// set stub
-// 	usecase := &mockUserUseCase{}
-// 	handler := NewUserHandler(usecase)
+// 	uc := &mockUserUseCase{}
+// 	handler := NewUserHandler(uc)
 
 // 	for _, test := range updateUserTests {
 // 		// set request
@@ -264,8 +342,8 @@ func TestGetUser_error(t *testing.T) {
 // TODO ユーザー削除テスト
 // func TestUserHandler_DeleteUser(t *testing.T) {
 // 	// set stub
-// 	usecase := &mockUserUseCase{}
-// 	handler := NewUserHandler(usecase)
+// 	uc := &mockUserUseCase{}
+// 	handler := NewUserHandler(uc)
 
 // 	// set request
 // 	e := echo.New()
