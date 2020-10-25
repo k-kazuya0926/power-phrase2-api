@@ -58,6 +58,10 @@ func (uc *mockUserUseCase) Login(email, password string) (token string, err erro
 }
 
 func (uc *mockUserUseCase) GetUser(id int) (*model.User, error) {
+	if uc.returnsError {
+		return nil, errors.New("ユーザーが存在しません。")
+	}
+
 	return getMockUser(id), nil
 }
 
@@ -245,7 +249,6 @@ func TestLogin_error_notMatch(t *testing.T) {
 	// Assertions
 	if assert.NoError(t, handler.Login(c)) {
 		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-		assert.Equal(t, "\"メールアドレスまたはパスワードに誤りがあります。\"\n", rec.Body.String())
 	}
 }
 
@@ -294,6 +297,21 @@ func TestGetUser_error_idIsInvalid(t *testing.T) {
 			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
 			assert.Equal(t, test.message, rec.Body.String(), test.label)
 		}
+	}
+}
+
+func TestGetUser_error_notExists(t *testing.T) {
+	uc.returnsError = true
+	req := httptest.NewRequest(echo.GET, "/users", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/users/:id")
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(1))
+
+	// assertions
+	if assert.NoError(t, handler.GetUser(c)) {
+		assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	}
 }
 
