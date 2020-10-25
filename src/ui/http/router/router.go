@@ -13,13 +13,9 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	e.PUT("/users/:id", handler.UpdateUser)
 	e.DELETE("/users/:id", handler.DeleteUser)
 
-	// TODO 以下削除
-	// e.POST("/signup", handler.Signup)
-	// e.POST("/login", handler.Login)
-	// e.GET("/api/v1/posts", model.GetAllPosts)
-	// e.GET("/api/v1/posts/:id", model.GetPost)
-
-	// api := e.Group("/api/v1")
-	// api.Use(middleware.JWTWithConfig(handler.Config))
-	// api.GET("/users", model.GetAllUsers)
+	e.POST("/posts", handler.CreatePost)
+	// e.GET("/api/v1/posts", handler.GetAllPosts)
+	e.GET("/posts/:id", handler.GetPost)
+	e.PUT("/posts/:id", handler.UpdatePost)
+	e.DELETE("/posts/:id", handler.DeletePost)
 }

@@ -10,10 +10,11 @@ import (
 
 // Interactor interfase Intractorは簡易DIコンテナとしての役割を持つ.
 type Interactor interface {
-	NewUserRepository() repository.UserRepository
-	NewUserService() service.UserService
-	NewUserUseCase() usecase.UserUseCase
-	NewUserHandler() handler.UserHandler
+	// TODO 削除
+	// NewUserRepository() repository.UserRepository
+	// NewUserService() service.UserService
+	// NewUserUseCase() usecase.UserUseCase
+	// NewUserHandler() handler.UserHandler
 	NewAppHandler() handler.AppHandler
 }
 
@@ -25,6 +26,11 @@ func NewInteractor() Interactor {
 	return &interactor{}
 }
 
+func (interactor *interactor) NewAppHandler() handler.AppHandler {
+	return handler.NewAppHandler(interactor.NewUserHandler(), interactor.NewPostHandler())
+}
+
+// User
 func (interactor *interactor) NewUserRepository() repository.UserRepository {
 	return datastore.NewUserRepository()
 }
@@ -41,6 +47,15 @@ func (interactor *interactor) NewUserHandler() handler.UserHandler {
 	return handler.NewUserHandler(interactor.NewUserUseCase())
 }
 
-func (interactor *interactor) NewAppHandler() handler.AppHandler {
-	return handler.NewAppHandler(interactor.NewUserHandler())
+// Post
+func (interactor *interactor) NewPostRepository() repository.PostRepository {
+	return datastore.NewPostRepository()
+}
+
+func (interactor *interactor) NewPostUseCase() usecase.PostUseCase {
+	return usecase.NewPostUseCase(interactor.NewPostRepository())
+}
+
+func (interactor *interactor) NewPostHandler() handler.PostHandler {
+	return handler.NewPostHandler(interactor.NewPostUseCase())
 }
