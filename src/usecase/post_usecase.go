@@ -7,7 +7,7 @@ import (
 
 type PostUseCase interface {
 	CreatePost(userID int, title, speaker, detail, movieURL string) (err error)
-	// TODO GetPosts
+	GetPosts(limit, offset int, keyword string) ([]*model.Post, error)
 	GetPost(id int) (*model.Post, error)
 	UpdatePost(ID int, title, speaker, detail, movieURL string) error
 	DeletePost(id int) error
@@ -35,7 +35,13 @@ func (usecase *postUseCase) CreatePost(userID int, title, speaker, detail, movie
 	return err
 }
 
-// TODO GetPosts
+func (usecase *postUseCase) GetPosts(limit, page int, keyword string) ([]*model.Post, error) {
+	posts, err := usecase.PostRepository.Fetch(limit, page, keyword)
+	if err != nil {
+		return nil, err
+	}
+	return posts, nil
+}
 
 func (usecase *postUseCase) GetPost(id int) (*model.Post, error) {
 	post, err := usecase.PostRepository.FetchByID(id)

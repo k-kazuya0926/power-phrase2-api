@@ -14,7 +14,7 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	e.DELETE("/users/:id", handler.DeleteUser)
 
 	e.POST("/posts", handler.CreatePost)
-	// e.GET("/api/v1/posts", handler.GetAllPosts)
+	e.GET("/posts", handler.GetPosts)
 	e.GET("/posts/:id", handler.GetPost)
 	e.PUT("/posts/:id", handler.UpdatePost)
 	e.DELETE("/posts/:id", handler.DeletePost)

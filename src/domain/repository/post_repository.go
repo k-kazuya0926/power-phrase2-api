@@ -6,6 +6,7 @@ import (
 
 type PostRepository interface {
 	Create(post *model.Post) error
+	Fetch(limit, page int, keyword string) ([]*model.Post, error)
 	FetchByID(id int) (*model.Post, error)
 	Update(post *model.Post) error
 	Delete(id int) error

@@ -21,6 +21,21 @@ func (repository *postRepository) Create(post *model.Post) error {
 	return connection.Create(post).Error
 }
 
+func (repository *postRepository) Fetch(limit, page int, keyword string) ([]*model.Post, error) {
+	connection := conf.NewDBConnection()
+	defer connection.Close()
+
+	offset := limit * (page - 1)
+
+	if keyword != "" {
+		// TODO タイトル以外も対象にする
+		connection = connection.Where("title LIKE ?", "%"+keyword+"%")
+	}
+	var posts []*model.Post
+	err := connection.Order("id desc").Limit(limit).Offset(offset).Find(&posts).Error
+	return posts, err
+}
+
 func (repository *postRepository) FetchByID(id int) (*model.Post, error) {
 	connection := conf.NewDBConnection()
 	defer connection.Close()

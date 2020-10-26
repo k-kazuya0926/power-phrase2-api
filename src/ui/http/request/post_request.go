@@ -9,6 +9,12 @@ type (
 		MovieURL string `json:"movie_url" validate:"max=200"`
 	}
 
+	GetPostsRequest struct {
+		Limit   int    `validate:"min=1"`
+		Page    int    `validate:"min=1"`
+		Keyword string `validate:"max=100"`
+	}
+
 	GetPostRequest struct {
 		ID int `validate:"min=1"`
 	}

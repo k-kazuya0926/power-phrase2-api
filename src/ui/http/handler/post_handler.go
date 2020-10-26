@@ -13,7 +13,7 @@ type (
 	// PostHandler interface
 	PostHandler interface {
 		CreatePost(c echo.Context) error
-		// TODO GetPosts
+		GetPosts(c echo.Context) error
 		GetPost(c echo.Context) error
 		UpdatePost(c echo.Context) error
 		DeletePost(c echo.Context) error
@@ -53,7 +53,34 @@ func (handler *postHandler) CreatePost(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// TODO GetPosts
+func (handler *postHandler) GetPosts(c echo.Context) error {
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, "limit：数値で入力してください。")
+	}
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, "page：数値で入力してください。")
+	}
+
+	keyword := c.QueryParam("keyword")
+
+	request := &request.GetPostsRequest{
+		Limit:   limit,
+		Page:    page,
+		Keyword: keyword,
+	}
+	if err := c.Validate(request); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	post, err := handler.PostUseCase.GetPosts(limit, page, keyword)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, post)
+}
 
 func (handler *postHandler) GetPost(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
