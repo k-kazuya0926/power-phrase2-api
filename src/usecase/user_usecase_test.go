@@ -3,7 +3,6 @@ package usecase
 import (
 	"errors"
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -11,24 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )
-
-func TestMain(m *testing.M) {
-	setUp()
-	code := m.Run()
-	tearDown()
-	os.Exit(code)
-}
-
-var ur mockUserRepository
-var uc UserUseCase
-
-func setUp() {
-	ur = mockUserRepository{}
-	uc = NewUserUseCase(&ur)
-}
-
-func tearDown() {
-}
 
 // Mock
 type mockUserRepository struct {
@@ -74,6 +55,9 @@ func (ur *mockUserRepository) Delete(id int) error {
 
 	return nil
 }
+
+var ur = mockUserRepository{}
+var uc = NewUserUseCase(&ur)
 
 // 入力用ユーザー
 func getMockUserForInput(id int) *model.User {
