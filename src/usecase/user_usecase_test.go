@@ -61,6 +61,7 @@ func getMockUserForInput(id int) *model.User {
 // DBから取得されたユーザー
 func getMockUserForRead(id int) *model.User {
 	user := getMockUserForInput(id)
+	user.ID = id
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(passwordHash)
 	user.CreatedAt = time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local)
@@ -167,6 +168,7 @@ func TestGetUser_success(t *testing.T) {
 	usecase := NewUserUseCase(&repository)
 	id := 1
 	expected := getMockUserForRead(id)
+	expected.Password = ""
 	repository.On("FetchByID", id).Return(expected, nil)
 
 	// 2. Exercise
@@ -175,11 +177,13 @@ func TestGetUser_success(t *testing.T) {
 	// 3. Verify
 	assert.NoError(t, err)
 	assert.Equal(t, expected.ID, user.ID)
-	assert.Equal(t, expected.Name, user.Name)
-	assert.Equal(t, expected.Email, user.Email)
 	assert.Equal(t, expected.CreatedAt, user.CreatedAt)
 	assert.Equal(t, expected.UpdatedAt, user.UpdatedAt)
 	assert.Equal(t, expected.DeletedAt, user.DeletedAt)
+	assert.Equal(t, expected.Name, user.Name)
+	assert.Equal(t, expected.Password, user.Password)
+	assert.Equal(t, expected.Email, user.Email)
+	assert.Equal(t, expected.ImageURL, user.ImageURL)
 
 	// 4. Teardown
 }
