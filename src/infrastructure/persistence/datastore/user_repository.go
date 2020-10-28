@@ -15,28 +15,28 @@ func NewUserRepository() repository.UserRepository {
 }
 
 func (repository *userRepository) Create(user *model.User) error {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
-	return connection.Create(user).Error
+	return db.Create(user).Error
 }
 
 func (repository *userRepository) FetchByEmail(email string) (*model.User, error) {
 	var user model.User
 
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
-	err := connection.Where("email = ?", email).First(&user).Error
+	err := db.Where("email = ?", email).First(&user).Error
 	return &user, err
 }
 
 func (repository *userRepository) FetchByID(id int) (*model.User, error) {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
 	u := model.User{ID: id}
-	if err := connection.First(&u).Error; err != nil {
+	if err := db.First(&u).Error; err != nil {
 		return nil, err
 	}
 	u.Password = ""
@@ -45,16 +45,16 @@ func (repository *userRepository) FetchByID(id int) (*model.User, error) {
 }
 
 func (repository *userRepository) Update(u *model.User) error {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
-	return connection.Model(u).Update(u).Error
+	return db.Model(u).Update(u).Error
 }
 
 func (repository *userRepository) Delete(id int) error {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
 	user := model.User{ID: id}
-	return connection.Delete(&user).Error
+	return db.Delete(&user).Error
 }

@@ -15,48 +15,48 @@ func NewPostRepository() repository.PostRepository {
 }
 
 func (repository *postRepository) Create(post *model.Post) error {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
-	return connection.Create(post).Error
+	return db.Create(post).Error
 }
 
 func (repository *postRepository) Fetch(limit, page int, keyword string) ([]*model.Post, error) {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
 	offset := limit * (page - 1)
 
 	if keyword != "" {
 		// TODO タイトル以外も対象にする
-		connection = connection.Where("title LIKE ?", "%"+keyword+"%")
+		db = db.Where("title LIKE ?", "%"+keyword+"%")
 	}
 	var posts []*model.Post
-	err := connection.Order("id desc").Limit(limit).Offset(offset).Find(&posts).Error
+	err := db.Order("id desc").Limit(limit).Offset(offset).Find(&posts).Error
 	return posts, err
 }
 
 func (repository *postRepository) FetchByID(id int) (*model.Post, error) {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
 	u := model.Post{ID: id}
-	err := connection.First(&u).Error
+	err := db.First(&u).Error
 
 	return &u, err
 }
 
 func (repository *postRepository) Update(u *model.Post) error {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
-	return connection.Model(u).Update(u).Error
+	return db.Model(u).Update(u).Error
 }
 
 func (repository *postRepository) Delete(id int) error {
-	connection := conf.NewDBConnection()
-	defer connection.Close()
+	db := conf.NewDBConnection()
+	defer db.Close()
 
 	post := model.Post{ID: id}
-	return connection.Delete(&post).Error
+	return db.Delete(&post).Error
 }

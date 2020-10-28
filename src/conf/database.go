@@ -10,10 +10,6 @@ import (
 
 // NewDBConnection 新規データベースコネクションを取得します.
 func NewDBConnection() *gorm.DB {
-	return getMysqlConnection()
-}
-
-func getMysqlConnection() *gorm.DB {
 	connectionString := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local",
 		Current.Database.User,
@@ -22,25 +18,41 @@ func getMysqlConnection() *gorm.DB {
 		Current.Database.Port,
 		Current.Database.Database,
 	)
+	return getMysqlConnection(connectionString)
+}
 
-	connection, err := gorm.Open("mysql", connectionString)
+func NewTestDBConnection() *gorm.DB {
+	// TODO 定義移動
+	connectionString := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local",
+		"kazuya",
+		"kazuya",
+		"localhost",
+		"3306",
+		"power-phrase2-test",
+	)
+	return getMysqlConnection(connectionString)
+}
+
+func getMysqlConnection(connectionString string) *gorm.DB {
+	db, err := gorm.Open("mysql", connectionString)
 	if err != nil {
 		panic(err)
 	}
 
-	err = connection.DB().Ping()
+	err = db.DB().Ping()
 	if err != nil {
 		panic(err)
 	}
 
-	connection.LogMode(true)
-	connection.DB().SetMaxIdleConns(10)
-	connection.DB().SetMaxOpenConns(20)
+	db.LogMode(true)
+	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(20)
 
-	connection.Set("gorm:table_options", "ENGINE=InnoDB")
+	db.Set("gorm:table_options", "ENGINE=InnoDB")
 
-	connection.AutoMigrate(&model.User{})
-	connection.AutoMigrate(&model.Post{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
+	db.AutoMigrate(&model.User{})
+	db.AutoMigrate(&model.Post{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
 
-	return connection
+	return db
 }
