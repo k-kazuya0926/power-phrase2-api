@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 
 	"github.com/k-kazuya0926/power-phrase2-api/conf"
@@ -12,13 +11,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-// TODO調査
-//Dockerコンテナで実行する時(production.confをもとに起動するとき)は起動時に-serverを指定
-var runServer = flag.Bool("server", false, "production is -server option require")
-
 func main() {
-	flag.Parse()
-	conf.NewConfig(*runServer)
+	conf.NewConfig(false)
 
 	e := echo.New()
 	interactor := interactor.NewInteractor() // TODO DI用のライブラリはないのかな？

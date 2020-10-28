@@ -25,14 +25,14 @@ type Config struct {
 var Current *Config
 
 // NewConfig プロジェクトのコンフィグ設定をロードします.
-func NewConfig(runServer bool) {
+func NewConfig(runTest bool) {
 	var C Config
 	Current = &C
 	viper.AddConfigPath("$GOPATH/src/github.com/k-kazuya0926/power-phrase2-api/src/conf/")
 	viper.SetConfigType("yml")
 
-	if runServer {
-		viper.SetConfigName("production")
+	if runTest {
+		viper.SetConfigName("test")
 	} else {
 		viper.SetConfigName("local")
 	}
