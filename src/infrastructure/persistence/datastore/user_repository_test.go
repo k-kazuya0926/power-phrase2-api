@@ -15,7 +15,7 @@ func teardown(db *gorm.DB) {
 	db.DropTable(&model.User{})
 }
 
-func TestCreate(t *testing.T) {
+func TestUserRepository_Create(t *testing.T) {
 	// 1. Setup
 	db := conf.NewTestDBConnection()
 	defer db.Close()
@@ -46,7 +46,7 @@ func TestCreate(t *testing.T) {
 	teardown(db)
 }
 
-func TestFetchByEmail(t *testing.T) {
+func TestUserRepository_FetchByEmail(t *testing.T) {
 	// 1. Setup
 	db := conf.NewTestDBConnection()
 	defer db.Close()
@@ -73,15 +73,16 @@ func TestFetchByEmail(t *testing.T) {
 	teardown(db)
 }
 
-func TestFetchById(t *testing.T) {
+func TestUserRepository_FetchById(t *testing.T) {
 	// 1. Setup
 	db := conf.NewTestDBConnection()
 	defer db.Close()
 
-	repository := &userRepository{}
 	userForInput := getMockUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
+
+	repository := &userRepository{}
 
 	// 2. Exercise
 	actualUser, err := repository.FetchByID(userForInput.ID)
@@ -101,7 +102,7 @@ func TestFetchById(t *testing.T) {
 	teardown(db)
 }
 
-func TestUpdate(t *testing.T) {
+func TestUserRepository_Update(t *testing.T) {
 	// 1. Setup
 	db := conf.NewTestDBConnection()
 	defer db.Close()
@@ -114,7 +115,6 @@ func TestUpdate(t *testing.T) {
 	userForInput.Email = "testuser2@example.com"
 	userForInput.Password = "testuser2"
 	userForInput.ImageURL = "http://www.example.com/2"
-	db.Update(userForInput)
 
 	// 2. Exercise
 	err := repository.Update(userForInput)
@@ -139,7 +139,7 @@ func TestUpdate(t *testing.T) {
 	teardown(db)
 }
 
-func TestDelete(t *testing.T) {
+func TestUserRepository_Delete(t *testing.T) {
 	// 1. Setup
 	db := conf.NewTestDBConnection()
 	defer db.Close()
