@@ -115,10 +115,11 @@ func TestLogin_success(t *testing.T) {
 	repository.On("FetchByEmail", userForInput.Email).Return(userForRead, nil)
 
 	// 2. Exercise
-	token, err := usecase.Login(userForInput.Email, userForInput.Password)
+	userID, token, err := usecase.Login(userForInput.Email, userForInput.Password)
 
 	// 3. Verify
 	assert.NoError(t, err)
+	assert.NotEqual(t, 0, userID)
 	assert.NotEqual(t, "", token)
 
 	// 4. Teardown
@@ -134,10 +135,11 @@ func TestLogin_error_invalidPassword(t *testing.T) {
 	repository.On("FetchByEmail", userForInput.Email).Return(userForRead, nil)
 
 	// 2. Exercise
-	token, err := usecase.Login(userForInput.Email, "invalid")
+	userID, token, err := usecase.Login(userForInput.Email, "invalid")
 
 	// 3. Verify
 	assert.Error(t, err)
+	assert.Equal(t, 0, userID)
 	assert.Equal(t, "", token)
 
 	// 4. Teardown
@@ -152,10 +154,11 @@ func TestLogin_error_repositoryError(t *testing.T) {
 	repository.On("FetchByEmail", userForInput.Email).Return(nil, errors.New("error"))
 
 	// 2. Exercise
-	token, err := usecase.Login(userForInput.Email, userForInput.Password)
+	userID, token, err := usecase.Login(userForInput.Email, userForInput.Password)
 
 	// 3. Verify
 	assert.Error(t, err)
+	assert.Equal(t, 0, userID)
 	assert.Equal(t, "", token)
 
 	// 4. Teardown

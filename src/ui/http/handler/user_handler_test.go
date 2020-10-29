@@ -53,12 +53,12 @@ func (uc *mockUserUseCase) CreateUser(name, email, password, imageURL string) (e
 	return nil
 }
 
-func (uc *mockUserUseCase) Login(email, password string) (token string, err error) {
+func (uc *mockUserUseCase) Login(email, password string) (userID int, token string, err error) {
 	if uc.returnsError {
-		return "", errors.New("error")
+		return 0, "", errors.New("error")
 	}
 
-	return token, err
+	return 1, token, err
 }
 
 func (uc *mockUserUseCase) GetUser(id int) (*model.User, error) {

@@ -12,7 +12,7 @@ import (
 
 type UserUseCase interface {
 	CreateUser(name, email, password, imageURL string) (err error)
-	Login(email, password string) (token string, err error)
+	Login(email, password string) (userID int, token string, err error)
 	GetUser(id int) (*model.User, error)
 	UpdateUser(userID int, name, email, password, imageURL string) error
 	DeleteUser(id int) error
@@ -45,20 +45,20 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (
 	return err
 }
 
-func (usecase *userUseCase) Login(email, password string) (token string, err error) {
+func (usecase *userUseCase) Login(email, password string) (userID int, token string, err error) {
 	user, err := usecase.UserRepository.FetchByEmail(email)
 	if err != nil {
-		return "", err
+		return 0, "", err
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return "", errors.New("メールアドレスまたはパスワードに誤りがあります。")
+		return 0, "", errors.New("メールアドレスまたはパスワードに誤りがあります。")
 	}
 
 	// JWTトークン生成
 	token, err = createToken(user)
 
-	return token, err
+	return user.ID, token, err
 }
 
 func createToken(user *model.User) (string, error) {

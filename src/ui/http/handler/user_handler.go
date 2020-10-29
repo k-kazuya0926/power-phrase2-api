@@ -62,12 +62,15 @@ func (handler *userHandler) Login(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	token, err := handler.UserUseCase.Login(request.Email, request.Password)
+	userID, token, err := handler.UserUseCase.Login(request.Email, request.Password)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, token)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"id":    userID,
+		"token": token,
+	})
 }
 
 func (handler *userHandler) GetUser(c echo.Context) error {
