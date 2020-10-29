@@ -10,11 +10,6 @@ import (
 
 // Interactor interfase Intractorは簡易DIコンテナとしての役割を持つ.
 type Interactor interface {
-	// TODO 削除
-	// NewUserRepository() repository.UserRepository
-	// NewUserService() service.UserService
-	// NewUserUseCase() usecase.UserUseCase
-	// NewUserHandler() handler.UserHandler
 	NewAppHandler() handler.AppHandler
 }
 

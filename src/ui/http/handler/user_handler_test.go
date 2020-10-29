@@ -116,7 +116,6 @@ func TestCreateUser_success(t *testing.T) {
 	}
 }
 
-// TODO 可能であればエラー系をまとめる
 func TestCreateUser_error_emptyName(t *testing.T) {
 	user := getMockUser(1)
 	user.Name = ""
