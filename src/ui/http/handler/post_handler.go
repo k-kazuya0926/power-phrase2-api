@@ -74,12 +74,15 @@ func (handler *postHandler) GetPosts(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	post, err := handler.PostUseCase.GetPosts(limit, page, keyword)
+	totalCount, posts, err := handler.PostUseCase.GetPosts(limit, page, keyword)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, post)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"totalCount": totalCount,
+		"posts":      posts,
+	})
 }
 
 func (handler *postHandler) GetPost(c echo.Context) error {

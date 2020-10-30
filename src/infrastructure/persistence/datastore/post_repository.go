@@ -21,7 +21,7 @@ func (repository *postRepository) Create(post *model.Post) error {
 	return db.Create(post).Error
 }
 
-func (repository *postRepository) Fetch(limit, page int, keyword string) ([]*model.Post, error) {
+func (repository *postRepository) Fetch(limit, page int, keyword string) (totalCount int, posts []*model.Post, err error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
@@ -31,9 +31,16 @@ func (repository *postRepository) Fetch(limit, page int, keyword string) ([]*mod
 		// TODO タイトル以外も対象にする
 		db = db.Where("title LIKE ?", "%"+keyword+"%")
 	}
-	var posts []*model.Post
-	err := db.Order("id desc").Limit(limit).Offset(offset).Find(&posts).Error
-	return posts, err
+
+	if err = db.Model(&model.Post{}).Count(&totalCount).Error; err != nil {
+		return 0, nil, err
+	}
+
+	if err = db.Order("id desc").Limit(limit).Offset(offset).Find(&posts).Error; err != nil {
+		return 0, nil, err
+	}
+
+	return totalCount, posts, err
 }
 
 func (repository *postRepository) FetchByID(id int) (*model.Post, error) {

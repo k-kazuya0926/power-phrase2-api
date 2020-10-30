@@ -62,12 +62,13 @@ func TestPostRepository_Fetch(t *testing.T) {
 	repository := &postRepository{}
 
 	// 2. Exercise
-	posts, err := repository.Fetch(1, 1, "")
+	totalCount, posts, err := repository.Fetch(1, 1, "")
 
 	// 3. Verify
 	assert.NoError(t, err)
 
 	// 内容
+	assert.Equal(t, 2, totalCount)
 	assert.Equal(t, postForInput2.UserID, posts[0].UserID)
 	assert.Equal(t, postForInput2.Speaker, posts[0].Speaker)
 	assert.Equal(t, postForInput2.Detail, posts[0].Detail)

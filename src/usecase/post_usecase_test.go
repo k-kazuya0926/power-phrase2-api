@@ -20,13 +20,13 @@ func (repository *mockPostRepository) Create(post *model.Post) error {
 	return repository.Called(post).Error(0)
 }
 
-func (repository *mockPostRepository) Fetch(limit, page int, keyword string) ([]*model.Post, error) {
+func (repository *mockPostRepository) Fetch(limit, page int, keyword string) (int, []*model.Post, error) {
 	args := repository.Called(limit, page, keyword)
-	posts := args.Get(0)
+	posts := args.Get(1)
 	if posts == nil {
-		return nil, args.Error(1)
+		return args.Int(0), nil, args.Error(2)
 	}
-	return posts.([]*model.Post), args.Error(1)
+	return args.Int(0), posts.([]*model.Post), args.Error(2)
 }
 
 func (repository *mockPostRepository) FetchByID(id int) (*model.Post, error) {
@@ -110,17 +110,19 @@ func TestGetPosts_success(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	expected := []*model.Post{getMockPostForRead(1), getMockPostForRead(2)}
-	repository.On("Fetch", limit, page, keyword).Return(expected, nil)
+	expectedTotalCount := 2
+	expectedPosts := []*model.Post{getMockPostForRead(1), getMockPostForRead(2)}
+	repository.On("Fetch", limit, page, keyword).Return(expectedTotalCount, expectedPosts, nil)
 
 	// 2. Exercise
-	posts, err := usecase.GetPosts(limit, page, keyword)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword)
 
 	// 3. Verify
 	assert.NoError(t, err)
-	assert.Equal(t, len(expected), len(posts))
-	assert.Equal(t, expected[0], posts[0])
-	assert.Equal(t, expected[1], posts[1])
+	assert.Equal(t, expectedTotalCount, totalCount)
+	assert.Equal(t, len(expectedPosts), len(posts))
+	assert.Equal(t, expectedPosts[0], posts[0])
+	assert.Equal(t, expectedPosts[1], posts[1])
 
 	// 4. Teardown
 }
@@ -132,13 +134,14 @@ func TestGetPosts_error(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	repository.On("Fetch", limit, page, keyword).Return(nil, errors.New("error"))
+	repository.On("Fetch", limit, page, keyword).Return(0, nil, errors.New("error"))
 
 	// 2. Execise
-	posts, err := usecase.GetPosts(limit, page, keyword)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword)
 
 	// 3. Verify
 	assert.Error(t, err)
+	assert.Equal(t, 0, totalCount)
 	assert.Empty(t, posts)
 
 	// 4. Teardown
