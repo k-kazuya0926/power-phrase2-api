@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -19,32 +18,8 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func TestMain(m *testing.M) {
-	setUp()
-	code := m.Run()
-	tearDown()
-	os.Exit(code)
-}
-
-var uc mockUserUseCase
-var handler UserHandler
-var e *echo.Echo
-
-func setUp() {
-	// set stub
-	uc = mockUserUseCase{}
-	handler = NewUserHandler(&uc)
-
-	e = echo.New()
-	e.Validator = validator.NewValidator()
-}
-
-func tearDown() {
-}
-
 // Mock
 type mockUserUseCase struct {
-	returnsError bool // TODO 削除
 	mock.Mock
 }
 
@@ -67,19 +42,11 @@ func (usecase *mockUserUseCase) GetUser(id int) (*model.User, error) {
 }
 
 func (usecase *mockUserUseCase) UpdateUser(userID int, name, email, password, imageURL string) error {
-	if usecase.returnsError {
-		return errors.New("error")
-	}
-
-	return nil
+	return usecase.Called(userID, name, email, password, imageURL).Error(0)
 }
 
 func (usecase *mockUserUseCase) DeleteUser(id int) error {
-	if usecase.returnsError {
-		return errors.New("error")
-	}
-
-	return nil
+	return usecase.Called(id).Error(0)
 }
 
 func getMockUser(id int) *model.User {
@@ -124,6 +91,8 @@ func TestCreateUser_success(t *testing.T) {
 func createContext(method, path string, body io.Reader, rec *httptest.ResponseRecorder) echo.Context {
 	req := httptest.NewRequest(method, path, body)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	e := echo.New()
+	e.Validator = validator.NewValidator()
 	return e.NewContext(req, rec)
 }
 
@@ -279,6 +248,9 @@ func TestLogin_error_validationError(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := createContext(echo.POST, "/users", reader, rec)
 
+		usecase := mockUserUseCase{}
+		handler := NewUserHandler(&usecase)
+
 		// 2. Exercise
 		err := handler.Login(c)
 
@@ -361,6 +333,9 @@ func TestGetUser_error_validationError(t *testing.T) {
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprint(test.id))
 
+		usecase := mockUserUseCase{}
+		handler := NewUserHandler(&usecase)
+
 		// 2. Exercise
 		err := handler.GetUser(c)
 
@@ -373,38 +348,54 @@ func TestGetUser_error_validationError(t *testing.T) {
 	}
 }
 
-// TODO ここから
 func TestGetUser_error_usecaseError(t *testing.T) {
-	uc.returnsError = true
-	req := httptest.NewRequest(echo.GET, "/users", nil)
+	// 1. Setup
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := createContext(echo.GET, "/users", nil, rec)
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprint(1))
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-	// assertions
-	if assert.NoError(t, handler.GetUser(c)) {
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	}
+	usecase := mockUserUseCase{}
+	usecase.On("GetUser", id).Return(nil, errors.New("error"))
+	handler := NewUserHandler(&usecase)
 
-	uc.returnsError = false
+	// 2. Exercise
+	err := handler.GetUser(c)
+
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+
+	// 4. Teardown
 }
 
 func TestUpdateUser_success(t *testing.T) {
-	reader := strings.NewReader(`{}`)
-	req := httptest.NewRequest(echo.PUT, "/users", reader)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// 1. Setup
+	user := getMockUser(1)
+	jsonBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal(err)
+	}
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := createContext(echo.PUT, "/users", strings.NewReader(string(jsonBytes)), rec)
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
 	c.SetParamValues(fmt.Sprint(1))
 
-	// assertions
-	if assert.NoError(t, handler.UpdateUser(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-	}
+	usecase := mockUserUseCase{}
+	usecase.On("UpdateUser", user.ID, user.Name, user.Email, user.Password, user.ImageURL).Return(nil)
+	handler := NewUserHandler(&usecase)
+
+	// 2. Exercise
+	err = handler.UpdateUser(c)
+
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	// 4. Teardown
 }
 
 func TestUpdateUser_error_invalidID(t *testing.T) {
@@ -418,56 +409,79 @@ func TestUpdateUser_error_invalidID(t *testing.T) {
 		{"下限", 0, "\"ID：必須です。\"\n"},
 	}
 
-	reader := strings.NewReader(`{}`)
-	req := httptest.NewRequest(echo.PUT, "/users", reader)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	for _, test := range cases {
+		// 1. Setup
 		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c := createContext(echo.PUT, "/users", strings.NewReader(`{}`), rec)
 		c.SetPath("/users/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprint(test.id))
 
-		// assertions
-		if assert.NoError(t, handler.UpdateUser(c)) {
-			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
-			assert.Equal(t, test.message, rec.Body.String(), test.label)
-		}
+		usecase := mockUserUseCase{}
+		handler := NewUserHandler(&usecase)
+
+		// 2. Exercise
+		err := handler.UpdateUser(c)
+
+		// 3. Verify
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+		assert.Equal(t, test.message, rec.Body.String(), test.label)
+
+		// 4. Teardown
 	}
 }
 
 func TestUpdateUser_error_usecaseError(t *testing.T) {
-	uc.returnsError = true
-	reader := strings.NewReader(`{}`)
-	req := httptest.NewRequest(echo.PUT, "/users", reader)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	// 1. Setup
+	user := getMockUser(1)
+	jsonBytes, err := json.Marshal(user)
+	if err != nil {
+		t.Fatal(err)
+	}
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := createContext(echo.PUT, "/users", strings.NewReader(string(jsonBytes)), rec)
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprint(1))
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-	// assertions
-	if assert.NoError(t, handler.UpdateUser(c)) {
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	}
+	usecase := mockUserUseCase{}
+	usecase.On("UpdateUser", user.ID, user.Name, user.Email, user.Password, user.ImageURL).Return(errors.New("error"))
+	handler := NewUserHandler(&usecase)
 
-	uc.returnsError = false
+	// 2. Exercise
+	err = handler.UpdateUser(c)
+
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+
+	// 4. Teardown
 }
 
 // ユーザー削除テスト
 func TestDeleteUser_success(t *testing.T) {
-	req := httptest.NewRequest(echo.DELETE, "/users", nil)
+	// 1. Setup
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := createContext(echo.DELETE, "/users", nil, rec)
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprint(1))
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-	// assertions
-	if assert.NoError(t, handler.DeleteUser(c)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-	}
+	usecase := mockUserUseCase{}
+	usecase.On("DeleteUser", id).Return(nil)
+	handler := NewUserHandler(&usecase)
+
+	// 2. Exercise
+	err := handler.DeleteUser(c)
+
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	// 4. Teardown
 }
 
 func TestDeleteUser_error_invalidID(t *testing.T) {
@@ -481,35 +495,48 @@ func TestDeleteUser_error_invalidID(t *testing.T) {
 		{"下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
 	}
 
-	req := httptest.NewRequest(echo.DELETE, "/users", nil)
 	for _, test := range cases {
+		// 1. Setup
 		rec := httptest.NewRecorder()
-		c := e.NewContext(req, rec)
+		c := createContext(echo.DELETE, "/users", nil, rec)
 		c.SetPath("/users/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprint(test.id))
 
-		// assertions
-		if assert.NoError(t, handler.DeleteUser(c), test.label) {
-			assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
-			assert.Equal(t, test.message, rec.Body.String(), test.label)
-		}
+		usecase := mockUserUseCase{}
+		handler := NewUserHandler(&usecase)
+
+		// 2. Exercise
+		err := handler.DeleteUser(c)
+
+		// 3. Verify
+		assert.NoError(t, err, test.label)
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+		assert.Equal(t, test.message, rec.Body.String(), test.label)
+
+		// 4. Teardown
 	}
 }
 
 func TestDeleteUser_error_usecaseError(t *testing.T) {
-	uc.returnsError = true
-	req := httptest.NewRequest(echo.DELETE, "/users", nil)
+	// 1. Setup
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := createContext(echo.DELETE, "/users", nil, rec)
 	c.SetPath("/users/:id")
 	c.SetParamNames("id")
-	c.SetParamValues(fmt.Sprint(1))
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-	// assertions
-	if assert.NoError(t, handler.DeleteUser(c)) {
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-	}
+	usecase := mockUserUseCase{}
+	usecase.On("DeleteUser", id).Return(errors.New("error"))
+	handler := NewUserHandler(&usecase)
 
-	uc.returnsError = false
+	// 2. Exercise
+	err := handler.DeleteUser(c)
+
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+
+	// 4. Teardown
 }
