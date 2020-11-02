@@ -33,13 +33,13 @@ func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string) (tot
 	return args.Int(0), args.Get(1).([]*model.GetPostResult), args.Error(2)
 }
 
-func (usecase *mockPostUseCase) GetPost(id int) (*model.Post, error) {
+func (usecase *mockPostUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	args := usecase.Called(id)
 	post := args.Get(0)
 	if post == nil {
 		return nil, args.Error(1)
 	}
-	return post.(*model.Post), args.Error(1)
+	return post.(*model.GetPostResult), args.Error(1)
 }
 
 func (usecase *mockPostUseCase) UpdatePost(ID int, title, speaker, detail, movieURL string) error {
@@ -57,14 +57,15 @@ func getMockPost(id int) *model.Post {
 		Title:    fmt.Sprintf("title%d", id),
 		Speaker:  fmt.Sprintf("speaker%d", id),
 		Detail:   fmt.Sprintf("detail%d", id),
-		MovieURL: fmt.Sprintf("http://www.example.com/%d", id),
+		MovieURL: fmt.Sprintf("https://www.example.com/watch?v=%d", id),
 	}
 }
 
 func getMockGetPostResult(id int) *model.GetPostResult {
 	return &model.GetPostResult{
-		Post:     *getMockPost(id),
-		UserName: fmt.Sprintf("testuser%d", id),
+		Post:          *getMockPost(id),
+		EmbedMovieURL: fmt.Sprintf("https://www.example.com/embed/%d", id),
+		UserName:      fmt.Sprintf("testuser%d", id),
 	}
 }
 
@@ -257,7 +258,7 @@ func TestGetPost_success(t *testing.T) {
 	id := 1
 	c.SetParamValues(fmt.Sprint(id))
 
-	expectedPost := getMockPost(id)
+	expectedPost := getMockGetPostResult(id)
 
 	usecase := mockPostUseCase{}
 	usecase.On("GetPost", id).Return(expectedPost, nil)
@@ -268,7 +269,7 @@ func TestGetPost_success(t *testing.T) {
 
 	// 3. Verify
 	assert.NoError(t, err)
-	post := &model.Post{}
+	post := &model.GetPostResult{}
 	json.Unmarshal(rec.Body.Bytes(), post)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.Equal(t, expectedPost, post)

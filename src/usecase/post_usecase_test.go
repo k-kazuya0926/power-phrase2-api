@@ -29,13 +29,13 @@ func (repository *mockPostRepository) Fetch(limit, page int, keyword string) (in
 	return args.Int(0), posts.([]*model.GetPostResult), args.Error(2)
 }
 
-func (repository *mockPostRepository) FetchByID(id int) (*model.Post, error) {
+func (repository *mockPostRepository) FetchByID(id int) (*model.GetPostResult, error) {
 	args := repository.Called(id)
 	post := args.Get(0)
 	if post == nil {
 		return nil, args.Error(1)
 	}
-	return post.(*model.Post), args.Error(1)
+	return post.(*model.GetPostResult), args.Error(1)
 }
 
 func (repository *mockPostRepository) Update(post *model.Post) error {
@@ -54,7 +54,7 @@ func getMockPostForInput(id int) *model.Post {
 		Title:    fmt.Sprintf("title%d", id),
 		Speaker:  fmt.Sprintf("speaker%d", id),
 		Detail:   fmt.Sprintf("detail%d", id),
-		MovieURL: fmt.Sprintf("http://www.example.com/%d", id),
+		MovieURL: fmt.Sprintf("https://www.example.com/watch?v=%d", id),
 	}
 	return post
 }
@@ -161,7 +161,7 @@ func TestGetPost_success(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
-	expected := getMockPostForRead(id)
+	expected := getMockGetPostResult(id)
 	repository.On("FetchByID", id).Return(expected, nil)
 
 	// 2. Exercise
@@ -178,6 +178,7 @@ func TestGetPost_success(t *testing.T) {
 	assert.Equal(t, expected.Speaker, post.Speaker)
 	assert.Equal(t, expected.Detail, post.Detail)
 	assert.Equal(t, expected.MovieURL, post.MovieURL)
+	assert.Equal(t, expected.UserName, post.UserName)
 
 	// 4. Teardown
 }

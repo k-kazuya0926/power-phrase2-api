@@ -106,6 +106,7 @@ func TestPostRepository_FetchById(t *testing.T) {
 	assert.Equal(t, postForInput.Speaker, actualPost.Speaker)
 	assert.Equal(t, postForInput.Detail, actualPost.Detail)
 	assert.Equal(t, postForInput.MovieURL, actualPost.MovieURL)
+	assert.Equal(t, userForInput.Name, actualPost.UserName)
 
 	// 4. Teardown
 	teardown(db)
@@ -126,7 +127,7 @@ func TestPostRepository_Update(t *testing.T) {
 	postForInput.Title = "title2"
 	postForInput.Speaker = "speaker2"
 	postForInput.Detail = "detail2"
-	postForInput.MovieURL = "http://www.example.com/2"
+	postForInput.MovieURL = "https://www.example.com/watch?v=2"
 
 	repository := &postRepository{}
 
@@ -187,7 +188,7 @@ func getMockPost(userID int) *model.Post {
 		Title:    fmt.Sprintf("title%d", userID),
 		Speaker:  fmt.Sprintf("speaker%d", userID),
 		Detail:   fmt.Sprintf("detail%d", userID),
-		MovieURL: fmt.Sprintf("http://www.example.com/%d", userID),
+		MovieURL: fmt.Sprintf("https://www.example.com/watch?v=%d", userID),
 	}
 }
 

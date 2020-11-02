@@ -47,14 +47,20 @@ func (repository *postRepository) Fetch(limit, page int, keyword string) (totalC
 	return totalCount, posts, err
 }
 
-func (repository *postRepository) FetchByID(id int) (*model.Post, error) {
+func (repository *postRepository) FetchByID(id int) (*model.GetPostResult, error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	u := model.Post{ID: id}
-	err := db.First(&u).Error
+	post := model.GetPostResult{}
+	post.ID = id
+	if err := db.Table("posts").
+		Select("posts.*, users.name as user_name").
+		Joins("LEFT JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
+		Scan(&post).Error; err != nil {
+		return nil, err
+	}
 
-	return &u, err
+	return &post, nil
 }
 
 func (repository *postRepository) Update(u *model.Post) error {

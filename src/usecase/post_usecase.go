@@ -10,7 +10,7 @@ import (
 type PostUseCase interface {
 	CreatePost(userID int, title, speaker, detail, movieURL string) (err error)
 	GetPosts(limit, offset int, keyword string) (totalCount int, posts []*model.GetPostResult, err error)
-	GetPost(id int) (*model.Post, error)
+	GetPost(id int) (*model.GetPostResult, error)
 	UpdatePost(ID int, title, speaker, detail, movieURL string) error
 	DeletePost(id int) error
 }
@@ -45,7 +45,7 @@ func (usecase *postUseCase) GetPosts(limit, page int, keyword string) (totalCoun
 
 	// 動画URL加工
 	for _, post := range posts {
-		post.MovieURL = makeEmbedMovieURL(post.MovieURL)
+		post.EmbedMovieURL = makeEmbedMovieURL(post.MovieURL)
 	}
 
 	return totalCount, posts, nil
@@ -68,14 +68,14 @@ func makeEmbedMovieURL(movieURL string) string {
 	}
 }
 
-func (usecase *postUseCase) GetPost(id int) (*model.Post, error) {
+func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	post, err := usecase.PostRepository.FetchByID(id)
 	if err != nil {
 		return nil, err
 	}
 
 	// 動画URL加工
-	post.MovieURL = makeEmbedMovieURL(post.MovieURL)
+	post.EmbedMovieURL = makeEmbedMovieURL(post.MovieURL)
 
 	return post, nil
 }

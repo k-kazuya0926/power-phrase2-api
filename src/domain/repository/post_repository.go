@@ -7,7 +7,7 @@ import (
 type PostRepository interface {
 	Create(post *model.Post) error
 	Fetch(limit, page int, keyword string) (totalCount int, posts []*model.GetPostResult, rr error)
-	FetchByID(id int) (*model.Post, error)
+	FetchByID(id int) (*model.GetPostResult, error)
 	Update(post *model.Post) error
 	Delete(id int) error
 }
