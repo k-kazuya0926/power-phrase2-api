@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"net/url"
+
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
 )
@@ -40,6 +42,27 @@ func (usecase *postUseCase) GetPosts(limit, page int, keyword string) (totalCoun
 	if err != nil {
 		return 0, nil, err
 	}
+
+	// 動画URL加工
+	for _, post := range posts {
+		u, err := url.Parse(post.MovieURL)
+		if err != nil {
+			post.MovieURL = ""
+			continue
+		}
+		m, err := url.ParseQuery(u.RawQuery)
+		if err != nil {
+			post.MovieURL = ""
+			continue
+		}
+		v, ok := m["v"]
+		if ok {
+			post.MovieURL = u.Scheme + "://" + u.Host + "/embed/" + v[0]
+		} else {
+			post.MovieURL = ""
+		}
+	}
+
 	return totalCount, posts, nil
 }
 
