@@ -95,41 +95,6 @@ func TestCreateUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
-func TestCreateUser_error_invalidEmail(t *testing.T) {
-	cases := []struct {
-		label string
-		email string
-	}{
-		{"空", ""},
-		{"形式", "testuserexample.com"},
-	}
-
-	for _, test := range cases {
-		// 1. Setup
-		user := getMockUser(1)
-		user.Email = test.email
-		jsonBytes, err := json.Marshal(user)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		rec := httptest.NewRecorder()
-		c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
-
-		usecase := mockUserUseCase{}
-		handler := NewUserHandler(&usecase)
-
-		// 2. Exercise
-		err = handler.CreateUser(c)
-
-		// 3. Verify
-		assert.NoError(t, err, test.label)
-		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
-
-		// 4. Teardown
-	}
-}
-
 func TestCreateUser_error_validationError(t *testing.T) {
 	cases := []struct {
 		label    string
