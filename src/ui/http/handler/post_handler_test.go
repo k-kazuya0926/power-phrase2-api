@@ -27,6 +27,9 @@ func (usecase *mockPostUseCase) CreatePost(userID int, title, speaker, detail, m
 
 func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string) (totalCount int, posts []*model.GetPostResult, err error) {
 	args := usecase.Called(limit, offset, keyword)
+	if args.Get(1) == nil {
+		return args.Int(0), nil, args.Error(2)
+	}
 	return args.Int(0), args.Get(1).([]*model.GetPostResult), args.Error(2)
 }
 
@@ -221,290 +224,289 @@ func TestGetPosts_error_validationError(t *testing.T) {
 	}
 }
 
-// TODO ここから
-// func TestLogin_error_usecaseError(t *testing.T) {
-// 	// 1. Setup
-// 	email := "testpost@example.com"
-// 	password := "testpost"
-// 	reader := strings.NewReader(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, email, password))
-// 	rec := httptest.NewRecorder()
-// 	c := createContext(echo.POST, "/posts", reader, rec)
+func TestGetPosts_error_usecaseError(t *testing.T) {
+	// 1. Setup
+	rec := httptest.NewRecorder()
+	q := make(url.Values)
+	q.Set("limit", "1")
+	q.Set("page", "1")
+	q.Set("keyword", "")
+	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 
-// 	usecase := mockPostUseCase{}
-// 	usecase.On("Login", email, password).Return(0, "", errors.New("error"))
-// 	handler := NewPostHandler(&usecase)
+	usecase := mockPostUseCase{}
+	usecase.On("GetPosts", 1, 1, "").Return(0, nil, errors.New("error"))
+	handler := NewPostHandler(&usecase)
 
-// 	// 2. Exercise
-// 	err := handler.Login(c)
+	// 2. Exercise
+	err := handler.GetPosts(c)
 
-// 	// 3. Verify
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 
-// 	// 4. Teardown
-// }
+	// 4. Teardown
+}
 
-// // ユーザー詳細テスト
-// func TestGetPost_success(t *testing.T) {
-// 	// 1. Setup
-// 	rec := httptest.NewRecorder()
-// 	c := createContext(echo.GET, "/posts", nil, rec)
-// 	c.SetPath("/posts/:id")
-// 	c.SetParamNames("id")
-// 	id := 1
-// 	c.SetParamValues(fmt.Sprint(id))
+// 詳細取得テスト
+func TestGetPost_success(t *testing.T) {
+	// 1. Setup
+	rec := httptest.NewRecorder()
+	c := createContext(echo.GET, "/posts", nil, rec)
+	c.SetPath("/posts/:id")
+	c.SetParamNames("id")
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-// 	expectedPost := getMockPost(id)
+	expectedPost := getMockPost(id)
 
-// 	usecase := mockPostUseCase{}
-// 	usecase.On("GetPost", id).Return(expectedPost, nil)
-// 	handler := NewPostHandler(&usecase)
+	usecase := mockPostUseCase{}
+	usecase.On("GetPost", id).Return(expectedPost, nil)
+	handler := NewPostHandler(&usecase)
 
-// 	// 2. Exercise
-// 	err := handler.GetPost(c)
+	// 2. Exercise
+	err := handler.GetPost(c)
 
-// 	// 3. Verify
-// 	assert.NoError(t, err)
-// 	post := &model.Post{}
-// 	json.Unmarshal(rec.Body.Bytes(), post)
-// 	assert.Equal(t, http.StatusOK, rec.Code)
-// 	assert.Equal(t, expectedPost, post)
+	// 3. Verify
+	assert.NoError(t, err)
+	post := &model.Post{}
+	json.Unmarshal(rec.Body.Bytes(), post)
+	assert.Equal(t, http.StatusOK, rec.Code)
+	assert.Equal(t, expectedPost, post)
 
-// 	// 4. Teardown
-// }
+	// 4. Teardown
+}
 
-// func TestGetPost_error_validationError(t *testing.T) {
-// 	cases := []struct {
-// 		label   string
-// 		id      interface{}
-// 		message string
-// 	}{
-// 		{"必須", "", "\"ID：数値で入力してください。\"\n"},
-// 		{"型", "a", "\"ID：数値で入力してください。\"\n"},
-// 		{"下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
-// 	}
+func TestGetPost_error_validationError(t *testing.T) {
+	cases := []struct {
+		label   string
+		id      interface{}
+		message string
+	}{
+		{"必須", "", "\"ID：数値で入力してください。\"\n"},
+		{"型", "a", "\"ID：数値で入力してください。\"\n"},
+		{"下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
+	}
 
-// 	for _, test := range cases {
-// 		// 1. Setup
-// 		rec := httptest.NewRecorder()
-// 		c := createContext(echo.GET, "/posts", nil, rec)
-// 		c.SetPath("/posts/:id")
-// 		c.SetParamNames("id")
-// 		c.SetParamValues(fmt.Sprint(test.id))
+	for _, test := range cases {
+		// 1. Setup
+		rec := httptest.NewRecorder()
+		c := createContext(echo.GET, "/posts", nil, rec)
+		c.SetPath("/posts/:id")
+		c.SetParamNames("id")
+		c.SetParamValues(fmt.Sprint(test.id))
 
-// 		usecase := mockPostUseCase{}
-// 		handler := NewPostHandler(&usecase)
+		usecase := mockPostUseCase{}
+		handler := NewPostHandler(&usecase)
 
-// 		// 2. Exercise
-// 		err := handler.GetPost(c)
+		// 2. Exercise
+		err := handler.GetPost(c)
 
-// 		// 3. Verify
-// 		assert.NoError(t, err, test.label)
-// 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
-// 		assert.Equal(t, test.message, rec.Body.String(), test.label)
+		// 3. Verify
+		assert.NoError(t, err, test.label)
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+		assert.Equal(t, test.message, rec.Body.String(), test.label)
 
-// 		// 4. Teardown
-// 	}
-// }
+		// 4. Teardown
+	}
+}
 
-// func TestGetPost_error_usecaseError(t *testing.T) {
-// 	// 1. Setup
-// 	rec := httptest.NewRecorder()
-// 	c := createContext(echo.GET, "/posts", nil, rec)
-// 	c.SetPath("/posts/:id")
-// 	c.SetParamNames("id")
-// 	id := 1
-// 	c.SetParamValues(fmt.Sprint(id))
+func TestGetPost_error_usecaseError(t *testing.T) {
+	// 1. Setup
+	rec := httptest.NewRecorder()
+	c := createContext(echo.GET, "/posts", nil, rec)
+	c.SetPath("/posts/:id")
+	c.SetParamNames("id")
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-// 	usecase := mockPostUseCase{}
-// 	usecase.On("GetPost", id).Return(nil, errors.New("error"))
-// 	handler := NewPostHandler(&usecase)
+	usecase := mockPostUseCase{}
+	usecase.On("GetPost", id).Return(nil, errors.New("error"))
+	handler := NewPostHandler(&usecase)
 
-// 	// 2. Exercise
-// 	err := handler.GetPost(c)
+	// 2. Exercise
+	err := handler.GetPost(c)
 
-// 	// 3. Verify
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 
-// 	// 4. Teardown
-// }
+	// 4. Teardown
+}
 
-// func TestUpdatePost_success(t *testing.T) {
-// 	// 1. Setup
-// 	post := getMockPost(1)
-// 	jsonBytes, err := json.Marshal(post)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	rec := httptest.NewRecorder()
-// 	c := createContext(echo.PUT, "/posts", strings.NewReader(string(jsonBytes)), rec)
-// 	c.SetPath("/posts/:id")
-// 	c.SetParamNames("id")
-// 	c.SetParamValues(fmt.Sprint(1))
+// 更新テスト
+func TestUpdatePost_success(t *testing.T) {
+	// 1. Setup
+	post := getMockPost(1)
+	jsonBytes, err := json.Marshal(post)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec := httptest.NewRecorder()
+	c := createContext(echo.PUT, "/posts", strings.NewReader(string(jsonBytes)), rec)
+	c.SetPath("/posts/:id")
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(1))
 
-// 	usecase := mockPostUseCase{}
-// 	usecase.On("UpdatePost", post.ID, post.Name, post.Email, post.Password, post.ImageURL).Return(nil)
-// 	handler := NewPostHandler(&usecase)
+	usecase := mockPostUseCase{}
+	usecase.On("UpdatePost", post.ID, post.Title, post.Speaker, post.Detail, post.MovieURL).Return(nil)
+	handler := NewPostHandler(&usecase)
 
-// 	// 2. Exercise
-// 	err = handler.UpdatePost(c)
+	// 2. Exercise
+	err = handler.UpdatePost(c)
 
-// 	// 3. Verify
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, http.StatusOK, rec.Code)
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
 
-// 	// 4. Teardown
-// }
+	// 4. Teardown
+}
 
-// func TestUpdatePost_error_validationError(t *testing.T) {
-// 	cases := []struct {
-// 		label   string
-// 		id      interface{}
-// 		name    string
-// 		email   string
-// 		message string
-// 	}{
-// 		{"ID空", "", "testpost", "testpost@example.com", "\"ID：数値で入力してください。\"\n"},
-// 		{"ID形式", "a", "testpost", "testpost@example.com", "\"ID：数値で入力してください。\"\n"},
-// 		{"ID下限", 0, "testpost", "testpost@example.com", "\"ID：必須です。\"\n"},
-// 		{"Name空", 1, "", "testpost@example.com", "\"Name：必須です。\"\n"},
-// 		{"Email空", 1, "testpost", "", "\"Email：必須です。\"\n"},
-// 		{"Email形式", 1, "testpost", "testpostexample.com", "\"Email：正しい形式で入力してください。\"\n"},
-// 	}
+func TestUpdatePost_error_validationError(t *testing.T) {
+	cases := []struct {
+		label   string
+		id      interface{}
+		title   string
+		speaker string
+		message string
+	}{
+		{"ID空", "", "title", "speaker", "\"ID：数値で入力してください。\"\n"},
+		{"ID形式", "a", "title", "speaker", "\"ID：数値で入力してください。\"\n"},
+		{"ID下限", 0, "title", "speaker", "\"ID：必須です。\"\n"},
+		{"Title空", "1", "", "speaker", "\"Title：必須です。\"\n"},
+		{"Speaker空", "1", "title", "", "\"Speaker：必須です。\"\n"},
+	}
 
-// 	for _, test := range cases {
-// 		// 1. Setup
-// 		rec := httptest.NewRecorder()
-// 		c := createContext(echo.PUT, "/posts", strings.NewReader(fmt.Sprintf(`{
-// 			"name": "%s",
-// 			"email": "%s",
-// 			"password": "testpost"
-// 		}`, test.name, test.email)), rec)
-// 		c.SetPath("/posts/:id")
-// 		c.SetParamNames("id")
-// 		c.SetParamValues(fmt.Sprint(test.id))
+	for _, test := range cases {
+		// 1. Setup
+		rec := httptest.NewRecorder()
+		c := createContext(echo.PUT, "/posts", strings.NewReader(fmt.Sprintf(`{
+			"title": "%s",
+			"speaker": "%s"
+		}`, test.title, test.speaker)), rec)
+		c.SetPath("/posts/:id")
+		c.SetParamNames("id")
+		c.SetParamValues(fmt.Sprint(test.id))
 
-// 		usecase := mockPostUseCase{}
-// 		handler := NewPostHandler(&usecase)
+		usecase := mockPostUseCase{}
+		handler := NewPostHandler(&usecase)
 
-// 		// 2. Exercise
-// 		err := handler.UpdatePost(c)
+		// 2. Exercise
+		err := handler.UpdatePost(c)
 
-// 		// 3. Verify
-// 		assert.NoError(t, err)
-// 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
-// 		assert.Equal(t, test.message, rec.Body.String(), test.label)
+		// 3. Verify
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+		assert.Equal(t, test.message, rec.Body.String(), test.label)
 
-// 		// 4. Teardown
-// 	}
-// }
+		// 4. Teardown
+	}
+}
 
-// func TestUpdatePost_error_usecaseError(t *testing.T) {
-// 	// 1. Setup
-// 	post := getMockPost(1)
-// 	jsonBytes, err := json.Marshal(post)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
-// 	rec := httptest.NewRecorder()
-// 	c := createContext(echo.PUT, "/posts", strings.NewReader(string(jsonBytes)), rec)
-// 	c.SetPath("/posts/:id")
-// 	c.SetParamNames("id")
-// 	id := 1
-// 	c.SetParamValues(fmt.Sprint(id))
+func TestUpdatePost_error_usecaseError(t *testing.T) {
+	// 1. Setup
+	post := getMockPost(1)
+	jsonBytes, err := json.Marshal(post)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rec := httptest.NewRecorder()
+	c := createContext(echo.PUT, "/posts", strings.NewReader(string(jsonBytes)), rec)
+	c.SetPath("/posts/:id")
+	c.SetParamNames("id")
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-// 	usecase := mockPostUseCase{}
-// 	usecase.On("UpdatePost", post.ID, post.Name, post.Email, post.Password, post.ImageURL).Return(errors.New("error"))
-// 	handler := NewPostHandler(&usecase)
+	usecase := mockPostUseCase{}
+	usecase.On("UpdatePost", post.ID, post.Title, post.Speaker, post.Detail, post.MovieURL).Return(errors.New("error"))
+	handler := NewPostHandler(&usecase)
 
-// 	// 2. Exercise
-// 	err = handler.UpdatePost(c)
+	// 2. Exercise
+	err = handler.UpdatePost(c)
 
-// 	// 3. Verify
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 
-// 	// 4. Teardown
-// }
+	// 4. Teardown
+}
 
-// // ユーザー削除テスト
-// func TestDeletePost_success(t *testing.T) {
-// 	// 1. Setup
-// 	rec := httptest.NewRecorder()
-// 	c := createContext(echo.DELETE, "/posts", nil, rec)
-// 	c.SetPath("/posts/:id")
-// 	c.SetParamNames("id")
-// 	id := 1
-// 	c.SetParamValues(fmt.Sprint(id))
+// 削除テスト
+func TestDeletePost_success(t *testing.T) {
+	// 1. Setup
+	rec := httptest.NewRecorder()
+	c := createContext(echo.DELETE, "/posts", nil, rec)
+	c.SetPath("/posts/:id")
+	c.SetParamNames("id")
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-// 	usecase := mockPostUseCase{}
-// 	usecase.On("DeletePost", id).Return(nil)
-// 	handler := NewPostHandler(&usecase)
+	usecase := mockPostUseCase{}
+	usecase.On("DeletePost", id).Return(nil)
+	handler := NewPostHandler(&usecase)
 
-// 	// 2. Exercise
-// 	err := handler.DeletePost(c)
+	// 2. Exercise
+	err := handler.DeletePost(c)
 
-// 	// 3. Verify
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, http.StatusOK, rec.Code)
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
 
-// 	// 4. Teardown
-// }
+	// 4. Teardown
+}
 
-// func TestDeletePost_error_validationError(t *testing.T) {
-// 	cases := []struct {
-// 		label   string
-// 		id      interface{}
-// 		message string
-// 	}{
-// 		{"ID空", "", "\"ID：数値で入力してください。\"\n"},
-// 		{"ID形式", "a", "\"ID：数値で入力してください。\"\n"},
-// 		{"ID下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
-// 	}
+func TestDeletePost_error_validationError(t *testing.T) {
+	cases := []struct {
+		label   string
+		id      interface{}
+		message string
+	}{
+		{"ID空", "", "\"ID：数値で入力してください。\"\n"},
+		{"ID形式", "a", "\"ID：数値で入力してください。\"\n"},
+		{"ID下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
+	}
 
-// 	for _, test := range cases {
-// 		// 1. Setup
-// 		rec := httptest.NewRecorder()
-// 		c := createContext(echo.DELETE, "/posts", nil, rec)
-// 		c.SetPath("/posts/:id")
-// 		c.SetParamNames("id")
-// 		c.SetParamValues(fmt.Sprint(test.id))
+	for _, test := range cases {
+		// 1. Setup
+		rec := httptest.NewRecorder()
+		c := createContext(echo.DELETE, "/posts", nil, rec)
+		c.SetPath("/posts/:id")
+		c.SetParamNames("id")
+		c.SetParamValues(fmt.Sprint(test.id))
 
-// 		usecase := mockPostUseCase{}
-// 		handler := NewPostHandler(&usecase)
+		usecase := mockPostUseCase{}
+		handler := NewPostHandler(&usecase)
 
-// 		// 2. Exercise
-// 		err := handler.DeletePost(c)
+		// 2. Exercise
+		err := handler.DeletePost(c)
 
-// 		// 3. Verify
-// 		assert.NoError(t, err, test.label)
-// 		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
-// 		assert.Equal(t, test.message, rec.Body.String(), test.label)
+		// 3. Verify
+		assert.NoError(t, err, test.label)
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+		assert.Equal(t, test.message, rec.Body.String(), test.label)
 
-// 		// 4. Teardown
-// 	}
-// }
+		// 4. Teardown
+	}
+}
 
-// func TestDeletePost_error_usecaseError(t *testing.T) {
-// 	// 1. Setup
-// 	rec := httptest.NewRecorder()
-// 	c := createContext(echo.DELETE, "/posts", nil, rec)
-// 	c.SetPath("/posts/:id")
-// 	c.SetParamNames("id")
-// 	id := 1
-// 	c.SetParamValues(fmt.Sprint(id))
+func TestDeletePost_error_usecaseError(t *testing.T) {
+	// 1. Setup
+	rec := httptest.NewRecorder()
+	c := createContext(echo.DELETE, "/posts", nil, rec)
+	c.SetPath("/posts/:id")
+	c.SetParamNames("id")
+	id := 1
+	c.SetParamValues(fmt.Sprint(id))
 
-// 	usecase := mockPostUseCase{}
-// 	usecase.On("DeletePost", id).Return(errors.New("error"))
-// 	handler := NewPostHandler(&usecase)
+	usecase := mockPostUseCase{}
+	usecase.On("DeletePost", id).Return(errors.New("error"))
+	handler := NewPostHandler(&usecase)
 
-// 	// 2. Exercise
-// 	err := handler.DeletePost(c)
+	// 2. Exercise
+	err := handler.DeletePost(c)
 
-// 	// 3. Verify
-// 	assert.NoError(t, err)
-// 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 
-// 	// 4. Teardown
-// }
+	// 4. Teardown
+}
