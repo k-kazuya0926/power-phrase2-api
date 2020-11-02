@@ -19,8 +19,8 @@ type (
 
 	UpdateUserRequest struct {
 		ID       int    `json:"id" validate:"required,min=1"`
-		Name     string `json:"name" validate:"max=50"`
-		Email    string `json:"email" validate:"max=100"` // TODO 空でない場合、形式チェック
+		Name     string `json:"name" validate:"required,max=50"`
+		Email    string `json:"email" validate:"required,email,max=100"`
 		Password string `json:"password" validate:"max=100"`
 		ImageURL string `json:"image_url" validate:"max=100"`
 	}

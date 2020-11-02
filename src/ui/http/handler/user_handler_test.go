@@ -50,7 +50,7 @@ func (usecase *mockUserUseCase) DeleteUser(id int) error {
 }
 
 func getMockUser(id int) *model.User {
-	user := &model.User{
+	return &model.User{
 		ID:        id,
 		CreatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
 		UpdatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
@@ -59,7 +59,14 @@ func getMockUser(id int) *model.User {
 		Password:  fmt.Sprintf("testuser%d", id),
 		ImageURL:  fmt.Sprintf("http://www.example.com/%d", id),
 	}
-	return user
+}
+
+func createContext(method, path string, body io.Reader, rec *httptest.ResponseRecorder) echo.Context {
+	req := httptest.NewRequest(method, path, body)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	e := echo.New()
+	e.Validator = validator.NewValidator()
+	return e.NewContext(req, rec)
 }
 
 // ユーザー登録テスト
@@ -84,39 +91,6 @@ func TestCreateUser_success(t *testing.T) {
 	// 3. Verify
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, rec.Code)
-
-	// 4. Teardown
-}
-
-func createContext(method, path string, body io.Reader, rec *httptest.ResponseRecorder) echo.Context {
-	req := httptest.NewRequest(method, path, body)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	e := echo.New()
-	e.Validator = validator.NewValidator()
-	return e.NewContext(req, rec)
-}
-
-func TestCreateUser_error_emptyName(t *testing.T) {
-	// 1. Setup
-	user := getMockUser(1)
-	user.Name = ""
-	jsonBytes, err := json.Marshal(user)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rec := httptest.NewRecorder()
-	c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
-
-	usecase := mockUserUseCase{}
-	handler := NewUserHandler(&usecase)
-
-	// 2. Exercise
-	err = handler.CreateUser(c)
-
-	// 3. Verify
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
 
 	// 4. Teardown
 }
@@ -156,29 +130,45 @@ func TestCreateUser_error_invalidEmail(t *testing.T) {
 	}
 }
 
-func TestCreateUser_error_emptyPassword(t *testing.T) {
-	// 1. Setup
-	user := getMockUser(1)
-	user.Password = ""
-	jsonBytes, err := json.Marshal(user)
-	if err != nil {
-		t.Fatal(err)
+func TestCreateUser_error_validationError(t *testing.T) {
+	cases := []struct {
+		label    string
+		name     string
+		email    string
+		password string
+	}{
+		{"name空", "", "testuser@example.com", "testuser"},
+		{"email空", "testuser", "", "testuser"},
+		{"email形式", "testuser", "testuserexample.com", "testuser"},
+		{"password形式", "testuser", "testuser@example.com", ""},
 	}
 
-	rec := httptest.NewRecorder()
-	c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
+	for _, test := range cases {
+		// 1. Setup
+		user := getMockUser(1)
+		user.Name = test.name
+		user.Email = test.email
+		user.Password = test.password
+		jsonBytes, err := json.Marshal(user)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	usecase := mockUserUseCase{}
-	handler := NewUserHandler(&usecase)
+		rec := httptest.NewRecorder()
+		c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
 
-	// 2. Exercise
-	err = handler.CreateUser(c)
+		usecase := mockUserUseCase{}
+		handler := NewUserHandler(&usecase)
 
-	// 3. Verify
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusUnprocessableEntity, rec.Code)
+		// 2. Exercise
+		err = handler.CreateUser(c)
 
-	// 4. Teardown
+		// 3. Verify
+		assert.NoError(t, err, test.label)
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+
+		// 4. Teardown
+	}
 }
 
 func TestCreateUser_error_usecaseError(t *testing.T) {
@@ -398,21 +388,30 @@ func TestUpdateUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
-func TestUpdateUser_error_invalidID(t *testing.T) {
+func TestUpdateUser_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
 		id      interface{}
+		name    string
+		email   string
 		message string
 	}{
-		{"必須", "", "\"ID：数値で入力してください。\"\n"},
-		{"型", "a", "\"ID：数値で入力してください。\"\n"},
-		{"下限", 0, "\"ID：必須です。\"\n"},
+		{"ID空", "", "testuser", "testuser@example.com", "\"ID：数値で入力してください。\"\n"},
+		{"ID形式", "a", "testuser", "testuser@example.com", "\"ID：数値で入力してください。\"\n"},
+		{"ID下限", 0, "testuser", "testuser@example.com", "\"ID：必須です。\"\n"},
+		{"Name空", 1, "", "testuser@example.com", "\"Name：必須です。\"\n"},
+		{"Email空", 1, "testuser", "", "\"Email：必須です。\"\n"},
+		{"Email形式", 1, "testuser", "testuserexample.com", "\"Email：正しい形式で入力してください。\"\n"},
 	}
 
 	for _, test := range cases {
 		// 1. Setup
 		rec := httptest.NewRecorder()
-		c := createContext(echo.PUT, "/users", strings.NewReader(`{}`), rec)
+		c := createContext(echo.PUT, "/users", strings.NewReader(fmt.Sprintf(`{
+			"name": "%s",
+			"email": "%s",
+			"password": "testuser"
+		}`, test.name, test.email)), rec)
 		c.SetPath("/users/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprint(test.id))
@@ -484,15 +483,15 @@ func TestDeleteUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
-func TestDeleteUser_error_invalidID(t *testing.T) {
+func TestDeleteUser_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
 		id      interface{}
 		message string
 	}{
-		{"必須", "", "\"ID：数値で入力してください。\"\n"},
-		{"型", "a", "\"ID：数値で入力してください。\"\n"},
-		{"下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
+		{"ID空", "", "\"ID：数値で入力してください。\"\n"},
+		{"ID形式", "a", "\"ID：数値で入力してください。\"\n"},
+		{"ID下限", 0, "\"ID：1以上の値を入力してください。\"\n"},
 	}
 
 	for _, test := range cases {
