@@ -45,25 +45,27 @@ func (usecase *postUseCase) GetPosts(limit, page int, keyword string) (totalCoun
 
 	// 動画URL加工
 	for _, post := range posts {
-		u, err := url.Parse(post.MovieURL)
-		if err != nil {
-			post.MovieURL = ""
-			continue
-		}
-		m, err := url.ParseQuery(u.RawQuery)
-		if err != nil {
-			post.MovieURL = ""
-			continue
-		}
-		v, ok := m["v"]
-		if ok {
-			post.MovieURL = u.Scheme + "://" + u.Host + "/embed/" + v[0]
-		} else {
-			post.MovieURL = ""
-		}
+		post.MovieURL = makeEmbedMovieURL(post.MovieURL)
 	}
 
 	return totalCount, posts, nil
+}
+
+func makeEmbedMovieURL(movieURL string) string {
+	u, err := url.Parse(movieURL)
+	if err != nil {
+		return ""
+	}
+	m, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return ""
+	}
+	v, ok := m["v"]
+	if ok {
+		return u.Scheme + "://" + u.Host + "/embed/" + v[0]
+	} else {
+		return ""
+	}
 }
 
 func (usecase *postUseCase) GetPost(id int) (*model.Post, error) {
@@ -71,6 +73,10 @@ func (usecase *postUseCase) GetPost(id int) (*model.Post, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 動画URL加工
+	post.MovieURL = makeEmbedMovieURL(post.MovieURL)
+
 	return post, nil
 }
 
