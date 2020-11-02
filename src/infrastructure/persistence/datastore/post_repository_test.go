@@ -73,6 +73,7 @@ func TestPostRepository_Fetch(t *testing.T) {
 	assert.Equal(t, postForInput2.Speaker, posts[0].Speaker)
 	assert.Equal(t, postForInput2.Detail, posts[0].Detail)
 	assert.Equal(t, postForInput2.MovieURL, posts[0].MovieURL)
+	assert.Equal(t, userForInput.Name, posts[0].UserName)
 
 	// 4. Teardown
 	teardown(db)
@@ -181,12 +182,18 @@ func TestPostRepository_Delete(t *testing.T) {
 }
 
 func getMockPost(userID int) *model.Post {
-	post := &model.Post{
+	return &model.Post{
 		UserID:   userID,
 		Title:    fmt.Sprintf("title%d", userID),
 		Speaker:  fmt.Sprintf("speaker%d", userID),
 		Detail:   fmt.Sprintf("detail%d", userID),
 		MovieURL: fmt.Sprintf("http://www.example.com/%d", userID),
 	}
-	return post
+}
+
+func getMockGetPostResult(userID int) *model.GetPostResult {
+	return &model.GetPostResult{
+		Post:     *getMockPost(userID),
+		UserName: fmt.Sprintf("testuser%d", userID),
+	}
 }

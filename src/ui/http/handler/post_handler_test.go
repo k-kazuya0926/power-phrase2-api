@@ -25,9 +25,9 @@ func (usecase *mockPostUseCase) CreatePost(userID int, title, speaker, detail, m
 	return usecase.Called(userID, title, speaker, detail, movieURL).Error(0)
 }
 
-func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string) (totalCount int, posts []*model.Post, err error) {
+func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string) (totalCount int, posts []*model.GetPostResult, err error) {
 	args := usecase.Called(limit, offset, keyword)
-	return args.Int(0), args.Get(1).([]*model.Post), args.Error(2)
+	return args.Int(0), args.Get(1).([]*model.GetPostResult), args.Error(2)
 }
 
 func (usecase *mockPostUseCase) GetPost(id int) (*model.Post, error) {
@@ -55,6 +55,13 @@ func getMockPost(id int) *model.Post {
 		Speaker:  fmt.Sprintf("speaker%d", id),
 		Detail:   fmt.Sprintf("detail%d", id),
 		MovieURL: fmt.Sprintf("http://www.example.com/%d", id),
+	}
+}
+
+func getMockGetPostResult(id int) *model.GetPostResult {
+	return &model.GetPostResult{
+		Post:     *getMockPost(id),
+		UserName: fmt.Sprintf("testuser%d", id),
 	}
 }
 
@@ -162,7 +169,7 @@ func TestGetPosts_success(t *testing.T) {
 	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 
 	usecase := mockPostUseCase{}
-	expected := []*model.Post{getMockPost(1), getMockPost(2)}
+	expected := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
 	usecase.On("GetPosts", 1, 1, "").Return(2, expected, nil)
 	handler := NewPostHandler(&usecase)
 

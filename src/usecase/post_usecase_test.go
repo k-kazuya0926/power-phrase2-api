@@ -20,13 +20,13 @@ func (repository *mockPostRepository) Create(post *model.Post) error {
 	return repository.Called(post).Error(0)
 }
 
-func (repository *mockPostRepository) Fetch(limit, page int, keyword string) (int, []*model.Post, error) {
+func (repository *mockPostRepository) Fetch(limit, page int, keyword string) (int, []*model.GetPostResult, error) {
 	args := repository.Called(limit, page, keyword)
 	posts := args.Get(1)
 	if posts == nil {
 		return args.Int(0), nil, args.Error(2)
 	}
-	return args.Int(0), posts.([]*model.Post), args.Error(2)
+	return args.Int(0), posts.([]*model.GetPostResult), args.Error(2)
 }
 
 func (repository *mockPostRepository) FetchByID(id int) (*model.Post, error) {
@@ -65,6 +65,14 @@ func getMockPostForRead(id int) *model.Post {
 	post.CreatedAt = time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local)
 	post.UpdatedAt = time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local)
 	return post
+}
+
+func getMockGetPostResult(id int) *model.GetPostResult {
+	post := getMockPostForRead(id)
+	return &model.GetPostResult{
+		Post:     *post,
+		UserName: fmt.Sprintf("username%d", id),
+	}
 }
 
 // 投稿登録テスト
@@ -111,7 +119,7 @@ func TestGetPosts_success(t *testing.T) {
 	page := 1
 	keyword := ""
 	expectedTotalCount := 2
-	expectedPosts := []*model.Post{getMockPostForRead(1), getMockPostForRead(2)}
+	expectedPosts := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
 	repository.On("Fetch", limit, page, keyword).Return(expectedTotalCount, expectedPosts, nil)
 
 	// 2. Exercise

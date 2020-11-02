@@ -21,7 +21,7 @@ func (repository *postRepository) Create(post *model.Post) error {
 	return db.Create(post).Error
 }
 
-func (repository *postRepository) Fetch(limit, page int, keyword string) (totalCount int, posts []*model.Post, err error) {
+func (repository *postRepository) Fetch(limit, page int, keyword string) (totalCount int, posts []*model.GetPostResult, err error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
@@ -36,7 +36,11 @@ func (repository *postRepository) Fetch(limit, page int, keyword string) (totalC
 		return 0, nil, err
 	}
 
-	if err = db.Order("id desc").Limit(limit).Offset(offset).Find(&posts).Error; err != nil {
+	if err = db.Table("posts").
+		Select("posts.*, users.name as user_name").
+		Joins("LEFT JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
+		Order("id DESC").Limit(limit).Offset(offset).
+		Scan(&posts).Error; err != nil {
 		return 0, nil, err
 	}
 

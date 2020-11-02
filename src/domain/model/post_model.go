@@ -16,3 +16,8 @@ type Post struct {
 	Detail    string     `json:"detail" gorm:"type:varchar(512);not null;default:''"`
 	MovieURL  string     `json:"movie_url" gorm:"type:varchar(256);not null;default:''"`
 }
+
+type GetPostResult struct {
+	Post
+	UserName string `json:"user_name"`
+}

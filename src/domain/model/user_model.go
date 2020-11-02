@@ -14,5 +14,4 @@ type User struct {
 	Email     string     `json:"email" gorm:"type:varchar(256);not null;default:'';unique"`
 	Password  string     `json:"password" gorm:"type:varchar(256);not null;default:''"`
 	ImageURL  string     `json:"image_url" gorm:"type:varchar(256);not null;default:''"`
-	Posts     []Post
 }
