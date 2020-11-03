@@ -1,12 +1,16 @@
 package handler
 
 import (
+	"crypto/sha1"
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/request"
 	"github.com/k-kazuya0926/power-phrase2-api/usecase"
 	"github.com/labstack/echo"
+	"github.com/olahol/go-imageupload"
 )
 
 type (
@@ -39,11 +43,24 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	err := handler.UserUseCase.CreateUser(
+	// 画像アップロード
+	img, err := imageupload.Process(c.Request(), "ImageFile")
+	if err != nil {
+		panic(err) // TODO
+	}
+	thumb, err := imageupload.ThumbnailPNG(img, 300, 300)
+	if err != nil {
+		panic(err) // TODO
+	}
+	h := sha1.Sum(thumb.Data)
+	fileName := fmt.Sprintf("%s_%x.png", time.Now().Format("20060102150405"), h[:])
+	thumb.Save("assets/" + fileName)
+
+	err = handler.UserUseCase.CreateUser(
 		request.Name,
 		request.Email,
 		request.Password,
-		request.ImageURL,
+		"/images/"+fileName,
 	)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
