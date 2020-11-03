@@ -46,11 +46,11 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 	// 画像アップロード
 	img, err := imageupload.Process(c.Request(), "ImageFile")
 	if err != nil {
-		panic(err) // TODO
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 	thumb, err := imageupload.ThumbnailPNG(img, 300, 300)
 	if err != nil {
-		panic(err) // TODO
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 	h := sha1.Sum(thumb.Data)
 	fileName := fmt.Sprintf("%s_%x.png", time.Now().Format("20060102150405"), h[:])
