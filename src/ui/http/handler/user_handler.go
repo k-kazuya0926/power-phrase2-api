@@ -128,7 +128,7 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		request.Name,
 		request.Email,
 		request.Password,
-		request.ImageURL,
+		"", // TODO 実装
 	)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

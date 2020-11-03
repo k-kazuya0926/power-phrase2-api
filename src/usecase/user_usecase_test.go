@@ -50,10 +50,10 @@ func (repository *mockUserRepository) Delete(id int) error {
 // 入力用ユーザー
 func getMockUserForInput(id int) *model.User {
 	user := &model.User{
-		Name:     fmt.Sprintf("testuser%d", id),
-		Email:    fmt.Sprintf("testuser%d@example.com", id),
-		Password: fmt.Sprintf("testuser%d", id),
-		ImageURL: fmt.Sprintf("http://www.example.com/%d", id),
+		Name:          fmt.Sprintf("testuser%d", id),
+		Email:         fmt.Sprintf("testuser%d@example.com", id),
+		Password:      fmt.Sprintf("testuser%d", id),
+		ImageFilePath: fmt.Sprintf("/images/%d.png", id),
 	}
 	return user
 }
@@ -79,7 +79,7 @@ func TestCreateUser_success(t *testing.T) {
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(nil)
 
 	// 2. Exercise
-	err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageURL)
+	err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)
 
 	// 3. Verify
 	assert.NoError(t, err)
@@ -96,7 +96,7 @@ func TestCreateUser_error(t *testing.T) {
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(errors.New("error"))
 
 	// 2. Exercise
-	err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageURL)
+	err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)
 
 	// 3. Verify
 	assert.Error(t, err)
@@ -186,7 +186,7 @@ func TestGetUser_success(t *testing.T) {
 	assert.Equal(t, expected.Name, user.Name)
 	assert.Equal(t, expected.Password, user.Password)
 	assert.Equal(t, expected.Email, user.Email)
-	assert.Equal(t, expected.ImageURL, user.ImageURL)
+	assert.Equal(t, expected.ImageFilePath, user.ImageFilePath)
 
 	// 4. Teardown
 }
@@ -218,7 +218,7 @@ func TestUpdateUser_success(t *testing.T) {
 	repository.On("Update", mock.AnythingOfType("*model.User")).Return(nil)
 
 	// 2. Exercise
-	err := usecase.UpdateUser(id, user.Name, user.Email, user.Password, user.ImageURL)
+	err := usecase.UpdateUser(id, user.Name, user.Email, user.Password, user.ImageFilePath)
 
 	// 3. Verify
 	assert.NoError(t, err)
@@ -234,7 +234,7 @@ func TestUpdateUser_error(t *testing.T) {
 	repository.On("Update", mock.AnythingOfType("*model.User")).Return(errors.New("error"))
 
 	// 2. Exercise
-	err := usecase.UpdateUser(id, user.Name, user.Email, user.Password, user.ImageURL)
+	err := usecase.UpdateUser(id, user.Name, user.Email, user.Password, user.ImageFilePath)
 
 	// 3. Verify
 	assert.Error(t, err)

@@ -23,8 +23,8 @@ type mockUserUseCase struct {
 	mock.Mock
 }
 
-func (usecase *mockUserUseCase) CreateUser(name, email, password, imageURL string) (err error) {
-	return usecase.Called(name, email, password, imageURL).Error(0)
+func (usecase *mockUserUseCase) CreateUser(name, email, password, imageFilePath string) (err error) {
+	return usecase.Called(name, email, password, imageFilePath).Error(0)
 }
 
 func (usecase *mockUserUseCase) Login(email, password string) (userID int, token string, err error) {
@@ -41,8 +41,8 @@ func (usecase *mockUserUseCase) GetUser(id int) (*model.User, error) {
 	return user.(*model.User), args.Error(1)
 }
 
-func (usecase *mockUserUseCase) UpdateUser(userID int, name, email, password, imageURL string) error {
-	return usecase.Called(userID, name, email, password, imageURL).Error(0)
+func (usecase *mockUserUseCase) UpdateUser(userID int, name, email, password, imageFilePath string) error {
+	return usecase.Called(userID, name, email, password, imageFilePath).Error(0)
 }
 
 func (usecase *mockUserUseCase) DeleteUser(id int) error {
@@ -51,13 +51,13 @@ func (usecase *mockUserUseCase) DeleteUser(id int) error {
 
 func getMockUser(id int) *model.User {
 	return &model.User{
-		ID:        id,
-		CreatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
-		UpdatedAt: time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
-		Name:      fmt.Sprintf("testuser%d", id),
-		Email:     fmt.Sprintf("testuser%d@example.com", id),
-		Password:  fmt.Sprintf("testuser%d", id),
-		ImageURL:  fmt.Sprintf("http://www.example.com/%d", id),
+		ID:            id,
+		CreatedAt:     time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
+		UpdatedAt:     time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
+		Name:          fmt.Sprintf("testuser%d", id),
+		Email:         fmt.Sprintf("testuser%d@example.com", id),
+		Password:      fmt.Sprintf("testuser%d", id),
+		ImageFilePath: fmt.Sprintf("/images/%d.png", id),
 	}
 }
 
@@ -82,7 +82,7 @@ func TestCreateUser_success(t *testing.T) {
 	c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
 
 	usecase := mockUserUseCase{}
-	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageURL).Return(nil)
+	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageFilePath).Return(nil)
 	handler := NewUserHandler(&usecase)
 
 	// 2. Exercise
@@ -148,7 +148,7 @@ func TestCreateUser_error_usecaseError(t *testing.T) {
 	c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
 
 	usecase := mockUserUseCase{}
-	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageURL).Return(errors.New("error"))
+	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageFilePath).Return(errors.New("error"))
 	handler := NewUserHandler(&usecase)
 
 	// 2. Exercise
@@ -340,7 +340,7 @@ func TestUpdateUser_success(t *testing.T) {
 	c.SetParamValues(fmt.Sprint(1))
 
 	usecase := mockUserUseCase{}
-	usecase.On("UpdateUser", user.ID, user.Name, user.Email, user.Password, user.ImageURL).Return(nil)
+	usecase.On("UpdateUser", user.ID, user.Name, user.Email, user.Password, user.ImageFilePath).Return(nil)
 	handler := NewUserHandler(&usecase)
 
 	// 2. Exercise
@@ -411,7 +411,7 @@ func TestUpdateUser_error_usecaseError(t *testing.T) {
 	c.SetParamValues(fmt.Sprint(id))
 
 	usecase := mockUserUseCase{}
-	usecase.On("UpdateUser", user.ID, user.Name, user.Email, user.Password, user.ImageURL).Return(errors.New("error"))
+	usecase.On("UpdateUser", user.ID, user.Name, user.Email, user.Password, user.ImageFilePath).Return(errors.New("error"))
 	handler := NewUserHandler(&usecase)
 
 	// 2. Exercise

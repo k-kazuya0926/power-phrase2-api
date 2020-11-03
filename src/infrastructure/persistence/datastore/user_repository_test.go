@@ -40,7 +40,7 @@ func TestUserRepository_Create(t *testing.T) {
 	assert.Equal(t, userForInput.Name, user.Name)
 	assert.Equal(t, userForInput.Email, user.Email)
 	assert.Equal(t, userForInput.Password, user.Password)
-	assert.Equal(t, userForInput.ImageURL, user.ImageURL)
+	assert.Equal(t, userForInput.ImageFilePath, user.ImageFilePath)
 
 	// 4. Teardown
 	teardown(db)
@@ -67,7 +67,7 @@ func TestUserRepository_FetchByEmail(t *testing.T) {
 	assert.Equal(t, userForInput.Name, user.Name)
 	assert.Equal(t, userForInput.Email, user.Email)
 	assert.Equal(t, userForInput.Password, user.Password)
-	assert.Equal(t, userForInput.ImageURL, user.ImageURL)
+	assert.Equal(t, userForInput.ImageFilePath, user.ImageFilePath)
 
 	// 4. Teardown
 	teardown(db)
@@ -96,7 +96,7 @@ func TestUserRepository_FetchById(t *testing.T) {
 	assert.Equal(t, userForInput.Name, actualUser.Name)
 	assert.Equal(t, userForInput.Email, actualUser.Email)
 	assert.Equal(t, "", actualUser.Password)
-	assert.Equal(t, userForInput.ImageURL, actualUser.ImageURL)
+	assert.Equal(t, userForInput.ImageFilePath, actualUser.ImageFilePath)
 
 	// 4. Teardown
 	teardown(db)
@@ -114,7 +114,7 @@ func TestUserRepository_Update(t *testing.T) {
 	userForInput.Name = "testuser2"
 	userForInput.Email = "testuser2@example.com"
 	userForInput.Password = "testuser2"
-	userForInput.ImageURL = "http://www.example.com/2"
+	userForInput.ImageFilePath = "/images/2.png"
 
 	// 2. Exercise
 	err := repository.Update(userForInput)
@@ -133,7 +133,7 @@ func TestUserRepository_Update(t *testing.T) {
 	assert.Equal(t, userForInput.Name, user.Name)
 	assert.Equal(t, userForInput.Email, user.Email)
 	assert.Equal(t, userForInput.Password, user.Password)
-	assert.Equal(t, userForInput.ImageURL, user.ImageURL)
+	assert.Equal(t, userForInput.ImageFilePath, user.ImageFilePath)
 
 	// 4. Teardown
 	teardown(db)
@@ -164,10 +164,10 @@ func TestUserRepository_Delete(t *testing.T) {
 // 入力用ユーザー
 func getMockUserForInput(id int) *model.User {
 	user := &model.User{
-		Name:     fmt.Sprintf("testuser%d", id),
-		Email:    fmt.Sprintf("testuser%d@example.com", id),
-		Password: fmt.Sprintf("testuser%d", id),
-		ImageURL: fmt.Sprintf("http://www.example.com/%d", id),
+		Name:          fmt.Sprintf("testuser%d", id),
+		Email:         fmt.Sprintf("testuser%d@example.com", id),
+		Password:      fmt.Sprintf("testuser%d", id),
+		ImageFilePath: fmt.Sprintf("/images/%d.png", id),
 	}
 	return user
 }

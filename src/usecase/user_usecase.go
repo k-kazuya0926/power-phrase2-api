@@ -11,10 +11,10 @@ import (
 )
 
 type UserUseCase interface {
-	CreateUser(name, email, password, imageURL string) (err error)
+	CreateUser(name, email, password, imageFilePath string) (err error)
 	Login(email, password string) (userID int, token string, err error)
 	GetUser(id int) (*model.User, error)
-	UpdateUser(userID int, name, email, password, imageURL string) error
+	UpdateUser(userID int, name, email, password, imageFilePath string) error
 	DeleteUser(id int) error
 }
 
@@ -27,7 +27,7 @@ func NewUserUseCase(repository repository.UserRepository) UserUseCase {
 	return &userUseCase{repository}
 }
 
-func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (err error) {
+func (usecase *userUseCase) CreateUser(name, email, password, imageFilePath string) (err error) {
 	// パスワード暗号化
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -38,7 +38,7 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageURL string) (
 		Name:     name,
 		Email:    email,
 		Password: string(passwordHash),
-		ImageURL: imageURL,
+		ImageFilePath: imageFilePath,
 	}
 	err = usecase.UserRepository.Create(&user)
 
@@ -90,7 +90,7 @@ func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
 	return user, nil
 }
 
-func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageURL string) error {
+func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageFilePath string) error {
 	// パスワード暗号化
 	newPassword := ""
 	if password != "" {
@@ -106,7 +106,7 @@ func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageU
 		Name:     name,
 		Email:    email,
 		Password: newPassword,
-		ImageURL: imageURL,
+		ImageFilePath: imageFilePath,
 	}
 	if err := usecase.UserRepository.Update(&user); err != nil {
 		return err
