@@ -34,11 +34,12 @@ func (usecase *mockUserUseCase) Login(email, password string) (userID int, token
 
 func (usecase *mockUserUseCase) GetUser(id int) (*model.User, error) {
 	args := usecase.Called(id)
-	user := args.Get(0)
-	if user == nil {
+	user, ok := args.Get(0).(*model.User)
+	if ok {
+		return user, args.Error(1)
+	} else {
 		return nil, args.Error(1)
 	}
-	return user.(*model.User), args.Error(1)
 }
 
 func (usecase *mockUserUseCase) UpdateUser(userID int, name, email, password, imageFilePath string) error {

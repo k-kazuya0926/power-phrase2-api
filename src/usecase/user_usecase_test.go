@@ -23,11 +23,12 @@ func (repository *mockUserRepository) Create(user *model.User) error {
 
 func (repository *mockUserRepository) FetchByEmail(email string) (*model.User, error) {
 	args := repository.Called(email)
-	user := args.Get(0)
-	if user == nil {
+	user, ok := args.Get(0).(*model.User)
+	if ok {
+		return user, args.Error(1)
+	} else {
 		return nil, args.Error(1)
 	}
-	return user.(*model.User), args.Error(1)
 }
 
 func (repository *mockUserRepository) FetchByID(id int) (*model.User, error) {

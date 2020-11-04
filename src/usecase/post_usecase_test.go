@@ -22,20 +22,22 @@ func (repository *mockPostRepository) Create(post *model.Post) error {
 
 func (repository *mockPostRepository) Fetch(limit, page int, keyword string) (int, []*model.GetPostResult, error) {
 	args := repository.Called(limit, page, keyword)
-	posts := args.Get(1)
-	if posts == nil {
+	posts, ok := args.Get(1).([]*model.GetPostResult)
+	if ok {
+		return args.Int(0), posts, args.Error(2)
+	} else {
 		return args.Int(0), nil, args.Error(2)
 	}
-	return args.Int(0), posts.([]*model.GetPostResult), args.Error(2)
 }
 
 func (repository *mockPostRepository) FetchByID(id int) (*model.GetPostResult, error) {
 	args := repository.Called(id)
-	post := args.Get(0)
-	if post == nil {
+	post, ok := args.Get(0).(*model.GetPostResult)
+	if ok {
+		return post, args.Error(1)
+	} else {
 		return nil, args.Error(1)
 	}
-	return post.(*model.GetPostResult), args.Error(1)
 }
 
 func (repository *mockPostRepository) Update(post *model.Post) error {

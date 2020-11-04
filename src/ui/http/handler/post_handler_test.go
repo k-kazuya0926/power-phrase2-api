@@ -27,19 +27,22 @@ func (usecase *mockPostUseCase) CreatePost(userID int, title, speaker, detail, m
 
 func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string) (totalCount int, posts []*model.GetPostResult, err error) {
 	args := usecase.Called(limit, offset, keyword)
-	if args.Get(1) == nil {
+	posts, ok := args.Get(1).([]*model.GetPostResult)
+	if ok {
+		return args.Int(0), posts, args.Error(2)
+	} else {
 		return args.Int(0), nil, args.Error(2)
 	}
-	return args.Int(0), args.Get(1).([]*model.GetPostResult), args.Error(2)
 }
 
 func (usecase *mockPostUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	args := usecase.Called(id)
-	post := args.Get(0)
-	if post == nil {
+	post, ok := args.Get(0).(*model.GetPostResult)
+	if ok {
+		return post, args.Error(1)
+	} else {
 		return nil, args.Error(1)
 	}
-	return post.(*model.GetPostResult), args.Error(1)
 }
 
 func (usecase *mockPostUseCase) UpdatePost(ID int, title, speaker, detail, movieURL string) error {
