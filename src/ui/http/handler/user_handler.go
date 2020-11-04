@@ -60,7 +60,7 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	err := handler.UserUseCase.CreateUser(
+	userID, token, err := handler.UserUseCase.CreateUser(
 		request.Name,
 		request.Email,
 		request.Password,
@@ -70,7 +70,10 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"id":    userID,
+		"token": token,
+	})
 }
 
 func (handler *userHandler) Login(c echo.Context) error {

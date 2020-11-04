@@ -11,7 +11,7 @@ import (
 )
 
 type UserUseCase interface {
-	CreateUser(name, email, password, imageFilePath string) (err error)
+	CreateUser(name, email, password, imageFilePath string) (userID int, token string, err error)
 	Login(email, password string) (userID int, token string, err error)
 	GetUser(id int) (*model.User, error)
 	UpdateUser(userID int, name, email, password, imageFilePath string) error
@@ -27,22 +27,28 @@ func NewUserUseCase(repository repository.UserRepository) UserUseCase {
 	return &userUseCase{repository}
 }
 
-func (usecase *userUseCase) CreateUser(name, email, password, imageFilePath string) (err error) {
+func (usecase *userUseCase) CreateUser(name, email, password, imageFilePath string) (userID int, token string, err error) {
 	// パスワード暗号化
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return 0, "", err
 	}
 
 	user := model.User{
-		Name:     name,
-		Email:    email,
-		Password: string(passwordHash),
+		Name:          name,
+		Email:         email,
+		Password:      string(passwordHash),
 		ImageFilePath: imageFilePath,
 	}
-	err = usecase.UserRepository.Create(&user)
 
-	return err
+	if err = usecase.UserRepository.Create(&user); err != nil {
+		return 0, "", err
+	}
+
+	// JWTトークン生成
+	token, err = createToken(&user)
+
+	return user.ID, token, err
 }
 
 func (usecase *userUseCase) Login(email, password string) (userID int, token string, err error) {
@@ -102,10 +108,10 @@ func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageF
 	}
 
 	user := model.User{
-		ID:       userID,
-		Name:     name,
-		Email:    email,
-		Password: newPassword,
+		ID:            userID,
+		Name:          name,
+		Email:         email,
+		Password:      newPassword,
 		ImageFilePath: imageFilePath,
 	}
 	if err := usecase.UserRepository.Update(&user); err != nil {

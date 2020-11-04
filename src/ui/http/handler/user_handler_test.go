@@ -23,8 +23,9 @@ type mockUserUseCase struct {
 	mock.Mock
 }
 
-func (usecase *mockUserUseCase) CreateUser(name, email, password, imageFilePath string) (err error) {
-	return usecase.Called(name, email, password, imageFilePath).Error(0)
+func (usecase *mockUserUseCase) CreateUser(name, email, password, imageFilePath string) (userID int, token string, err error) {
+	args := usecase.Called(name, email, password, imageFilePath)
+	return args.Int(0), args.String(1), args.Error(2)
 }
 
 func (usecase *mockUserUseCase) Login(email, password string) (userID int, token string, err error) {
@@ -73,7 +74,8 @@ func createContext(method, path string, body io.Reader, rec *httptest.ResponseRe
 // ユーザー登録テスト
 func TestCreateUser_success(t *testing.T) {
 	// 1. Setup
-	user := getMockUser(1)
+	id := 1
+	user := getMockUser(id)
 	jsonBytes, err := json.Marshal(user)
 	if err != nil {
 		t.Fatal(err)
@@ -83,7 +85,7 @@ func TestCreateUser_success(t *testing.T) {
 	c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
 
 	usecase := mockUserUseCase{}
-	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageFilePath).Return(nil)
+	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageFilePath).Return(id, "token", nil)
 	handler := NewUserHandler(&usecase)
 
 	// 2. Exercise
@@ -149,7 +151,7 @@ func TestCreateUser_error_usecaseError(t *testing.T) {
 	c := createContext(echo.POST, "/users", strings.NewReader(string(jsonBytes)), rec)
 
 	usecase := mockUserUseCase{}
-	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageFilePath).Return(errors.New("error"))
+	usecase.On("CreateUser", user.Name, user.Email, user.Password, user.ImageFilePath).Return(0, "", errors.New("error"))
 	handler := NewUserHandler(&usecase)
 
 	// 2. Exercise

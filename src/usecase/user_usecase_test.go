@@ -18,7 +18,9 @@ type mockUserRepository struct {
 }
 
 func (repository *mockUserRepository) Create(user *model.User) error {
-	return repository.Called(user).Error(0)
+	args := repository.Called(user)
+	user.ID = 1
+	return args.Error(0)
 }
 
 func (repository *mockUserRepository) FetchByEmail(email string) (*model.User, error) {
@@ -80,10 +82,12 @@ func TestCreateUser_success(t *testing.T) {
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(nil)
 
 	// 2. Exercise
-	err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)
+	userID, token, err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)
 
 	// 3. Verify
 	assert.NoError(t, err)
+	assert.Equal(t, id, userID)
+	assert.NotEqual(t, "", token)
 
 	// 4. Teardown
 }
@@ -97,10 +101,12 @@ func TestCreateUser_error(t *testing.T) {
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(errors.New("error"))
 
 	// 2. Exercise
-	err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)
+	userID, token, err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)
 
 	// 3. Verify
 	assert.Error(t, err)
+	assert.Equal(t, 0, userID)
+	assert.Equal(t, "", token)
 
 	// 4. Teardown
 }
