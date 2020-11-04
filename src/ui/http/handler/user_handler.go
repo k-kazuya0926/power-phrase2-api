@@ -16,6 +16,7 @@ import (
 type (
 	// UserHandler interface
 	UserHandler interface {
+		UploadImageFile(c echo.Context) error
 		CreateUser(c echo.Context) error
 		Login(c echo.Context) error
 		GetUser(c echo.Context) error
@@ -33,17 +34,7 @@ func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 	return &userHandler{usecase}
 }
 
-func (handler *userHandler) CreateUser(c echo.Context) error {
-	request := new(request.CreateUserRequest)
-	if err := c.Bind(request); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
-	}
-
-	if err := c.Validate(request); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
-	}
-
-	// 画像アップロード
+func (handler *userHandler) UploadImageFile(c echo.Context) error {
 	img, err := imageupload.Process(c.Request(), "ImageFile")
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
@@ -54,13 +45,26 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 	}
 	h := sha1.Sum(thumb.Data)
 	fileName := fmt.Sprintf("%s_%x.png", time.Now().Format("20060102150405"), h[:])
-	thumb.Save("assets/" + fileName)
+	thumb.Save("assets/images/" + fileName)
 
-	err = handler.UserUseCase.CreateUser(
+	return c.String(http.StatusOK, "images/"+fileName)
+}
+
+func (handler *userHandler) CreateUser(c echo.Context) error {
+	request := new(request.CreateUserRequest)
+	if err := c.Bind(request); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	if err := c.Validate(request); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	err := handler.UserUseCase.CreateUser(
 		request.Name,
 		request.Email,
 		request.Password,
-		"/images/"+fileName,
+		request.ImageFilePath,
 	)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -128,7 +132,7 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 		request.Name,
 		request.Email,
 		request.Password,
-		"", // TODO 実装
+		request.ImageFilePath,
 	)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

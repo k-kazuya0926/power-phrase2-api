@@ -9,6 +9,7 @@ import (
 func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	e.Static("/", "assets")
 
+	e.POST("/profile", handler.UploadImageFile)
 	e.POST("/users", handler.CreateUser)
 	e.POST("/login", handler.Login)
 	e.GET("/users/:id", handler.GetUser)
