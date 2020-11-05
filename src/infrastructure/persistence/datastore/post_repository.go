@@ -25,14 +25,18 @@ func (repository *postRepository) Fetch(limit, page int, keyword string) (totalC
 	db := conf.NewDBConnection()
 	defer db.Close()
 
+	countDb := conf.NewDBConnection()
+	defer countDb.Close()
+
 	offset := limit * (page - 1)
 
 	if keyword != "" {
 		// TODO タイトル以外も対象にする
+		countDb = countDb.Where("title LIKE ?", "%"+keyword+"%")
 		db = db.Where("title LIKE ?", "%"+keyword+"%")
 	}
 
-	if err = db.Model(&model.Post{}).Count(&totalCount).Error; err != nil {
+	if err = countDb.Model(&model.Post{}).Count(&totalCount).Error; err != nil {
 		return 0, nil, err
 	}
 
