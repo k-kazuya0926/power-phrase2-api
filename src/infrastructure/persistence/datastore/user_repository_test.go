@@ -114,7 +114,7 @@ func TestUserRepository_Update(t *testing.T) {
 	userForInput.Name = "testuser2"
 	userForInput.Email = "testuser2@example.com"
 	userForInput.Password = "testuser2"
-	userForInput.ImageFilePath = "/images/2.png"
+	userForInput.ImageFilePath = "images/2.png"
 
 	// 2. Exercise
 	err := repository.Update(userForInput)
@@ -167,7 +167,7 @@ func getMockUserForInput(id int) *model.User {
 		Name:          fmt.Sprintf("testuser%d", id),
 		Email:         fmt.Sprintf("testuser%d@example.com", id),
 		Password:      fmt.Sprintf("testuser%d", id),
-		ImageFilePath: fmt.Sprintf("/images/%d.png", id),
+		ImageFilePath: fmt.Sprintf("images/%d.png", id),
 	}
 	return user
 }

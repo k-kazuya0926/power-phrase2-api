@@ -59,7 +59,7 @@ func getMockUser(id int) *model.User {
 		Name:          fmt.Sprintf("testuser%d", id),
 		Email:         fmt.Sprintf("testuser%d@example.com", id),
 		Password:      fmt.Sprintf("testuser%d", id),
-		ImageFilePath: fmt.Sprintf("/images/%d.png", id),
+		ImageFilePath: fmt.Sprintf("images/%d.png", id),
 	}
 }
 

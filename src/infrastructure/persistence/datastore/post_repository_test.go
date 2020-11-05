@@ -194,7 +194,8 @@ func getMockPost(userID int) *model.Post {
 
 func getMockGetPostResult(userID int) *model.GetPostResult {
 	return &model.GetPostResult{
-		Post:     *getMockPost(userID),
-		UserName: fmt.Sprintf("testuser%d", userID),
+		Post:              *getMockPost(userID),
+		UserName:          fmt.Sprintf("testuser%d", userID),
+		UserImageFilePath: fmt.Sprintf("images/%d.png", userID),
 	}
 }

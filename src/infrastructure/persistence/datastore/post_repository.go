@@ -37,7 +37,7 @@ func (repository *postRepository) Fetch(limit, page int, keyword string) (totalC
 	}
 
 	if err = db.Table("posts").
-		Select("posts.*, users.name as user_name").
+		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
 		Joins("LEFT JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
 		Order("id DESC").Limit(limit).Offset(offset).
 		Scan(&posts).Error; err != nil {
@@ -54,7 +54,7 @@ func (repository *postRepository) FetchByID(id int) (*model.GetPostResult, error
 	post := model.GetPostResult{}
 	post.ID = id
 	if err := db.Table("posts").
-		Select("posts.*, users.name as user_name").
+		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
 		Joins("LEFT JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
 		Scan(&post).Error; err != nil {
 		return nil, err

@@ -19,6 +19,7 @@ type Post struct {
 
 type GetPostResult struct {
 	Post
-	EmbedMovieURL string `json:"embed_movie_url"`
-	UserName      string `json:"user_name"`
+	EmbedMovieURL     string `json:"embed_movie_url"`
+	UserName          string `json:"user_name"`
+	UserImageFilePath string `json:"user_image_file_path"`
 }

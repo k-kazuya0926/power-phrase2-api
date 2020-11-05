@@ -66,9 +66,10 @@ func getMockPost(id int) *model.Post {
 
 func getMockGetPostResult(id int) *model.GetPostResult {
 	return &model.GetPostResult{
-		Post:          *getMockPost(id),
-		EmbedMovieURL: fmt.Sprintf("https://www.example.com/embed/%d", id),
-		UserName:      fmt.Sprintf("testuser%d", id),
+		Post:              *getMockPost(id),
+		EmbedMovieURL:     fmt.Sprintf("https://www.example.com/embed/%d", id),
+		UserName:          fmt.Sprintf("testuser%d", id),
+		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
 	}
 }
 

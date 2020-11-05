@@ -72,8 +72,9 @@ func getMockPostForRead(id int) *model.Post {
 func getMockGetPostResult(id int) *model.GetPostResult {
 	post := getMockPostForRead(id)
 	return &model.GetPostResult{
-		Post:     *post,
-		UserName: fmt.Sprintf("username%d", id),
+		Post:              *post,
+		UserName:          fmt.Sprintf("username%d", id),
+		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
 	}
 }
 
