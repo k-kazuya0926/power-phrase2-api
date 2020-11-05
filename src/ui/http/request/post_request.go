@@ -10,9 +10,10 @@ type (
 	}
 
 	GetPostsRequest struct {
-		Limit   int    `json:"limit" validate:"min=1"`
-		Page    int    `json:"page" validate:"min=1"`
+		Limit   int    `json:"limit" validate:"required,min=1"`
+		Page    int    `json:"page" validate:"required,min=1"`
 		Keyword string `json:"keyword" validate:"max=100"`
+		UserID  int    `json:"user_id" validate:"min=0"`
 	}
 
 	GetPostRequest struct {

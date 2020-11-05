@@ -20,8 +20,8 @@ func (repository *mockPostRepository) Create(post *model.Post) error {
 	return repository.Called(post).Error(0)
 }
 
-func (repository *mockPostRepository) Fetch(limit, page int, keyword string) (int, []*model.GetPostResult, error) {
-	args := repository.Called(limit, page, keyword)
+func (repository *mockPostRepository) Fetch(limit, page int, keyword string, userID int) (int, []*model.GetPostResult, error) {
+	args := repository.Called(limit, page, keyword, userID)
 	posts, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), posts, args.Error(2)
@@ -121,12 +121,13 @@ func TestGetPosts_success(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
+	userID := 0 // TODO ユーザーID指定がある場合
 	expectedTotalCount := 2
 	expectedPosts := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
-	repository.On("Fetch", limit, page, keyword).Return(expectedTotalCount, expectedPosts, nil)
+	repository.On("Fetch", limit, page, keyword, userID).Return(expectedTotalCount, expectedPosts, nil)
 
 	// 2. Exercise
-	totalCount, posts, err := usecase.GetPosts(limit, page, keyword)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, userID)
 
 	// 3. Verify
 	assert.NoError(t, err)
@@ -145,10 +146,11 @@ func TestGetPosts_error(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	repository.On("Fetch", limit, page, keyword).Return(0, nil, errors.New("error"))
+	userID := 0 // TODO ユーザーID指定がある場合
+	repository.On("Fetch", limit, page, keyword, userID).Return(0, nil, errors.New("error"))
 
 	// 2. Execise
-	totalCount, posts, err := usecase.GetPosts(limit, page, keyword)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, userID)
 
 	// 3. Verify
 	assert.Error(t, err)

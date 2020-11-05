@@ -62,6 +62,10 @@ func (handler *postHandler) GetPosts(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, "page：数値で入力してください。")
 	}
+	userID, err := strconv.Atoi(c.QueryParam("user_id"))
+	if err != nil {
+		userID = 0
+	}
 
 	keyword := c.QueryParam("keyword")
 
@@ -69,12 +73,13 @@ func (handler *postHandler) GetPosts(c echo.Context) error {
 		Limit:   limit,
 		Page:    page,
 		Keyword: keyword,
+		UserID:  userID,
 	}
 	if err := c.Validate(request); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	totalCount, posts, err := handler.PostUseCase.GetPosts(limit, page, keyword)
+	totalCount, posts, err := handler.PostUseCase.GetPosts(limit, page, keyword, userID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

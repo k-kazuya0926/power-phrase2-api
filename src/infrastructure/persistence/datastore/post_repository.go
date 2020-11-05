@@ -21,7 +21,7 @@ func (repository *postRepository) Create(post *model.Post) error {
 	return db.Create(post).Error
 }
 
-func (repository *postRepository) Fetch(limit, page int, keyword string) (totalCount int, posts []*model.GetPostResult, err error) {
+func (repository *postRepository) Fetch(limit, page int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
@@ -34,6 +34,11 @@ func (repository *postRepository) Fetch(limit, page int, keyword string) (totalC
 		// TODO タイトル以外も対象にする
 		countDb = countDb.Where("title LIKE ?", "%"+keyword+"%")
 		db = db.Where("title LIKE ?", "%"+keyword+"%")
+	}
+
+	if userID > 0 { // ユーザーIDが指定されている場合
+		countDb = countDb.Where("user_id = ?", userID)
+		db = db.Where("user_id = ?", userID)
 	}
 
 	if err = countDb.Model(&model.Post{}).Count(&totalCount).Error; err != nil {
