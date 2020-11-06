@@ -54,7 +54,7 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageFilePath stri
 func (usecase *userUseCase) Login(email, password string) (userID int, token string, err error) {
 	user, err := usecase.UserRepository.FetchByEmail(email)
 	if err != nil {
-		return 0, "", err
+		return 0, "", errors.New("メールアドレスまたはパスワードに誤りがあります。")
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
