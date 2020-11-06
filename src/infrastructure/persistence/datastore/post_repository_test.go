@@ -94,6 +94,10 @@ func TestPostRepository_FetchById(t *testing.T) {
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
+	postForInput2 := getMockPost(userForInput.ID)
+	db.Create(&postForInput2)
+	db.First(&postForInput2)
+
 	repository := &postRepository{}
 
 	// 2. Exercise

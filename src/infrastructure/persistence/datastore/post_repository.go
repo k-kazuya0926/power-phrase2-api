@@ -65,7 +65,7 @@ func (repository *postRepository) FetchByID(id int) (*model.GetPostResult, error
 	if err := db.Table("posts").
 		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
 		Joins("LEFT JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
-		Scan(&post).Error; err != nil {
+		First(&post).Error; err != nil {
 		return nil, err
 	}
 
