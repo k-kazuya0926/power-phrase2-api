@@ -5,7 +5,6 @@ import (
 
 	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/interactor"
-	"github.com/k-kazuya0926/power-phrase2-api/ui/http/middleware"
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/router"
 	"github.com/k-kazuya0926/power-phrase2-api/validator"
 	"github.com/labstack/echo"
@@ -19,7 +18,6 @@ func main() {
 	handler := interactor.NewAppHandler()
 
 	router.SetRoutes(e, handler)
-	middleware.SetMiddlewares(e)
 
 	e.Validator = validator.NewValidator()
 

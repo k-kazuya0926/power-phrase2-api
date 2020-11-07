@@ -3,22 +3,36 @@ package router
 import (
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/handler"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 // SetRoutes Routerの設定を行います.
 func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
+	}))
+
 	e.Static("/", "assets")
 
-	e.POST("/users/images", handler.UploadImageFile)
-	e.POST("/users", handler.CreateUser)
-	e.POST("/login", handler.Login)
-	e.GET("/users/:id", handler.GetUser)
-	e.PUT("/users/:id", handler.UpdateUser)
-	e.DELETE("/users/:id", handler.DeleteUser)
+	// アクセス制限なし
+	unauthenticatedGroup := e.Group("/api/v1")
+	unauthenticatedGroup.POST("/users/images", handler.UploadImageFile)
+	unauthenticatedGroup.POST("/users", handler.CreateUser)
+	unauthenticatedGroup.POST("/login", handler.Login)
+	unauthenticatedGroup.GET("/posts", handler.GetPosts)
 
-	e.POST("/posts", handler.CreatePost)
-	e.GET("/posts", handler.GetPosts)
-	e.GET("/posts/:id", handler.GetPost)
-	e.PUT("/posts/:id", handler.UpdatePost)
-	e.DELETE("/posts/:id", handler.DeletePost)
+	// アクセス制限あり
+	authenticatedGroup := e.Group("/api/v1")
+	authenticatedGroup.Use(middleware.JWT([]byte("secret"))) // TODO 変更
+	authenticatedGroup.GET("/users/:id", handler.GetUser)
+	authenticatedGroup.PUT("/users/:id", handler.UpdateUser)
+	authenticatedGroup.DELETE("/users/:id", handler.DeleteUser)
+
+	authenticatedGroup.POST("/posts", handler.CreatePost)
+	authenticatedGroup.GET("/posts/:id", handler.GetPost)
+	authenticatedGroup.PUT("/posts/:id", handler.UpdatePost)
+	authenticatedGroup.DELETE("/posts/:id", handler.DeletePost)
 }
