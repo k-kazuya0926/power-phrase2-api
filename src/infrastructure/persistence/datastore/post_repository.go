@@ -49,7 +49,7 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, userID 
 		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
 		Joins("LEFT JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
 		Order("id DESC").Limit(limit).Offset(offset).
-		Scan(&posts).Error; err != nil {
+		Find(&posts).Error; err != nil {
 		return 0, nil, err
 	}
 
