@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -80,6 +81,8 @@ func TestCreateUser_success(t *testing.T) {
 	id := 1
 	user := getMockUserForInput(id)
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(nil)
+
+	conf.NewConfig(true)
 
 	// 2. Exercise
 	userID, token, err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)

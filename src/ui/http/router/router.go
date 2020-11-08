@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/handler"
+	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -26,7 +27,7 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 
 	// アクセス制限あり
 	authenticatedGroup := e.Group("/api/v1")
-	authenticatedGroup.Use(middleware.JWT([]byte("secret"))) // TODO 変更
+	authenticatedGroup.Use(middleware.JWT([]byte(conf.Current.Jwt.Secret)))
 	authenticatedGroup.GET("/users/:id", handler.GetUser)
 	authenticatedGroup.PUT("/users/:id", handler.UpdateUser)
 	authenticatedGroup.DELETE("/users/:id", handler.DeleteUser)

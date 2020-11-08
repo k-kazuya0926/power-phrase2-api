@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -69,8 +70,7 @@ func (usecase *userUseCase) Login(email, password string) (userID int, token str
 
 func createToken(user *model.User) (string, error) {
 	// 鍵となる文字列
-	// secret := os.Getenv("SECRET_KEY")
-	secret := "secret" // TODO 変更
+	secret := conf.Current.Jwt.Secret
 
 	// Create token
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -79,7 +79,6 @@ func createToken(user *model.User) (string, error) {
 	claims := token.Claims.(jwt.MapClaims)
 	claims["sub"] = user.ID
 	claims["name"] = user.Name
-	claims["picture"] = "TODO" // TODO
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	// Generate encoded token and send it as response.

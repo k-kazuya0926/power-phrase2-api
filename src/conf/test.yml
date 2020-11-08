@@ -5,3 +5,6 @@ database :
   user : "kazuya"
   password : "kazuya"
   database : "power-phrase2-test"
+
+jwt :
+  secret : power-phrase-secret

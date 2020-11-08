@@ -19,6 +19,9 @@ type Config struct {
 		Password string
 		Database string
 	}
+	Jwt struct {
+		Secret string
+	}
 }
 
 // Current runnnig configuration

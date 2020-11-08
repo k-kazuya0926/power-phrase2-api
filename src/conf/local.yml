@@ -9,3 +9,6 @@ database :
   user : "kazuya"
   password : "kazuya"
   database : "power-phrase2"
+
+jwt :
+  secret : power-phrase-secret
