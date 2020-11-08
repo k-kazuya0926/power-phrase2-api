@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -96,6 +97,11 @@ func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
 }
 
 func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageFilePath string) error {
+	oldUser, err := usecase.UserRepository.FetchByID(userID)
+	if err != nil {
+		return err
+	}
+
 	// パスワード暗号化
 	newPassword := ""
 	if password != "" {
@@ -106,16 +112,21 @@ func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageF
 		newPassword = string(passwordHash)
 	}
 
-	user := model.User{
+	newUser := model.User{
 		ID:            userID,
 		Name:          name,
 		Email:         email,
 		Password:      newPassword,
 		ImageFilePath: imageFilePath,
 	}
-	if err := usecase.UserRepository.Update(&user); err != nil {
+	if err := usecase.UserRepository.Update(&newUser); err != nil {
 		return err
 	}
+
+	if imageFilePath != "" {
+		return os.Remove("assets/" + oldUser.ImageFilePath)
+	}
+
 	return nil
 }
 
