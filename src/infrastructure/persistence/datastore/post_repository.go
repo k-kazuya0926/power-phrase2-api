@@ -31,9 +31,8 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, userID 
 	offset := limit * (page - 1)
 
 	if keyword != "" {
-		// TODO タイトル以外も対象にする
-		countDb = countDb.Where("title LIKE ?", "%"+keyword+"%")
-		db = db.Where("title LIKE ?", "%"+keyword+"%")
+		countDb = countDb.Where("title LIKE ?", "%"+keyword+"%").Or("speaker LIKE ?", "%"+keyword+"%").Or("detail LIKE ?", "%"+keyword+"%")
+		db = db.Where("title LIKE ?", "%"+keyword+"%").Or("speaker LIKE ?", "%"+keyword+"%").Or("detail LIKE ?", "%"+keyword+"%")
 	}
 
 	if userID > 0 { // ユーザーIDが指定されている場合
