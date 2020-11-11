@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/interactor"
@@ -11,7 +12,7 @@ import (
 )
 
 func main() {
-	conf.NewConfig(false)
+	conf.NewConfig()
 
 	e := echo.New()
 	interactor := interactor.NewInteractor() // TODO DI用のライブラリはないのかな？
@@ -21,7 +22,7 @@ func main() {
 
 	e.Validator = validator.NewValidator()
 
-	if err := e.Start(fmt.Sprintf(":%d", conf.Current.Server.Port)); err != nil {
+	if err := e.Start(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT"))); err != nil {
 		e.Logger.Fatal(fmt.Sprintf("Failed to start: %v", err))
 	}
 }

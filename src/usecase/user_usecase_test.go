@@ -3,10 +3,11 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
-	"github.com/k-kazuya0926/power-phrase2-api/conf"
+	"github.com/joho/godotenv"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -82,7 +83,9 @@ func TestCreateUser_success(t *testing.T) {
 	user := getMockUserForInput(id)
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(nil)
 
-	conf.NewConfig(true)
+	if err := godotenv.Load("../test.env"); err != nil {
+		log.Fatal("Error loading test.env file")
+	}
 
 	// 2. Exercise
 	userID, token, err := usecase.CreateUser(user.Name, user.Email, user.Password, user.ImageFilePath)
@@ -225,6 +228,7 @@ func TestUpdateUser_success(t *testing.T) {
 	usecase := NewUserUseCase(&repository)
 	id := 1
 	user := getMockUserForInput(id)
+	repository.On("FetchByID", id).Return(user, nil)
 	repository.On("Update", mock.AnythingOfType("*model.User")).Return(nil)
 
 	// 2. Exercise
@@ -241,6 +245,7 @@ func TestUpdateUser_error(t *testing.T) {
 	usecase := NewUserUseCase(&repository)
 	id := 1
 	user := getMockUserForInput(id)
+	repository.On("FetchByID", id).Return(user, nil)
 	repository.On("Update", mock.AnythingOfType("*model.User")).Return(errors.New("error"))
 
 	// 2. Exercise

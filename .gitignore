@@ -5,3 +5,4 @@ mysql/data
 __debug_bin
 src/tmp
 *.png
+main

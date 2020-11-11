@@ -2,13 +2,21 @@ package datastore
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/jinzhu/gorm"
+	"github.com/joho/godotenv"
 	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/stretchr/testify/assert"
 )
+
+func setup() {
+	if err := godotenv.Load("../../../test.env"); err != nil {
+		log.Fatal("Error loading test.env file")
+	}
+}
 
 func teardown(db *gorm.DB) {
 	db.DropTable(&model.Post{})
@@ -17,7 +25,8 @@ func teardown(db *gorm.DB) {
 
 func TestUserRepository_Create(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	repository := &userRepository{}
@@ -48,7 +57,8 @@ func TestUserRepository_Create(t *testing.T) {
 
 func TestUserRepository_FetchByEmail(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	repository := &userRepository{}
@@ -75,7 +85,8 @@ func TestUserRepository_FetchByEmail(t *testing.T) {
 
 func TestUserRepository_FetchById(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	userForInput := getMockUserForInput(1)
@@ -104,7 +115,8 @@ func TestUserRepository_FetchById(t *testing.T) {
 
 func TestUserRepository_Update(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	repository := &userRepository{}
@@ -141,7 +153,8 @@ func TestUserRepository_Update(t *testing.T) {
 
 func TestUserRepository_Delete(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	repository := &userRepository{}

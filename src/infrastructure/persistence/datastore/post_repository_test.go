@@ -11,7 +11,8 @@ import (
 
 func TestPostRepository_Create(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	userForInput := getMockUserForInput(1)
@@ -47,7 +48,8 @@ func TestPostRepository_Create(t *testing.T) {
 
 func TestPostRepository_Fetch(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	userForInput := getMockUserForInput(1)
@@ -83,7 +85,8 @@ func TestPostRepository_Fetch(t *testing.T) {
 
 func TestPostRepository_FetchById(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	userForInput := getMockUserForInput(1)
@@ -120,7 +123,8 @@ func TestPostRepository_FetchById(t *testing.T) {
 
 func TestPostRepository_Update(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	userForInput := getMockUserForInput(1)
@@ -163,7 +167,8 @@ func TestPostRepository_Update(t *testing.T) {
 
 func TestPostRepository_Delete(t *testing.T) {
 	// 1. Setup
-	db := conf.NewTestDBConnection()
+	setup()
+	db := conf.NewDBConnection()
 	defer db.Close()
 
 	userForInput := getMockUserForInput(1)

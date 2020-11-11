@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -71,7 +70,7 @@ func (usecase *userUseCase) Login(email, password string) (userID int, token str
 
 func createToken(user *model.User) (string, error) {
 	// 鍵となる文字列
-	secret := conf.Current.Jwt.Secret
+	secret := os.Getenv("JWT_SIGNING_KEY")
 
 	// Create token
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -124,7 +123,7 @@ func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageF
 	}
 
 	if imageFilePath != "" {
-		return os.Remove("assets/" + oldUser.ImageFilePath)
+		os.Remove("assets/" + oldUser.ImageFilePath)
 	}
 
 	return nil

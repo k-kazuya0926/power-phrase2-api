@@ -2,6 +2,7 @@ package conf
 
 import (
 	"fmt"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -13,19 +14,14 @@ func NewDBConnection() *gorm.DB {
 	return getMysqlConnection()
 }
 
-func NewTestDBConnection() *gorm.DB {
-	NewConfig(true)
-	return getMysqlConnection()
-}
-
 func getMysqlConnection() *gorm.DB {
 	connectionString := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local",
-		Current.Database.User,
-		Current.Database.Password,
-		Current.Database.Host,
-		Current.Database.Port,
-		Current.Database.Database,
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"),
 	)
 	db, err := gorm.Open("mysql", connectionString)
 	if err != nil {
