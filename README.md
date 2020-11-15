@@ -50,7 +50,7 @@ https://www.power-phrase.com/
 
 # インフラ構成図
 
-<img width="500" alt="インフラ構成図" src="infrastructure.png">
+<img width="500" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/99197827-15f92200-27d8-11eb-8adc-c78c3756260c.png">
 
 # 機能一覧
 
