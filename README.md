@@ -36,8 +36,9 @@ https://www.power-phrase.com/
 - Vue.js
     - Vue CLI 4.5.8
     - Vue Router 3.4.9
-- Vuetify 2.3.17
-- Axios 0.19.2
+- Vuetify 2.3.17(UIフレームワーク)
+- Axios 0.19.2(Ajax)
+- moment 2.29.1(日付操作)
 - npm 6.14.6
 
 ## 共通
