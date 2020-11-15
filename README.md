@@ -31,7 +31,7 @@ https://www.power-phrase.com/
     - ALB
     - ACM
 
-## フロントエンド
+## フロントエンド(https://github.com/k-kazuya0926/power-phrase2-front)
 - JavaScript
 - Vue.js
     - Vue CLI 4.5.8
