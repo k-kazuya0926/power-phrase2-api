@@ -2,7 +2,7 @@
 
 心に残る言葉を共有するサイトです。一覧画面でYouTube動画を再生することもできます。
 
-<img width="800px" alt="トップページ" src="power-phrase2.png">
+<img width="800px" alt="トップページ" src="https://user-images.githubusercontent.com/61341861/99197759-c9154b80-27d7-11eb-8df9-e8270f7ae053.png">
 
 # URL
 
