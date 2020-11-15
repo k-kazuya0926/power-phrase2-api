@@ -22,7 +22,7 @@ https://www.power-phrase.com/
     - godotenv v1.3.0(環境変数ファイル読み込み)
     - air v1.21.2(ホットリロード)
     - testify v1.4.0(自動テスト)
-- AWS(インフラ構成図参照)
+- AWS(下記インフラ構成図参照)
     - EC2(Amazon Linux 2)
     - RDS(MySQL 8)
     - CloudFront
@@ -57,7 +57,7 @@ https://www.power-phrase.com/
 - 投稿一覧機能
 - ページネーション機能
 - YouTube動画再生機能
-- 投稿検索機能
+- 投稿検索機能(タイトル、発言者、詳細のいずれかがキーワードを含むという条件での検索)
 - ユーザー登録機能(プロフィール画像アップロード含む)
 - ログイン機能(JWT認証)
 - 動作確認用ログイン機能
