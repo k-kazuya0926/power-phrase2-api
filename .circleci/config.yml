@@ -27,5 +27,10 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       # - run: go get -v -t -d ./...
-      - run: go get
+#       - run: go get
 #       - run: go test -v ./...
+
+      - save_cache:
+                key: mod-{{ checksum "go.sum" }}
+                paths:
+                  - $GOPATH/pkg/mod
