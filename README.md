@@ -14,6 +14,7 @@ https://www.power-phrase.com/
 ## バックエンド
 
 - Go 1.15.2
+    - オニオンアーキテクチャ
     - Echo v3.3.10(RESTフレームワーク)
     - GORM v1.9.16(ORM)
     - validator.v9 v9.31.0
