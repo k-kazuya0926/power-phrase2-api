@@ -26,8 +26,8 @@ jobs:
 #           key: mod-{{ checksum "go.sum" }}
 
       # specify any bash command here prefixed with `run: `
-      - run: go get -v -t -d ./...
-#       - run: go get
+      - run: cd src
+#       - run: go get -v -t -d ./...
 #       - run: go test -v ./...
 
 #       - save_cache:
