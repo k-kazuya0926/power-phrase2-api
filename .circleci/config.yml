@@ -11,8 +11,10 @@ jobs:
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-#       - image: circleci/mysql:8.0.21
-#         environment: 
+      - image: circleci/mysql:8.0.21
+        environment: 
+          MYSQL_ROOT_PASSWORD: power-phrase2
+          MYSQL_DATABASE: power-phrase2-test
 
     #### TEMPLATE_NOTE: go expects specific checkout path representing url
     #### expecting it in the form of
@@ -28,7 +30,7 @@ jobs:
 #           key: mod-{{ checksum "go.sum" }}
       
       - run: go get -v -t -d ./...
-      - run: go test -v ./...
+#       - run: go test -v ./...
 
 #       - save_cache:
 #                 key: mod-{{ checksum "go.sum" }}
