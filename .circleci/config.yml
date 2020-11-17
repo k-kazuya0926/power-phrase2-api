@@ -25,8 +25,19 @@ jobs:
     working_directory: /go/src/github.com/k-kazuya0926/power-phrase2-api
     steps:
       - checkout
-
+      
       # specify any bash command here prefixed with `run: `
+      - run:
+      # プライマリ コンテナは MySQL ではないため、準備が完了するまで sleep コマンドを実行します。
+          name: MySQL が準備できるまで待機
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z 127.0.0.1 3306 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for MySQL && exit 1
       
 #       - restore_cache:
 #           key: mod-{{ checksum "go.sum" }}
