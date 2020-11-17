@@ -28,7 +28,7 @@ jobs:
 #       - restore_cache:
 #           key: mod-{{ checksum "go.sum" }}
       
-      - run: go version
+      - run: go 
       - run: go get -v -t -d ./...
 #       - run: go test -v ./...
 
