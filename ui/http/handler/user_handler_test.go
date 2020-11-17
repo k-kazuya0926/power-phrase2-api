@@ -267,7 +267,10 @@ func TestGetUser_success(t *testing.T) {
 	user := &model.User{}
 	json.Unmarshal(rec.Body.Bytes(), user)
 	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Equal(t, expectedUser, user)
+	assert.Equal(t, expectedUser.ID, user.ID)
+	assert.Equal(t, expectedUser.Name, user.Name)
+	assert.Equal(t, expectedUser.Email, user.Email)
+	assert.Equal(t, expectedUser.ImageFilePath, user.ImageFilePath)
 
 	// 4. Teardown
 }
