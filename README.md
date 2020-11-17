@@ -49,6 +49,7 @@ https://www.power-phrase.com/
 - Docker Desktop for Mac 2.5.0.0(開発環境)
     - Docker 19.03.13
     - Docker Compose 1.27.4
+- CircleCI(バックエンド：CI、フロントエンド：CD)
 
 # インフラ構成図
 
