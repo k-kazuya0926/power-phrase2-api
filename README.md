@@ -14,7 +14,7 @@ https://www.power-phrase.com/
 ## バックエンド
 
 - Go 1.15.2
-    - オニオンアーキテクチャ
+    - DDD(オニオンアーキテクチャ)
     - Echo v3.3.10(RESTフレームワーク)
     - GORM v1.9.16(ORM)
     - validator.v9 v9.31.0
@@ -23,6 +23,7 @@ https://www.power-phrase.com/
     - godotenv v1.3.0(環境変数ファイル読み込み)
     - air v1.21.2(ホットリロード)
     - testify v1.4.0(自動テスト)
+- MySQL 8.0.21
 - AWS(下記インフラ構成図参照)
     - EC2(Amazon Linux 2)
     - RDS(MySQL 8)
@@ -53,7 +54,7 @@ https://www.power-phrase.com/
 
 # インフラ構成図
 
-<img width="500" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/99197827-15f92200-27d8-11eb-8adc-c78c3756260c.png">
+<img width="640px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/99450799-9b114200-2964-11eb-8e0c-e55f69b71c9f.png">
 
 # 機能一覧
 
