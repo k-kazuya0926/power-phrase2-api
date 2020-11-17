@@ -15,6 +15,8 @@ jobs:
         environment: 
           MYSQL_ROOT_PASSWORD: power-phrase2
           MYSQL_DATABASE: power-phrase2-test
+          MYSQL_USER: kazuya
+          MYSQL_PASSWORD: kazuya
 
     #### TEMPLATE_NOTE: go expects specific checkout path representing url
     #### expecting it in the form of
@@ -30,7 +32,7 @@ jobs:
 #           key: mod-{{ checksum "go.sum" }}
       
       - run: go get -v -t -d ./...
-#       - run: go test -v ./...
+      - run: go test -v ./...
 
 #       - save_cache:
 #                 key: mod-{{ checksum "go.sum" }}
