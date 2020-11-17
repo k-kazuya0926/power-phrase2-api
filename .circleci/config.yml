@@ -27,8 +27,9 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run: cd src
-      - run: go get -v -t -d ./...
+#       - run: go get -v -t -d ./...
 #       - run: go test -v ./...
+      - run: go version
 
 #       - save_cache:
 #                 key: mod-{{ checksum "go.sum" }}
