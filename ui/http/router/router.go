@@ -1,3 +1,4 @@
+// Package router ルーティング定義
 package router
 
 import (
@@ -8,7 +9,7 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-// SetRoutes Routerの設定を行います.
+// SetRoutes Router設定。
 func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

@@ -1,10 +1,11 @@
+// Package model Domain Model
 package model
 
 import (
 	"time"
 )
 
-// Post struct
+// Post postsテーブルに対応する構造体。
 type Post struct {
 	ID        int        `json:"id" gorm:"primary_key"`
 	CreatedAt time.Time  `json:"created_at" gorm:"not null;default:current_timestamp"`
@@ -17,6 +18,7 @@ type Post struct {
 	MovieURL  string     `json:"movie_url" gorm:"type:varchar(256);not null;default:''"`
 }
 
+// GetPostResult GetPostの戻り値として使用される構造体。
 type GetPostResult struct {
 	Post
 	EmbedMovieURL     string `json:"embed_movie_url"`

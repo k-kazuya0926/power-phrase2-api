@@ -1,3 +1,4 @@
+// Package usecase Application Service層。
 package usecase
 
 import (
@@ -11,6 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// UserUseCase インターフェース
 type UserUseCase interface {
 	CreateUser(name, email, password, imageFilePath string) (userID int, token string, err error)
 	Login(email, password string) (userID int, token string, err error)
@@ -19,15 +21,17 @@ type UserUseCase interface {
 	DeleteUser(id int) error
 }
 
+// userUseCase 構造体
 type userUseCase struct {
 	repository.UserRepository
 }
 
-// NewUserUseCase UserUseCaseを取得します.
+// NewUserUseCase UserUseCaseを生成。
 func NewUserUseCase(repository repository.UserRepository) UserUseCase {
 	return &userUseCase{repository}
 }
 
+// CreateUser 登録
 func (usecase *userUseCase) CreateUser(name, email, password, imageFilePath string) (userID int, token string, err error) {
 	// パスワード暗号化
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -52,6 +56,7 @@ func (usecase *userUseCase) CreateUser(name, email, password, imageFilePath stri
 	return user.ID, token, err
 }
 
+// Login ログイン
 func (usecase *userUseCase) Login(email, password string) (userID int, token string, err error) {
 	user, err := usecase.UserRepository.FetchByEmail(email)
 	if err != nil {
@@ -68,6 +73,7 @@ func (usecase *userUseCase) Login(email, password string) (userID int, token str
 	return user.ID, token, err
 }
 
+// createToken JWTトークンを生成
 func createToken(user *model.User) (string, error) {
 	// 鍵となる文字列
 	secret := os.Getenv("JWT_SIGNING_KEY")
@@ -87,6 +93,7 @@ func createToken(user *model.User) (string, error) {
 	return t, err
 }
 
+// GetUser 1件取得
 func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
 	user, err := usecase.UserRepository.FetchByID(id)
 	if err != nil {
@@ -95,6 +102,7 @@ func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
 	return user, nil
 }
 
+// UpdateUser 更新
 func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageFilePath string) error {
 	oldUser, err := usecase.UserRepository.FetchByID(userID)
 	if err != nil {
@@ -129,6 +137,7 @@ func (usecase *userUseCase) UpdateUser(userID int, name, email, password, imageF
 	return nil
 }
 
+// DeleteUser 削除
 func (usecase *userUseCase) DeleteUser(id int) error {
 	if err := usecase.UserRepository.Delete(id); err != nil {
 		return err

@@ -15,7 +15,7 @@ func main() {
 	conf.NewConfig()
 
 	e := echo.New()
-	interactor := interactor.NewInteractor() // TODO DI用のライブラリはないのかな？
+	interactor := interactor.NewInteractor()
 	handler := interactor.NewAppHandler()
 
 	router.SetRoutes(e, handler)

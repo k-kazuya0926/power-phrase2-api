@@ -9,11 +9,12 @@ import (
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 )
 
-// NewDBConnection 新規データベースコネクションを取得します.
+// NewDBConnection 新規データベースコネクションを取得する。
 func NewDBConnection() *gorm.DB {
 	return getMysqlConnection()
 }
 
+// getMysqlConnection MySQLへのコネクションを取得する。
 func getMysqlConnection() *gorm.DB {
 	connectionString := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local",

@@ -1,3 +1,4 @@
+// Package handler UI層
 package handler
 
 import (
@@ -24,16 +25,18 @@ type (
 		DeleteUser(c echo.Context) error
 	}
 
+	// userHandler 構造体
 	userHandler struct {
 		UserUseCase usecase.UserUseCase
 	}
 )
 
-// NewUserHandler UserHandlerを取得します.
+// NewUserHandler UserHandlerを生成。
 func NewUserHandler(usecase usecase.UserUseCase) UserHandler {
 	return &userHandler{usecase}
 }
 
+// UploadImageFile　ユーザープロフィール画像をアップロードし、画像ファイルのパスを返す。
 func (handler *userHandler) UploadImageFile(c echo.Context) error {
 	img, err := imageupload.Process(c.Request(), "ImageFile")
 	if err != nil {
@@ -50,6 +53,7 @@ func (handler *userHandler) UploadImageFile(c echo.Context) error {
 	return c.String(http.StatusOK, "images/"+fileName)
 }
 
+// CreateUser 登録
 func (handler *userHandler) CreateUser(c echo.Context) error {
 	request := new(request.CreateUserRequest)
 	if err := c.Bind(request); err != nil {
@@ -76,6 +80,7 @@ func (handler *userHandler) CreateUser(c echo.Context) error {
 	})
 }
 
+// Login ログイン。ユーザーID、JWTトークンを返す。
 func (handler *userHandler) Login(c echo.Context) error {
 	request := new(request.LoginRequest)
 	if err := c.Bind(request); err != nil {
@@ -97,6 +102,7 @@ func (handler *userHandler) Login(c echo.Context) error {
 	})
 }
 
+// GetUser 1件取得
 func (handler *userHandler) GetUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -116,6 +122,7 @@ func (handler *userHandler) GetUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
+// UpdateUser 更新
 func (handler *userHandler) UpdateUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -144,6 +151,7 @@ func (handler *userHandler) UpdateUser(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// DeleteUser 削除
 func (handler *userHandler) DeleteUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

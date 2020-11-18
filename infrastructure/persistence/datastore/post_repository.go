@@ -1,3 +1,4 @@
+// Package datastore Infra層のリポジトリ
 package datastore
 
 import (
@@ -6,14 +7,16 @@ import (
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
 )
 
+// postRepository 構造体
 type postRepository struct {
 }
 
-// NewPostRepository PostRepositoryを取得します.
+// NewPostRepository PostRepositoryを生成する。
 func NewPostRepository() repository.PostRepository {
 	return &postRepository{}
 }
 
+// Create 登録
 func (repository *postRepository) Create(post *model.Post) error {
 	db := conf.NewDBConnection()
 	defer db.Close()
@@ -21,6 +24,7 @@ func (repository *postRepository) Create(post *model.Post) error {
 	return db.Create(post).Error
 }
 
+// Fetch 一覧取得。キーワード検索を行わない場合はkeywordに空文字を指定する。ユーザーを限定しない場合はuserIDに0を指定する。
 func (repository *postRepository) Fetch(limit, page int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
@@ -55,6 +59,7 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, userID 
 	return totalCount, posts, err
 }
 
+// FetchByID 1件取得
 func (repository *postRepository) FetchByID(id int) (*model.GetPostResult, error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
@@ -71,6 +76,7 @@ func (repository *postRepository) FetchByID(id int) (*model.GetPostResult, error
 	return &post, nil
 }
 
+// Update 更新
 func (repository *postRepository) Update(u *model.Post) error {
 	db := conf.NewDBConnection()
 	defer db.Close()
@@ -78,6 +84,7 @@ func (repository *postRepository) Update(u *model.Post) error {
 	return db.Model(u).Update(u).Error
 }
 
+// Delete 削除
 func (repository *postRepository) Delete(id int) error {
 	db := conf.NewDBConnection()
 	defer db.Close()

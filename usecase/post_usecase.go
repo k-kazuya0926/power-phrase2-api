@@ -1,3 +1,4 @@
+// Package usecase Application Service層。
 package usecase
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
 )
 
+// PostUseCase インターフェース
 type PostUseCase interface {
 	CreatePost(userID int, title, speaker, detail, movieURL string) (err error)
 	GetPosts(limit, offset int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error)
@@ -15,15 +17,17 @@ type PostUseCase interface {
 	DeletePost(id int) error
 }
 
+// postUseCase 構造体
 type postUseCase struct {
 	repository.PostRepository
 }
 
-// NewPostUseCase PostUseCaseを取得します.
+// NewPostUseCase PostUseCaseを生成。
 func NewPostUseCase(repository repository.PostRepository) PostUseCase {
 	return &postUseCase{repository}
 }
 
+// CreatePost 登録
 func (usecase *postUseCase) CreatePost(userID int, title, speaker, detail, movieURL string) (err error) {
 	post := model.Post{
 		UserID:   userID,
@@ -37,6 +41,7 @@ func (usecase *postUseCase) CreatePost(userID int, title, speaker, detail, movie
 	return err
 }
 
+// GetPosts 一覧取得。キーワード検索を行わない場合はkeywordに空文字を指定する。ユーザーを限定しない場合はuserIDに0を指定する。
 func (usecase *postUseCase) GetPosts(limit, page int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
 	totalCount, posts, err = usecase.PostRepository.Fetch(limit, page, keyword, userID)
 	if err != nil {
@@ -51,6 +56,7 @@ func (usecase *postUseCase) GetPosts(limit, page int, keyword string, userID int
 	return totalCount, posts, nil
 }
 
+// makeEmbedMovieURL 埋め込み用動画URLを生成する。
 func makeEmbedMovieURL(movieURL string) string {
 	u, err := url.Parse(movieURL)
 	if err != nil {
@@ -68,6 +74,7 @@ func makeEmbedMovieURL(movieURL string) string {
 	}
 }
 
+// GetPost 1件取得
 func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	post, err := usecase.PostRepository.FetchByID(id)
 	if err != nil {
@@ -80,6 +87,7 @@ func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	return post, nil
 }
 
+// UpdatePost 更新
 func (usecase *postUseCase) UpdatePost(ID int, title, speaker, detail, movieURL string) error {
 	post := model.Post{
 		ID:       ID,
@@ -94,6 +102,7 @@ func (usecase *postUseCase) UpdatePost(ID int, title, speaker, detail, movieURL 
 	return nil
 }
 
+// DeletePost 削除
 func (usecase *postUseCase) DeletePost(id int) error {
 	if err := usecase.PostRepository.Delete(id); err != nil {
 		return err

@@ -1,3 +1,4 @@
+// Package handler UI層
 package handler
 
 import (
@@ -19,16 +20,18 @@ type (
 		DeletePost(c echo.Context) error
 	}
 
+	// postHandler 構造体
 	postHandler struct {
 		PostUseCase usecase.PostUseCase
 	}
 )
 
-// NewPostHandler PostHandlerを取得します.
+// NewPostHandler PostHandlerを生成。
 func NewPostHandler(usecase usecase.PostUseCase) PostHandler {
 	return &postHandler{usecase}
 }
 
+// CreatePost 登録
 func (handler *postHandler) CreatePost(c echo.Context) error {
 	request := new(request.CreatePostRequest)
 	if err := c.Bind(request); err != nil {
@@ -53,6 +56,7 @@ func (handler *postHandler) CreatePost(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// GetPosts 一覧取得
 func (handler *postHandler) GetPosts(c echo.Context) error {
 	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
@@ -90,6 +94,7 @@ func (handler *postHandler) GetPosts(c echo.Context) error {
 	})
 }
 
+// GetPost　1件取得
 func (handler *postHandler) GetPost(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -109,6 +114,7 @@ func (handler *postHandler) GetPost(c echo.Context) error {
 	return c.JSON(http.StatusOK, post)
 }
 
+// UpdatePost 更新
 func (handler *postHandler) UpdatePost(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -137,6 +143,7 @@ func (handler *postHandler) UpdatePost(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// DeletePost 削除
 func (handler *postHandler) DeletePost(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
