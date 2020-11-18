@@ -2,7 +2,6 @@ package interactor
 
 import (
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
-	"github.com/k-kazuya0926/power-phrase2-api/domain/service"
 	"github.com/k-kazuya0926/power-phrase2-api/infrastructure/persistence/datastore"
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/handler"
 	"github.com/k-kazuya0926/power-phrase2-api/usecase"
@@ -28,10 +27,6 @@ func (interactor *interactor) NewAppHandler() handler.AppHandler {
 // User
 func (interactor *interactor) NewUserRepository() repository.UserRepository {
 	return datastore.NewUserRepository()
-}
-
-func (interactor *interactor) NewUserService() service.UserService {
-	return service.NewUserService(interactor.NewUserRepository())
 }
 
 func (interactor *interactor) NewUserUseCase() usecase.UserUseCase {
