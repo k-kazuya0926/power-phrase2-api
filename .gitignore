@@ -1,8 +1,9 @@
 .DS_Store
 .env
+production.env
 .vscode
 mysql/data
 __debug_bin
-src/tmp
+tmp/build-errors.log
 *.png
 main
