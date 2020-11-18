@@ -18,7 +18,7 @@ services:
     image: mysql:8.0.21
     container_name: power-phrase2-db
     ports:
-      - 33061:3306
+      - 3306:3306
     volumes:
       - ./mysql/conf.d/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./mysql/data:/var/lib/mysql
