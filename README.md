@@ -18,6 +18,7 @@ https://www.power-phrase.com/
 - DDD(オニオンアーキテクチャ)によるディレクトリ構成
 - モックやFour Phase Testを取り入れた自動テスト
 - AWSによるインフラ
+- Terraformによるインフラのコード化(一部)
 - Vue.jsによるシングルページアプリケーション
 - Dockerを用いた開発環境
 - CircleCIによるCI(バックエンド)、CD(フロントエンド)
@@ -44,6 +45,7 @@ https://www.power-phrase.com/
     - Route53
     - ALB
     - ACM
+- Terraform v0.13.5
 
 ## フロントエンド(https://github.com/k-kazuya0926/power-phrase2-front)
 - JavaScript
@@ -66,7 +68,7 @@ https://www.power-phrase.com/
 
 # インフラ構成図
 
-<img width="640px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/99450799-9b114200-2964-11eb-8e0c-e55f69b71c9f.png">
+<img width="640px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/100046897-8812dc00-2e54-11eb-966c-5a7f94f84abd.png">
 
 # 機能一覧
 
