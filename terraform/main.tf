@@ -10,31 +10,41 @@ resource "aws_vpc" "tf_vpc" {
 }
 
 # Subnet
-resource "aws_subnet" "public" {
+resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.tf_vpc.id
   cidr_block              = "172.31.0.0/20"
-  availability_zone       = "ap-northeast-1c"
+  availability_zone       = "ap-northeast-1a"
   map_public_ip_on_launch = true
   tags = {
-    Name = "tf_public"
+    Name = "tf_public_a"
   }
 }
 
-resource "aws_subnet" "private1" {
-  vpc_id            = aws_vpc.tf_vpc.id
-  cidr_block        = "172.31.16.0/20"
-  availability_zone = "ap-northeast-1d"
+resource "aws_subnet" "public_d" {
+  vpc_id                  = aws_vpc.tf_vpc.id
+  cidr_block              = "172.31.16.0/20"
+  availability_zone       = "ap-northeast-1d"
+  map_public_ip_on_launch = true
   tags = {
-    Name = "tf_private1"
+    Name = "tf_public_d"
   }
 }
 
-resource "aws_subnet" "private2" {
+resource "aws_subnet" "private_a" {
   vpc_id            = aws_vpc.tf_vpc.id
   cidr_block        = "172.31.32.0/20"
   availability_zone = "ap-northeast-1a"
   tags = {
-    Name = "tf_private2"
+    Name = "tf_private_a"
+  }
+}
+
+resource "aws_subnet" "private_d" {
+  vpc_id            = aws_vpc.tf_vpc.id
+  cidr_block        = "172.31.48.0/20"
+  availability_zone = "ap-northeast-1d"
+  tags = {
+    Name = "tf_private_d"
   }
 }
 
@@ -59,7 +69,12 @@ resource "aws_route_table" "public_rtb" {
 }
 
 resource "aws_route_table_association" "public_a" {
-  subnet_id      = aws_subnet.public.id
+  subnet_id      = aws_subnet.public_a.id
+  route_table_id = aws_route_table.public_rtb.id
+}
+
+resource "aws_route_table_association" "public_d" {
+  subnet_id      = aws_subnet.public_d.id
   route_table_id = aws_route_table.public_rtb.id
 }
 
@@ -122,7 +137,7 @@ resource "aws_security_group_rule" "db" {
 resource "aws_db_subnet_group" "main" {
   name        = "tf_dbsubnet"
   description = "It is a DB subnet group on tf_vpc."
-  subnet_ids  = [aws_subnet.private1.id, aws_subnet.private2.id]
+  subnet_ids  = [aws_subnet.private_a.id, aws_subnet.private_d.id]
   tags = {
     Name = "tf_dbsubnet"
   }
@@ -136,6 +151,7 @@ resource "aws_db_instance" "db" {
   engine_version          = "8.0.21"
   instance_class          = "db.t2.micro"
   storage_type            = "gp2"
+  name                    = "power_phrase2"
   username                = var.aws_db_username
   password                = var.aws_db_password
   backup_retention_period = 1
@@ -150,7 +166,7 @@ resource "aws_instance" "web" {
   instance_type               = "t2.micro"
   key_name                    = var.aws_key_name
   vpc_security_group_ids      = [aws_security_group.app.id]
-  subnet_id                   = aws_subnet.public.id
+  subnet_id                   = aws_subnet.public_a.id
   associate_public_ip_address = "true"
   tags = {
     Name = "tf_instance"
