@@ -31,7 +31,11 @@ func NewCommentHandler(usecase usecase.CommentUseCase) CommentHandler {
 
 // CreateComment 登録
 func (handler *commentHandler) CreateComment(c echo.Context) error {
-	request := new(request.CreateCommentRequest)
+	postID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, "id：数値で入力してください。")
+	}
+	request := &request.CreateCommentRequest{PostID: postID}
 	if err := c.Bind(request); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
@@ -40,7 +44,7 @@ func (handler *commentHandler) CreateComment(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	err := handler.CommentUseCase.CreateComment(
+	err = handler.CommentUseCase.CreateComment(
 		request.PostID,
 		request.UserID,
 		request.Body,
@@ -54,9 +58,9 @@ func (handler *commentHandler) CreateComment(c echo.Context) error {
 
 // GetComments 一覧取得
 func (handler *commentHandler) GetComments(c echo.Context) error {
-	postID, err := strconv.Atoi(c.QueryParam("post_id"))
+	postID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, "post_id：数値で入力してください。")
+		return c.JSON(http.StatusUnprocessableEntity, "id：数値で入力してください。")
 	}
 	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
@@ -91,7 +95,7 @@ func (handler *commentHandler) GetComments(c echo.Context) error {
 func (handler *commentHandler) DeleteComment(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
+		return c.JSON(http.StatusUnprocessableEntity, "id：数値で入力してください。")
 	}
 
 	request := request.DeleteCommentRequest{ID: id}

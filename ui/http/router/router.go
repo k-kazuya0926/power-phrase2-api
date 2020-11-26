@@ -39,7 +39,7 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	authenticatedGroup.PUT("/posts/:id", handler.UpdatePost)
 	authenticatedGroup.DELETE("/posts/:id", handler.DeletePost)
 
-	authenticatedGroup.POST("/comments", handler.CreateComment)
-	authenticatedGroup.GET("/comments", handler.GetComments)
+	authenticatedGroup.POST("/posts/:id/comments", handler.CreateComment)
+	authenticatedGroup.GET("/posts/:id/comments", handler.GetComments)
 	authenticatedGroup.DELETE("/comments/:id", handler.DeleteComment)
 }
