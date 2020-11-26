@@ -27,10 +27,6 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	unauthenticatedGroup.POST("/login", handler.Login)
 	unauthenticatedGroup.GET("/posts", handler.GetPosts)
 
-	 // TODO アクセス制限ありに移動
-	unauthenticatedGroup.POST("/comments", handler.CreateComment)
-	unauthenticatedGroup.GET("/comments", handler.GetComments)
-
 	// アクセス制限あり
 	authenticatedGroup := e.Group("/api/v1")
 	authenticatedGroup.Use(middleware.JWT([]byte(os.Getenv("JWT_SIGNING_KEY"))))
@@ -42,4 +38,8 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	authenticatedGroup.GET("/posts/:id", handler.GetPost)
 	authenticatedGroup.PUT("/posts/:id", handler.UpdatePost)
 	authenticatedGroup.DELETE("/posts/:id", handler.DeletePost)
+
+	authenticatedGroup.POST("/comments", handler.CreateComment)
+	authenticatedGroup.GET("/comments", handler.GetComments)
+	authenticatedGroup.DELETE("/comments/:id", handler.DeleteComment)
 }

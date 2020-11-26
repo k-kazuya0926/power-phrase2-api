@@ -15,4 +15,9 @@ type (
 		Limit  int `json:"limit" validate:"required,min=1"`
 		Page   int `json:"page" validate:"required,min=1"`
 	}
+
+	// DeleteCommentRequest コメント削除リクエスト
+	DeleteCommentRequest struct {
+		ID int `validate:"min=1"`
+	}
 )

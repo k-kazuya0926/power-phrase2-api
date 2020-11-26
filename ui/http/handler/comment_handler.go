@@ -15,6 +15,7 @@ type (
 	CommentHandler interface {
 		CreateComment(c echo.Context) error
 		GetComments(c echo.Context) error
+		DeleteComment(c echo.Context) error
 	}
 
 	// commentHandler 構造体
@@ -84,4 +85,23 @@ func (handler *commentHandler) GetComments(c echo.Context) error {
 		"totalCount": totalCount,
 		"comments":   comments,
 	})
+}
+
+// DeleteComment 削除
+func (handler *commentHandler) DeleteComment(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
+	}
+
+	request := request.DeleteCommentRequest{ID: id}
+	if err := c.Validate(&request); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	if err := handler.CommentUseCase.DeleteComment(id); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.NoContent(http.StatusOK)
 }

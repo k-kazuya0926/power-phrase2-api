@@ -48,3 +48,12 @@ func (repository *commentRepository) Fetch(postID, limit, page int) (totalCount 
 
 	return totalCount, comments, err
 }
+
+// Delete 削除
+func (repository *commentRepository) Delete(id int) error {
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	comment := model.Comment{ID: id}
+	return db.Delete(&comment).Error
+}
