@@ -24,9 +24,10 @@ func NewInteractor() Interactor {
 
 // NewAppHandler AppHandlerを生成。
 func (interactor *interactor) NewAppHandler() handler.AppHandler {
-	return handler.NewAppHandler(interactor.NewUserHandler(), interactor.NewPostHandler())
+	return handler.NewAppHandler(interactor.NewUserHandler(), interactor.NewPostHandler(), interactor.NewCommentHandler())
 }
 
+// ユーザー関連
 // NewUserRepository UserRepositoryを生成。
 func (interactor *interactor) NewUserRepository() repository.UserRepository {
 	return datastore.NewUserRepository()
@@ -42,6 +43,7 @@ func (interactor *interactor) NewUserHandler() handler.UserHandler {
 	return handler.NewUserHandler(interactor.NewUserUseCase())
 }
 
+// 投稿関連
 // NewPostRepository PostRepositoryを生成。
 func (interactor *interactor) NewPostRepository() repository.PostRepository {
 	return datastore.NewPostRepository()
@@ -55,4 +57,20 @@ func (interactor *interactor) NewPostUseCase() usecase.PostUseCase {
 // NewPostHandler PostHandlerを生成。
 func (interactor *interactor) NewPostHandler() handler.PostHandler {
 	return handler.NewPostHandler(interactor.NewPostUseCase())
+}
+
+// コメント関連
+// NewCommentRepository CommentRepositoryを生成。
+func (interactor *interactor) NewCommentRepository() repository.CommentRepository {
+	return datastore.NewCommentRepository()
+}
+
+// NewCommentUseCase CommentUseCaseを生成。
+func (interactor *interactor) NewCommentUseCase() usecase.CommentUseCase {
+	return usecase.NewCommentUseCase(interactor.NewCommentRepository())
+}
+
+// NewCommentHandler CommentHandlerを生成。
+func (interactor *interactor) NewCommentHandler() handler.CommentHandler {
+	return handler.NewCommentHandler(interactor.NewCommentUseCase())
 }

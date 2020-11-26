@@ -42,6 +42,7 @@ func getMysqlConnection() *gorm.DB {
 
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.Post{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
+	db.AutoMigrate(&model.Comment{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").AddForeignKey("post_id", "posts(id)", "RESTRICT", "RESTRICT")
 
 	return db
 }

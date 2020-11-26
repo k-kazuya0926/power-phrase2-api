@@ -5,6 +5,7 @@ package handler
 type AppHandler interface {
 	UserHandler
 	PostHandler
+	CommentHandler
 	// embed all handler interfaces
 }
 
@@ -12,10 +13,11 @@ type AppHandler interface {
 type appHandler struct {
 	UserHandler
 	PostHandler
+	CommentHandler
 	// embed all handler interfaces
 }
 
 // NewAppHandler AppHandlerを生成
-func NewAppHandler(userHandler UserHandler, postHandler PostHandler) AppHandler {
-	return &appHandler{userHandler, postHandler}
+func NewAppHandler(userHandler UserHandler, postHandler PostHandler, commentHandler CommentHandler) AppHandler {
+	return &appHandler{userHandler, postHandler, commentHandler}
 }
