@@ -8,4 +8,5 @@ import (
 // CommentRepository commentsテーブルへのアクセスを行うインターフェース。
 type CommentRepository interface {
 	Create(comment *model.Comment) error
+	Fetch(postID, limit, page int) (totalCount int, comments []*model.GetCommentResult, err error)
 }

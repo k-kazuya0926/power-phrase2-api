@@ -15,3 +15,9 @@ type Comment struct {
 	UserID    int        `json:"user_id" gorm:"not null;default:0"`
 	Body      string     `json:"body" gorm:"type:varchar(256);not null;default:''"`
 }
+
+// GetCommentResult GetCommentの戻り値として使用される構造体。
+type GetCommentResult struct {
+	Comment
+	UserName string `json:"user_name"`
+}

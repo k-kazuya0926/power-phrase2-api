@@ -27,7 +27,9 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	unauthenticatedGroup.POST("/login", handler.Login)
 	unauthenticatedGroup.GET("/posts", handler.GetPosts)
 
-	unauthenticatedGroup.POST("/comments", handler.CreateComment) // TODO アクセス制限ありに移動
+	 // TODO アクセス制限ありに移動
+	unauthenticatedGroup.POST("/comments", handler.CreateComment)
+	unauthenticatedGroup.GET("/comments", handler.GetComments)
 
 	// アクセス制限あり
 	authenticatedGroup := e.Group("/api/v1")

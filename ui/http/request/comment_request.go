@@ -8,4 +8,11 @@ type (
 		UserID int    `json:"user_id" validate:"required,min=1"`
 		Body   string `validate:"required,max=200"`
 	}
+
+	// GetCommentsRequest コメント一覧取得リクエスト
+	GetCommentsRequest struct {
+		PostID int `json:"post_id" validate:"required,min=1"`
+		Limit  int `json:"limit" validate:"required,min=1"`
+		Page   int `json:"page" validate:"required,min=1"`
+	}
 )

@@ -9,6 +9,7 @@ import (
 // CommentUseCase インターフェース
 type CommentUseCase interface {
 	CreateComment(postID, userID int, body string) (err error)
+	GetComments(postID, limit, offset int) (totalCount int, comments []*model.GetCommentResult, err error)
 }
 
 // commentUseCase 構造体
@@ -31,4 +32,14 @@ func (usecase *commentUseCase) CreateComment(postID, userID int, body string) (e
 	err = usecase.CommentRepository.Create(&comment)
 
 	return err
+}
+
+// GetComments 一覧取得
+func (usecase *commentUseCase) GetComments(postID, limit, page int) (totalCount int, comments []*model.GetCommentResult, err error) {
+	totalCount, comments, err = usecase.CommentRepository.Fetch(postID, limit, page)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	return totalCount, comments, nil
 }
