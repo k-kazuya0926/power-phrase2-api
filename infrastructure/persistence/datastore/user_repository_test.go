@@ -19,6 +19,7 @@ func setup() {
 }
 
 func teardown(db *gorm.DB) {
+	db.DropTable(&model.Comment{})
 	db.DropTable(&model.Post{})
 	db.DropTable(&model.User{})
 }
