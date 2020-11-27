@@ -6,7 +6,7 @@ type (
 	CreateCommentRequest struct {
 		PostID int    `json:"post_id" validate:"required,min=1"`
 		UserID int    `json:"user_id" validate:"required,min=1"`
-		Body   string `validate:"required,max=200"`
+		Body   string `json:"body" validate:"required,max=200"`
 	}
 
 	// GetCommentsRequest コメント一覧取得リクエスト
@@ -18,6 +18,6 @@ type (
 
 	// DeleteCommentRequest コメント削除リクエスト
 	DeleteCommentRequest struct {
-		ID int `validate:"min=1"`
+		ID int `json:"id" validate:"min=1"`
 	}
 )

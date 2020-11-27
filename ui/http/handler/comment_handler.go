@@ -33,7 +33,7 @@ func NewCommentHandler(usecase usecase.CommentUseCase) CommentHandler {
 func (handler *commentHandler) CreateComment(c echo.Context) error {
 	postID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, "id：数値で入力してください。")
+		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
 	request := &request.CreateCommentRequest{PostID: postID}
 	if err := c.Bind(request); err != nil {
@@ -95,7 +95,7 @@ func (handler *commentHandler) GetComments(c echo.Context) error {
 func (handler *commentHandler) DeleteComment(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, "id：数値で入力してください。")
+		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
 
 	request := request.DeleteCommentRequest{ID: id}
