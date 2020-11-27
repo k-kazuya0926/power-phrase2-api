@@ -19,5 +19,6 @@ type Comment struct {
 // GetCommentResult GetCommentの戻り値として使用される構造体。
 type GetCommentResult struct {
 	Comment
-	UserName string `json:"user_name"`
+	UserName          string `json:"user_name"`
+	UserImageFilePath string `json:"user_image_file_path"`
 }
