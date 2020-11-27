@@ -2,27 +2,12 @@ package datastore
 
 import (
 	"fmt"
-	"log"
 	"testing"
 
-	"github.com/jinzhu/gorm"
-	"github.com/joho/godotenv"
 	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/stretchr/testify/assert"
 )
-
-func setup() {
-	if err := godotenv.Load("../../../test.env"); err != nil {
-		log.Fatal("Error loading test.env file")
-	}
-}
-
-func teardown(db *gorm.DB) {
-	db.DropTable(&model.Comment{})
-	db.DropTable(&model.Post{})
-	db.DropTable(&model.User{})
-}
 
 func TestUserRepository_Create(t *testing.T) {
 	// 1. Setup
