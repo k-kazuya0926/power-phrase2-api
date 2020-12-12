@@ -39,7 +39,7 @@ func (repository *commentRepository) Fetch(postID, limit, page int) (totalCount 
 	offset := limit * (page - 1)
 	if err = db.Table("comments").
 		Select("comments.*, users.name as user_name, users.image_file_path as user_image_file_path").
-		Joins("LEFT JOIN users on users.id = comments.user_id AND users.deleted_at IS NULL").
+		Joins("JOIN users on users.id = comments.user_id AND users.deleted_at IS NULL").
 		Where("post_id = ?", postID).
 		Order("id DESC").Limit(limit).Offset(offset).
 		Find(&comments).Error; err != nil {
