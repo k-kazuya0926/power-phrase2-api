@@ -12,7 +12,7 @@ jobs:
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/mysql:8.0.21
-        environment: 
+        environment:
           MYSQL_ROOT_PASSWORD: power-phrase2
           MYSQL_DATABASE: power-phrase2-test
           MYSQL_USER: kazuya
@@ -25,7 +25,7 @@ jobs:
     working_directory: /go/src/github.com/k-kazuya0926/power-phrase2-api
     steps:
       - checkout
-      
+
       # specify any bash command here prefixed with `run: `
       - run:
       # プライマリ コンテナは MySQL ではないため、準備が完了するまで sleep コマンドを実行します。
@@ -38,10 +38,11 @@ jobs:
               sleep 1
             done
             echo Failed waiting for MySQL && exit 1
-      
+
+      - run: cd src
       - restore_cache:
           key: mod-{{ checksum "go.sum" }}
-      
+
       - run: go get -v -t -d ./...
       - run: go test -v ./...
 
