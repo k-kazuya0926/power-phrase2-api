@@ -39,6 +39,7 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
 
+      - run: pwd
       - run: cd src
       - restore_cache:
           key: mod-{{ checksum "go.sum" }}
