@@ -39,15 +39,14 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
 
-      - run: pwd
-      - run: cd src
-      # - restore_cache:
-      #     key: mod-{{ checksum "go.sum" }}
+      - run: mv src/* ../
+      - restore_cache:
+          key: mod-{{ checksum "go.sum" }}
 
-      # - run: go get -v -t -d ./...
+      - run: go get -v -t -d ./...
       - run: go test -v ./...
 
-      # - save_cache:
-      #           key: mod-{{ checksum "go.sum" }}
-      #           paths:
-      #             - $GOPATH/pkg/mod
+      - save_cache:
+                key: mod-{{ checksum "go.sum" }}
+                paths:
+                  - $GOPATH/pkg/mod
