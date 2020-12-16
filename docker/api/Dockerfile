@@ -1,8 +1,7 @@
-FROM golang:1.15.4-alpine as build
+FROM golang:1.15.2 as build
 
 WORKDIR /go/src/github.com/k-kazuya0926/power-phrase2-api
 
-COPY src .
+COPY . .
 
-RUN apk update \
-    && apk add --no-cache vim
+CMD [ "go", "run", "main.go" ]
