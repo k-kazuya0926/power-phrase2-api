@@ -4,9 +4,11 @@ services:
   api:
     build:
       context: .
+      target: build
       dockerfile: ./docker/api/Dockerfile
     volumes:
-      - ./src:/go/src/github.com/k-kazuya0926/power-phrase2-api
+      - ./src:/go/app
+    command: go run main.go
     ports:
       - 1323:1323
     networks:
