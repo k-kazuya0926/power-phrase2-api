@@ -97,15 +97,6 @@ resource "aws_security_group_rule" "ssh" {
   security_group_id = aws_security_group.app.id
 }
 
-resource "aws_security_group_rule" "web" {
-  type              = "ingress"
-  from_port         = 1323
-  to_port           = 1323
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.app.id
-}
-
 resource "aws_security_group_rule" "all" {
   type              = "egress"
   from_port         = 0
@@ -158,27 +149,4 @@ resource "aws_db_instance" "db" {
   vpc_security_group_ids  = [aws_security_group.db.id]
   db_subnet_group_name    = aws_db_subnet_group.main.name
   skip_final_snapshot     = true
-}
-
-# EC2
-resource "aws_instance" "web" {
-  ami                         = "ami-034968955444c1fd9" # Amazon Linux 2
-  instance_type               = "t2.micro"
-  key_name                    = var.aws_key_name
-  vpc_security_group_ids      = [aws_security_group.app.id]
-  subnet_id                   = aws_subnet.public_a.id
-  associate_public_ip_address = "true"
-  tags = {
-    Name = "tf_instance"
-  }
-}
-
-# Elastic IP
-resource "aws_eip" "web" {
-  instance = aws_instance.web.id
-  vpc      = true
-}
-
-output "elastic_ip_of_web" {
-  value = aws_eip.web.public_ip
 }
