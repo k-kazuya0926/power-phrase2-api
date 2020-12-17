@@ -15,8 +15,4 @@ WORKDIR /app
 COPY --from=build /go/app/app .
 COPY --from=build /go/app/production.env ./.env
 
-RUN addgroup go \
-    && adduser -D -G go go \
-    && chown -R go:go /app/app
-
 CMD ["./app"]

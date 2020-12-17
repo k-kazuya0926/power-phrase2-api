@@ -2,10 +2,11 @@ version: "3.5"
 
 services:
   api:
+    # 本番環境用にビルドする場合はtarget、volumes、commandをコメントアウトしてから行う
     build:
       context: .
-      target: build
       dockerfile: ./docker/api/Dockerfile
+      target: build
     volumes:
       - ./src:/go/app
     command: go run main.go
