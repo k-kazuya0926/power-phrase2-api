@@ -7,13 +7,13 @@ COPY src .
 RUN apk add --no-cache vim \
     && go build -o app
 
-# マルチステージビルド
+# 本番環境用マルチステージビルド
 FROM alpine
 
 WORKDIR /app
 
 COPY --from=build /go/app/app .
-COPY --from=build /go/app/.env .
+COPY --from=build /go/app/production.env ./.env
 
 RUN addgroup go \
     && adduser -D -G go go \
