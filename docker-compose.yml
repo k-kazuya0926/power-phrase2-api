@@ -1,18 +1,19 @@
 version: "3.5"
 
 services:
-  # いったんローカルで開発するためコメントアウト
-  # api:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker/api/Dockerfile
-  #   volumes:
-  #     - ./src:/go/src/github.com/k-kazuya0926/power-phrase2-api
-  #   command: realize start --run --no-config
-  #   ports:
-  #     - 9000:9000
-  #   networks:
-  #     - app_network
+  api:
+    # 本番環境用にビルドする場合はtarget、volumes、commandをコメントアウトしてから行う
+    build:
+      context: .
+      dockerfile: ./docker/api/Dockerfile
+      target: build
+    volumes:
+      - ./src:/go/app
+    command: go run main.go
+    ports:
+      - 1323:1323
+    networks:
+      - app_network
 
   db:
     image: mysql:8.0.21
@@ -28,21 +29,21 @@ services:
     networks:
       - app_network
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    depends_on:
-      - db
-    environment:
-      - PMA_ARBITRARY=1
-      - PMA_HOSTS=db
-      - PMA_USER=root
-      - PMA_PASSWORD=power-phrase2
-    ports:
-      - "8888:80"
-    volumes:
-      - ./docker/phpmyadmin/sessions:/sessions
-    networks:
-      - app_network
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  #     - PMA_HOSTS=db
+  #     - PMA_USER=root
+  #     - PMA_PASSWORD=power-phrase2
+  #   ports:
+  #     - "8888:80"
+  #   volumes:
+  #     - ./docker/phpmyadmin/sessions:/sessions
+  #   networks:
+  #     - app_network
 
 networks:
   app_network:

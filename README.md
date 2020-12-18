@@ -1,8 +1,9 @@
 # Power Phrase
 
 心に残る言葉を共有するサイトです。
+
 以前精神的に辛かった時期に言葉の大切さに気づいた経験から、良い言葉を共有することにより、
-利用者がより前向きになれると良いという思いから作成しました。
+利用者がより前向きな気持ちになれると良いという思いから作成しました。
 
 <img width="800px" alt="トップページ" src="https://user-images.githubusercontent.com/61341861/99197759-c9154b80-27d7-11eb-8df9-e8270f7ae053.png">
 
@@ -14,13 +15,19 @@ https://www.power-phrase.com/
 
 # 特徴
 
-- DDD(オニオンアーキテクチャ)によるディレクトリ構成
+## バックエンド
+
+- DDD(オニオンアーキテクチャ)
 - モックやFour Phase Testを取り入れた自動テスト
-- AWSによるインフラ
-- Terraformによるインフラのコード化(一部)
+- AWS ECSによるコンテナデプロイ
+- Terraformによるインフラのコード化(VPC、RDS)
+- CircleCIによるCI
+
+## フロントエンド
+
 - Vue.jsによるシングルページアプリケーション
-- Dockerを用いた開発環境
-- CircleCIによるCI(バックエンド)、CD(フロントエンド)
+- AWS CloudFront、S3による配信
+- CircleCIによるCD
 
 # 使用技術
 ## バックエンド
@@ -37,14 +44,15 @@ https://www.power-phrase.com/
     - testify v1.4.0(自動テスト)
 - MySQL 8.0.21
 - AWS(下記インフラ構成図参照)
+    - ECS
+    - ECR
     - EC2(Amazon Linux 2)
     - RDS(MySQL 8)
-    - CloudFront
-    - S3
     - Route53
     - ALB
     - ACM
 - Terraform v0.13.5
+- CircleCI
 
 ## フロントエンド(https://github.com/k-kazuya0926/power-phrase2-front)
 - JavaScript
@@ -57,8 +65,13 @@ https://www.power-phrase.com/
 - Axios 0.19.2(Ajax)
 - VeeValidate 3.4.5
 - moment 2.29.1(日付操作)
-
 - npm 6.14.6
+- AWS(下記インフラ構成図参照)
+    - CloudFront
+    - S3
+    - Route53
+    - ACM
+- CircleCI
 
 ## 共通
 - macOS Catalina 10.15.7
@@ -67,11 +80,10 @@ https://www.power-phrase.com/
 - Docker Desktop for Mac 2.5.0.0(開発環境)
     - Docker 19.03.13
     - Docker Compose 1.27.4
-- CircleCI(バックエンド：CI、フロントエンド：CD)
 
 # インフラ構成図
 
-<img width="640px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/100046897-8812dc00-2e54-11eb-966c-5a7f94f84abd.png">
+<img width="640px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/102556459-494b0b80-410c-11eb-8877-bd032cfc6110.jpg">
 
 # 機能一覧
 
@@ -83,13 +95,13 @@ https://www.power-phrase.com/
 - ログイン機能(JWT認証)
 - 動作確認用ログイン機能
 - ログアウト機能
-- 投稿登録機能(ログイン後のみ可能)
-- 投稿詳細機能(ログイン後のみ可能)
-- コメント登録機能
-- コメント一覧機能
-- コメント削除機能(ログイン後、自分が登録したものについてのみ可能)
-- 投稿更新機能(ログイン後、自分が登録したものについてのみ可能)
-- 投稿削除機能(ログイン後自分が登録したものについてのみ可能)
 - ユーザー詳細表示機能(該当ユーザーによる投稿一覧含む)
 - ユーザー更新機能
 - ユーザー削除機能
+- 投稿登録機能(ログイン後のみ可能)
+- 投稿詳細機能(ログイン後のみ可能)
+- 投稿更新機能(ログイン後、自分が登録したものについてのみ可能)
+- 投稿削除機能(ログイン後自分が登録したものについてのみ可能)
+- コメント登録機能
+- コメント一覧機能
+- コメント削除機能(ログイン後、自分が登録したものについてのみ可能)
