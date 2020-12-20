@@ -26,6 +26,7 @@ https://www.power-phrase.com/
 ## フロントエンド
 
 - Vue.jsによるシングルページアプリケーション
+- レスポンシブデザイン
 - AWS CloudFront、S3による配信
 - CircleCIによるCD
 
@@ -56,15 +57,15 @@ https://www.power-phrase.com/
 
 ## フロントエンド(https://github.com/k-kazuya0926/power-phrase2-front)
 - JavaScript
-- Vue.js
+- Vue.js 2.6.12
     - Vue CLI 4.5.9
     - Vue Router 3.4.9
     - Vuex 3.5.1
     - vuex-persistedstate 4.0.0-beta.1(Vuexの永続化)
     - Vuetify 2.3.17(UIフレームワーク)
-- Axios 0.19.2(Ajax)
-- VeeValidate 3.4.5
-- moment 2.29.1(日付操作)
+    - Axios 0.19.2(Ajax)
+    - VeeValidate 3.4.5
+    - moment 2.29.1(日付操作)
 - npm 6.14.6
 - AWS(下記インフラ構成図参照)
     - CloudFront
