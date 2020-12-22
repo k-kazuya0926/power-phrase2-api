@@ -26,6 +26,8 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	unauthenticatedGroup.POST("/users", handler.CreateUser)
 	unauthenticatedGroup.POST("/login", handler.Login)
 	unauthenticatedGroup.GET("/posts", handler.GetPosts)
+	unauthenticatedGroup.GET("/posts/:id", handler.GetPost)
+	unauthenticatedGroup.GET("/posts/:id/comments", handler.GetComments)
 
 	// アクセス制限あり
 	authenticatedGroup := e.Group("/api/v1")
@@ -35,11 +37,9 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 	authenticatedGroup.DELETE("/users/:id", handler.DeleteUser)
 
 	authenticatedGroup.POST("/posts", handler.CreatePost)
-	authenticatedGroup.GET("/posts/:id", handler.GetPost)
 	authenticatedGroup.PUT("/posts/:id", handler.UpdatePost)
 	authenticatedGroup.DELETE("/posts/:id", handler.DeletePost)
 
 	authenticatedGroup.POST("/posts/:id/comments", handler.CreateComment)
-	authenticatedGroup.GET("/posts/:id/comments", handler.GetComments)
 	authenticatedGroup.DELETE("/comments/:id", handler.DeleteComment)
 }
