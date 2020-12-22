@@ -66,6 +66,7 @@ https://www.power-phrase.com/
     - Axios 0.19.2(Ajax)
     - VeeValidate 3.4.5
     - moment 2.29.1(日付操作)
+- Node.js 12.18.4
 - npm 6.14.6
 - AWS(下記インフラ構成図参照)
     - CloudFront
