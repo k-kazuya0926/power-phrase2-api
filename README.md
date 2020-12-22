@@ -5,7 +5,7 @@
 以前精神的に辛かった時期に言葉の大切さに気づいた経験から、良い言葉を共有することにより、
 利用者がより前向きな気持ちになれると良いという思いから作成しました。
 
-<img width="800px" alt="トップページ" src="https://user-images.githubusercontent.com/61341861/99197759-c9154b80-27d7-11eb-8df9-e8270f7ae053.png">
+<img width="800px" alt="トップページ" src="https://user-images.githubusercontent.com/61341861/102834081-5d597a80-4436-11eb-80e0-e043c30c4f93.png">
 
 # URL
 
