@@ -208,5 +208,6 @@ func getMockGetPostResult(userID int) *model.GetPostResult {
 		Post:              *getMockPost(userID),
 		UserName:          fmt.Sprintf("testuser%d", userID),
 		UserImageFilePath: fmt.Sprintf("images/%d.png", userID),
+		CommentCount:      userID,
 	}
 }
