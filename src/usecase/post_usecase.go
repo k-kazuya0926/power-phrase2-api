@@ -58,20 +58,30 @@ func (usecase *postUseCase) GetPosts(limit, page int, keyword string, userID int
 
 // makeEmbedMovieURL 埋め込み用動画URLを生成する。
 func makeEmbedMovieURL(movieURL string) string {
-	u, err := url.Parse(movieURL)
+	urlStruct, err := url.Parse(movieURL)
 	if err != nil {
 		return ""
 	}
-	m, err := url.ParseQuery(u.RawQuery)
+
+	// 短縮URL(例：https://youtu.be/9LmL92WLgfc)の場合
+	if urlStruct.Hostname() == "youtu.be" {
+		return urlStruct.Scheme + "://www.youtube.com/embed" + urlStruct.Path
+	}
+
+	// 短縮URLでない場合
+
+	parameterMap, err := url.ParseQuery(urlStruct.RawQuery)
 	if err != nil {
 		return ""
 	}
-	v, ok := m["v"]
+	// 動画のキー
+	v, ok := parameterMap["v"]
 	if ok {
-		return u.Scheme + "://" + u.Host + "/embed/" + v[0]
-	} else {
-		return ""
+		// ホスト名が「m.youtube.com」などである場合も「www.youtube.com」にする
+		return urlStruct.Scheme + "://www.youtube.com/embed/" + v[0]
 	}
+
+	return ""
 }
 
 // GetPost 1件取得
