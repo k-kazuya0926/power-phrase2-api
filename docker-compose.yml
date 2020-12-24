@@ -9,7 +9,7 @@ services:
       target: build
     volumes:
       - ./src:/go/app
-    command: go run main.go
+    command: air
     ports:
       - 1323:1323
     networks:

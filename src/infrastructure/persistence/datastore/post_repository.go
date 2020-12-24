@@ -44,12 +44,18 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, userID 
 		db = db.Where("user_id = ?", userID)
 	}
 
+	// 投稿総件数取得
 	if err = countDb.Model(&model.Post{}).Count(&totalCount).Error; err != nil {
 		return 0, nil, err
 	}
 
+	// 投稿一覧取得
 	if err = db.Table("posts").
-		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
+		Select(`posts.*,
+			users.name as user_name,
+			users.image_file_path as user_image_file_path,
+			(SELECT count(*) FROM comments WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL) AS comment_count
+		`).
 		Joins("JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
 		Order("id DESC").Limit(limit).Offset(offset).
 		Find(&posts).Error; err != nil {

@@ -4,8 +4,7 @@ production.env
 .vscode
 mysql/data
 __debug_bin
-tmp/build-errors.log
-*.png
-main
+src/tmp/
+src/assets/
 variables.tf
 .terraform
