@@ -4,8 +4,13 @@ WORKDIR /go/app
 
 COPY src .
 
-RUN apk add --no-cache vim \
-    && go build -o app
+RUN set -eux && \
+    apk update && \
+    apk add --no-cache less && \
+    go get -u github.com/cosmtrek/air && \
+    go build -o /go/bin/air github.com/cosmtrek/air
+# go get -u github.com/go-delve/delve/cmd/dlv && \
+# go build -o /go/bin/dlv github.com/go-delve/delve/cmd/dlv
 
 # 本番環境用マルチステージビルド
 FROM alpine
