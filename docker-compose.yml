@@ -12,6 +12,11 @@ services:
     command: air
     ports:
       - 1323:1323
+      - 2345:2345 # delve用
+    security_opt: # Dockerが行うシステムコールを制限するオプション
+      - apparmor:unconfined
+    cap_add: # コンテナの capabilities の追加
+      - SYS_PTRACE
     networks:
       - app_network
 

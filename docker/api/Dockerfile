@@ -9,6 +9,8 @@ RUN set -eux && \
     apk add --no-cache less && \
     go get -u github.com/cosmtrek/air && \
     go build -o /go/bin/air github.com/cosmtrek/air && \
+    go get -u github.com/go-delve/delve/cmd/dlv && \
+    go build -o /go/bin/dlv github.com/go-delve/delve/cmd/dlv && \
     go build -o app
 
 # 本番環境用マルチステージビルド
