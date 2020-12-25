@@ -160,6 +160,37 @@ func TestGetPosts_error(t *testing.T) {
 	// 4. Teardown
 }
 
+// 埋め込み用動画URL生成テスト
+func TestMakeEmbedMovieURL(t *testing.T) {
+	cases := []struct {
+		label    string
+		movieURL string
+		expected string
+	}{
+		{"非短縮URL、追加パラメータなし", "https://www.youtube.com/watch?v=A1", "https://www.youtube.com/embed/A1"},
+		{"非短縮URL、追加パラメータあり", "https://www.youtube.com/watch?v=A1&t=608s", "https://www.youtube.com/embed/A1"},
+		{"非短縮URL、動画のキーなし", "https://www.youtube.com/watch?v=", ""},
+		{"短縮URL", "https://youtu.be/A1", "https://www.youtube.com/embed/A1"},
+		{"短縮URL、動画のキーなし", "https://youtu.be/", ""},
+		{"モバイル版", "https://m.youtube.com/watch?v=A1", "https://www.youtube.com/embed/A1"},
+		{"HTTP", "http://www.youtube.com/watch?v=A1", "http://www.youtube.com/embed/A1"},
+		{"空", "", ""},
+		{"形式不正", "dummy", ""},
+	}
+
+	for _, test := range cases {
+		// 1. Setup
+
+		// 2. Exercise
+		embedMovieURL := makeEmbedMovieURL(test.movieURL)
+
+		// 3. Verify
+		assert.Equal(t, test.expected, embedMovieURL, test.label)
+
+		// 4. Teardown
+	}
+}
+
 // 投稿詳細テスト
 func TestGetPost_success(t *testing.T) {
 	// 1. Setup

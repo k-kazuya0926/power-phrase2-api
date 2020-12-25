@@ -65,10 +65,15 @@ func makeEmbedMovieURL(movieURL string) string {
 
 	// 短縮URL(例：https://youtu.be/9LmL92WLgfc)の場合
 	if urlStruct.Hostname() == "youtu.be" {
+		// 動画のキーが含まれていない場合
+		if urlStruct.Path == "/" {
+			return ""
+		}
+
 		return urlStruct.Scheme + "://www.youtube.com/embed" + urlStruct.Path
 	}
 
-	// 短縮URLでない場合
+	// 以下、短縮URLでない場合
 
 	parameterMap, err := url.ParseQuery(urlStruct.RawQuery)
 	if err != nil {
@@ -76,7 +81,7 @@ func makeEmbedMovieURL(movieURL string) string {
 	}
 	// 動画のキー
 	v, ok := parameterMap["v"]
-	if ok {
+	if ok && v[0] != "" {
 		// ホスト名が「m.youtube.com」などである場合も「www.youtube.com」にする
 		return urlStruct.Scheme + "://www.youtube.com/embed/" + v[0]
 	}
