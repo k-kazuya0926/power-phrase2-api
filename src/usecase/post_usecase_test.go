@@ -16,10 +16,12 @@ type mockPostRepository struct {
 	mock.Mock
 }
 
+// 投稿登録
 func (repository *mockPostRepository) Create(post *model.Post) error {
 	return repository.Called(post).Error(0)
 }
 
+// 投稿一覧取得
 func (repository *mockPostRepository) Fetch(limit, page int, keyword string, userID int) (int, []*model.GetPostResult, error) {
 	args := repository.Called(limit, page, keyword, userID)
 	posts, ok := args.Get(1).([]*model.GetPostResult)
@@ -30,6 +32,7 @@ func (repository *mockPostRepository) Fetch(limit, page int, keyword string, use
 	}
 }
 
+// 投稿詳細取得
 func (repository *mockPostRepository) FetchByID(id int) (*model.GetPostResult, error) {
 	args := repository.Called(id)
 	post, ok := args.Get(0).(*model.GetPostResult)
@@ -40,11 +43,34 @@ func (repository *mockPostRepository) FetchByID(id int) (*model.GetPostResult, e
 	}
 }
 
+// 投稿更新
 func (repository *mockPostRepository) Update(post *model.Post) error {
 	return repository.Called(post).Error(0)
 }
 
+// 投稿削除
 func (repository *mockPostRepository) Delete(id int) error {
+	return repository.Called(id).Error(0)
+}
+
+// コメント登録
+func (repository *mockPostRepository) CreateComment(comment *model.Comment) error {
+	return repository.Called(comment).Error(0)
+}
+
+// コメント一覧取得
+func (repository *mockPostRepository) FetchComments(postID, limit, page int) (int, []*model.GetCommentResult, error) {
+	args := repository.Called(postID, limit, page)
+	comments, ok := args.Get(1).([]*model.GetCommentResult)
+	if ok {
+		return args.Int(0), comments, args.Error(2)
+	} else {
+		return args.Int(0), nil, args.Error(2)
+	}
+}
+
+// コメント削除
+func (repository *mockPostRepository) DeleteComment(id int) error {
 	return repository.Called(id).Error(0)
 }
 

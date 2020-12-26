@@ -60,14 +60,9 @@ func (interactor *interactor) NewPostHandler() handler.PostHandler {
 }
 
 // コメント関連
-// NewCommentRepository CommentRepositoryを生成。
-func (interactor *interactor) NewCommentRepository() repository.CommentRepository {
-	return datastore.NewCommentRepository()
-}
-
 // NewCommentUseCase CommentUseCaseを生成。
 func (interactor *interactor) NewCommentUseCase() usecase.CommentUseCase {
-	return usecase.NewCommentUseCase(interactor.NewCommentRepository())
+	return usecase.NewCommentUseCase(interactor.NewPostRepository())
 }
 
 // NewCommentHandler CommentHandlerを生成。
