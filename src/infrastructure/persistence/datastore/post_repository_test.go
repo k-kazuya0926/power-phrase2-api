@@ -319,16 +319,20 @@ func TestPostRepository_CreateFavorite(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
+	// ユーザー
 	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
+	// 投稿
 	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
-	repository := &postRepository{}
+	// お気に入り
 	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
+
+	repository := &postRepository{}
 
 	// 2. Exercise
 	err := repository.CreateFavorite(favoriteForInput)
@@ -358,29 +362,39 @@ func TestPostRepository_FetchFavorites(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
+	// ユーザー
 	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
+	// 投稿
 	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
+	postForInput2 := makePost(userForInput.ID)
+	db.Create(&postForInput2)
+	db.First(&postForInput2)
+
+	// お気に入り
 	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
 	db.Create(&favoriteForInput)
+
+	favoriteForInput2 := makeFavorite(userForInput.ID, postForInput2.ID)
+	db.Create(&favoriteForInput2)
 
 	repository := &postRepository{}
 
 	// 2. Exercise
-	totalCount, favorites, err := repository.FetchFavorites(userForInput.ID, 1, 1)
+	totalCount, favorites, err := repository.FetchFavorites(userForInput.ID, 10, 1)
 
 	// 3. Verify
 	assert.NoError(t, err)
 
 	// 内容
-	assert.Equal(t, 1, totalCount)
-	assert.Equal(t, favoriteForInput.PostID, favorites[0].ID)
-	assert.Equal(t, favoriteForInput.UserID, favorites[0].UserID)
+	assert.Equal(t, 2, totalCount)
+	assert.Equal(t, favoriteForInput2.PostID, favorites[0].ID)
+	assert.Equal(t, favoriteForInput2.UserID, favorites[0].UserID)
 	assert.Equal(t, userForInput.Name, favorites[0].UserName)
 	assert.Equal(t, userForInput.ImageFilePath, favorites[0].UserImageFilePath)
 
@@ -395,14 +409,17 @@ func TestPostRepository_DeleteFavorite(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
+	// ユーザー
 	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
+	// 投稿
 	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
+	// お気に入り
 	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
 	db.Create(&favoriteForInput)
 	db.First(&favoriteForInput)
