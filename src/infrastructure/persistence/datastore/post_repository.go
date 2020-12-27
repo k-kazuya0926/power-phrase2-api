@@ -179,7 +179,6 @@ func (repository *postRepository) DeleteFavorite(id int) error {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	favirite := model.Favorite{ID: id}
-	// 物理削除
-	return db.Unscoped().Delete(&favirite).Error
+	favorite := model.Favorite{ID: id}
+	return db.Delete(&favorite).Error
 }
