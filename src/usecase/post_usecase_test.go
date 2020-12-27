@@ -74,6 +74,27 @@ func (repository *mockPostRepository) DeleteComment(id int) error {
 	return repository.Called(id).Error(0)
 }
 
+// お気に入り登録
+func (repository *mockPostRepository) CreateFavorite(favorite *model.Favorite) error {
+	return repository.Called(favorite).Error(0)
+}
+
+// お気に入り一覧取得
+func (repository *mockPostRepository) FetchFavorites(userID, limit, page int) (int, []*model.GetPostResult, error) {
+	args := repository.Called(userID, limit, page)
+	comments, ok := args.Get(1).([]*model.GetPostResult)
+	if ok {
+		return args.Int(0), comments, args.Error(2)
+	} else {
+		return args.Int(0), nil, args.Error(2)
+	}
+}
+
+// お気に入り削除
+func (repository *mockPostRepository) DeleteFavorite(id int) error {
+	return repository.Called(id).Error(0)
+}
+
 // 入力用投稿
 func getMockPostForInput(id int) *model.Post {
 	post := &model.Post{
