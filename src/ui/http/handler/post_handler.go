@@ -242,9 +242,18 @@ func (handler *postHandler) GetFavorites(c echo.Context) error {
 
 // DeleteFavorite お気に入り削除
 func (handler *postHandler) DeleteFavorite(c echo.Context) error {
-	request := new(request.DeleteFavoriteRequest)
-	if err := c.Bind(request); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+	userID, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, "user_id：数値で入力してください。")
+	}
+	postID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, "id：数値で入力してください。")
+	}
+
+	request := &request.DeleteFavoriteRequest{
+		UserID: userID,
+		PostID: postID,
 	}
 	if err := c.Validate(request); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
