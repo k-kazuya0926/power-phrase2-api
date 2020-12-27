@@ -24,7 +24,7 @@ func NewInteractor() Interactor {
 
 // NewAppHandler AppHandlerを生成。
 func (interactor *interactor) NewAppHandler() handler.AppHandler {
-	return handler.NewAppHandler(interactor.NewUserHandler(), interactor.NewPostHandler(), interactor.NewCommentHandler(), interactor.NewFavoriteHandler())
+	return handler.NewAppHandler(interactor.NewUserHandler(), interactor.NewPostHandler(), interactor.NewCommentHandler())
 }
 
 // ユーザー関連
@@ -68,15 +68,4 @@ func (interactor *interactor) NewCommentUseCase() usecase.CommentUseCase {
 // NewCommentHandler CommentHandlerを生成。
 func (interactor *interactor) NewCommentHandler() handler.CommentHandler {
 	return handler.NewCommentHandler(interactor.NewCommentUseCase())
-}
-
-// お気に入り関連
-// NewFavoriteUseCase FavoriteUseCaseを生成。
-func (interactor *interactor) NewFavoriteUseCase() usecase.FavoriteUseCase {
-	return usecase.NewFavoriteUseCase(interactor.NewPostRepository())
-}
-
-// NewFavoriteHandler FavoriteHandlerを生成。
-func (interactor *interactor) NewFavoriteHandler() handler.FavoriteHandler {
-	return handler.NewFavoriteHandler(interactor.NewFavoriteUseCase())
 }

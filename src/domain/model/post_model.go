@@ -27,3 +27,12 @@ type GetPostResult struct {
 	CommentCount      int    `json:"comment_count"`
 	IsFavorite        bool   `json:"is_favorite"`
 }
+
+// Favorite favoritesテーブルに対応する構造体。
+type Favorite struct {
+	ID        int       `json:"id" gorm:"primary_key"`
+	CreatedAt time.Time `json:"created_at" gorm:"not null;default:current_timestamp"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"not null;default:current_timestamp"`
+	UserID    int       `json:"user_id" gorm:"not null;default:0"`
+	PostID    int       `json:"post_id" gorm:"not null;default:0"`
+}

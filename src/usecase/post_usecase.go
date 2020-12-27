@@ -10,11 +10,23 @@ import (
 
 // PostUseCase インターフェース
 type PostUseCase interface {
+	// 投稿登録
 	CreatePost(userID int, title, speaker, detail, movieURL string) (err error)
+	// 投稿一覧取得
 	GetPosts(limit, offset int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error)
+	// 投稿詳細取得
 	GetPost(id int) (*model.GetPostResult, error)
+	// 投稿更新
 	UpdatePost(ID int, title, speaker, detail, movieURL string) error
+	// 投稿削除
 	DeletePost(id int) error
+
+	// お気に入り登録
+	CreateFavorite(postID, userID int) (err error)
+	// お気に入り一覧取得
+	GetFavorites(userID, limit, offset int) (totalCount int, posts []*model.GetPostResult, err error)
+	// お気に入り削除
+	DeleteFavorite(id int) error
 }
 
 // postUseCase 構造体
@@ -27,7 +39,7 @@ func NewPostUseCase(repository repository.PostRepository) PostUseCase {
 	return &postUseCase{repository}
 }
 
-// CreatePost 登録
+// CreatePost 投稿登録
 func (usecase *postUseCase) CreatePost(userID int, title, speaker, detail, movieURL string) (err error) {
 	post := model.Post{
 		UserID:   userID,
@@ -92,7 +104,7 @@ func makeEmbedMovieURL(movieURL string) string {
 	return ""
 }
 
-// GetPost 1件取得
+// GetPost 投稿詳細取得
 func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	post, err := usecase.PostRepository.FetchByID(id)
 	if err != nil {
@@ -105,7 +117,7 @@ func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	return post, nil
 }
 
-// UpdatePost 更新
+// UpdatePost 投稿更新
 func (usecase *postUseCase) UpdatePost(ID int, title, speaker, detail, movieURL string) error {
 	post := model.Post{
 		ID:       ID,
@@ -120,9 +132,40 @@ func (usecase *postUseCase) UpdatePost(ID int, title, speaker, detail, movieURL 
 	return nil
 }
 
-// DeletePost 削除
+// DeletePost 投稿削除
 func (usecase *postUseCase) DeletePost(id int) error {
 	if err := usecase.PostRepository.Delete(id); err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateFavorite お気に入り登録
+func (usecase *postUseCase) CreateFavorite(userID, postID int) (err error) {
+	favorite := model.Favorite{
+		UserID: userID,
+		PostID: postID,
+	}
+	err = usecase.PostRepository.CreateFavorite(&favorite)
+
+	return err
+}
+
+// GetFavorites お気に入り一覧取得
+func (usecase *postUseCase) GetFavorites(userID, limit, page int) (totalCount int, posts []*model.GetPostResult, err error) {
+	totalCount, posts, err = usecase.PostRepository.FetchFavorites(userID, limit, page)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	// TODO URL加工
+
+	return totalCount, posts, nil
+}
+
+// DeleteFavorite お気に入り削除
+func (usecase *postUseCase) DeleteFavorite(id int) error {
+	if err := usecase.PostRepository.DeleteFavorite(id); err != nil {
 		return err
 	}
 	return nil
