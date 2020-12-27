@@ -45,8 +45,8 @@ func (handler *favoriteHandler) CreateFavorite(c echo.Context) error {
 	}
 
 	err = handler.FavoriteUseCase.CreateFavorite(
-		request.PostID,
 		request.UserID,
+		request.PostID,
 	)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -86,7 +86,7 @@ func (handler *favoriteHandler) GetFavorites(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"totalCount": totalCount,
-		"posts":  posts,
+		"posts":      posts,
 	})
 }
 

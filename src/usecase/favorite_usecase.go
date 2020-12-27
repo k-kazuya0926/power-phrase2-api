@@ -24,10 +24,10 @@ func NewFavoriteUseCase(repository repository.PostRepository) FavoriteUseCase {
 }
 
 // CreateFavorite お気に入り登録
-func (usecase *favoriteUseCase) CreateFavorite(postID, userID int) (err error) {
+func (usecase *favoriteUseCase) CreateFavorite(userID, postID int) (err error) {
 	favorite := model.Favorite{
-		PostID: postID,
 		UserID: userID,
+		PostID: postID,
 	}
 	err = usecase.PostRepository.CreateFavorite(&favorite)
 

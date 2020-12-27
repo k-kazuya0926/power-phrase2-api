@@ -4,8 +4,8 @@ package request
 type (
 	// CreateFavoriteRequest お気に入り登録リクエスト
 	CreateFavoriteRequest struct {
-		PostID int `json:"post_id" validate:"required,min=1"`
 		UserID int `json:"user_id" validate:"required,min=1"`
+		PostID int `json:"post_id" validate:"required,min=1"`
 	}
 
 	// GetFavoritesRequest お気に入り一覧取得リクエスト
