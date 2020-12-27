@@ -21,10 +21,12 @@ type mockPostUseCase struct {
 	mock.Mock
 }
 
+// 投稿登録
 func (usecase *mockPostUseCase) CreatePost(userID int, title, speaker, detail, movieURL string) (err error) {
 	return usecase.Called(userID, title, speaker, detail, movieURL).Error(0)
 }
 
+// 投稿一覧取得
 func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error) {
 	args := usecase.Called(limit, offset, keyword, postUserID, loginUserID)
 	posts, ok := args.Get(1).([]*model.GetPostResult)
@@ -35,6 +37,7 @@ func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, post
 	}
 }
 
+// 投稿詳細取得
 func (usecase *mockPostUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	args := usecase.Called(id)
 	post, ok := args.Get(0).(*model.GetPostResult)
@@ -45,10 +48,12 @@ func (usecase *mockPostUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	}
 }
 
+// 投稿更新
 func (usecase *mockPostUseCase) UpdatePost(ID int, title, speaker, detail, movieURL string) error {
 	return usecase.Called(ID, title, speaker, detail, movieURL).Error(0)
 }
 
+// 投稿削除
 func (usecase *mockPostUseCase) DeletePost(id int) error {
 	return usecase.Called(id).Error(0)
 }
@@ -71,6 +76,27 @@ func getMockGetPostResult(id int) *model.GetPostResult {
 		UserName:          fmt.Sprintf("testuser%d", id),
 		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
 	}
+}
+
+// お気に入り登録
+func (usecase *mockPostUseCase) CreateFavorite(userID, postID int) (err error) {
+	return usecase.Called(userID, postID).Error(0)
+}
+
+// お気に入り一覧取得
+func (usecase *mockPostUseCase) GetFavorites(userID, limit, offset int) (totalCount int, posts []*model.GetPostResult, err error) {
+	args := usecase.Called(userID, limit, offset)
+	posts, ok := args.Get(1).([]*model.GetPostResult)
+	if ok {
+		return args.Int(0), posts, args.Error(2)
+	}
+
+	return args.Int(0), nil, args.Error(2)
+}
+
+// お気に入り削除
+func (usecase *mockPostUseCase) DeleteFavorite(id int) error {
+	return usecase.Called(id).Error(0)
 }
 
 // 登録テスト
@@ -175,7 +201,7 @@ func TestGetPosts_success(t *testing.T) {
 	q.Set("page", "1")
 	q.Set("keyword", "")
 	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
-	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
 	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	usecase := mockPostUseCase{}
@@ -239,7 +265,7 @@ func TestGetPosts_error_usecaseError(t *testing.T) {
 	q.Set("page", "1")
 	q.Set("keyword", "")
 	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
-	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
 	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	usecase := mockPostUseCase{}
