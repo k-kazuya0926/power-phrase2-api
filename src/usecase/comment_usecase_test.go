@@ -39,7 +39,7 @@ func makeGetCommentResult(id, postID, userID int) *model.GetCommentResult {
 	}
 }
 
-// コメント登録テスト
+// コメント登録成功
 func TestCreateComment_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -59,6 +59,7 @@ func TestCreateComment_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// コメント登録エラー
 func TestCreateComment_error(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}

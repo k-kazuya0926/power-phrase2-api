@@ -58,26 +58,6 @@ func (usecase *mockPostUseCase) DeletePost(id int) error {
 	return usecase.Called(id).Error(0)
 }
 
-func makePost(id int) *model.Post {
-	return &model.Post{
-		ID:       id,
-		UserID:   id,
-		Title:    fmt.Sprintf("title%d", id),
-		Speaker:  fmt.Sprintf("speaker%d", id),
-		Detail:   fmt.Sprintf("detail%d", id),
-		MovieURL: fmt.Sprintf("https://www.example.com/watch?v=%d", id),
-	}
-}
-
-func makeGetPostResult(id int) *model.GetPostResult {
-	return &model.GetPostResult{
-		Post:              *makePost(id),
-		EmbedMovieURL:     fmt.Sprintf("https://www.example.com/embed/%d", id),
-		UserName:          fmt.Sprintf("testuser%d", id),
-		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
-	}
-}
-
 // お気に入り登録
 func (usecase *mockPostUseCase) CreateFavorite(userID, postID int) (err error) {
 	return usecase.Called(userID, postID).Error(0)
@@ -97,6 +77,26 @@ func (usecase *mockPostUseCase) GetFavorites(userID, limit, offset int) (totalCo
 // お気に入り削除
 func (usecase *mockPostUseCase) DeleteFavorite(userID, postID int) error {
 	return usecase.Called(userID, postID).Error(0)
+}
+
+func makePost(id int) *model.Post {
+	return &model.Post{
+		ID:       id,
+		UserID:   id,
+		Title:    fmt.Sprintf("title%d", id),
+		Speaker:  fmt.Sprintf("speaker%d", id),
+		Detail:   fmt.Sprintf("detail%d", id),
+		MovieURL: fmt.Sprintf("https://www.example.com/watch?v=%d", id),
+	}
+}
+
+func makeGetPostResult(id int) *model.GetPostResult {
+	return &model.GetPostResult{
+		Post:              *makePost(id),
+		EmbedMovieURL:     fmt.Sprintf("https://www.example.com/embed/%d", id),
+		UserName:          fmt.Sprintf("testuser%d", id),
+		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
+	}
 }
 
 // 登録テスト
