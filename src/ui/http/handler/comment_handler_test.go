@@ -30,9 +30,9 @@ func (usecase *mockCommentUseCase) GetComments(postID, limit, offset int) (total
 	comments, ok := args.Get(1).([]*model.GetCommentResult)
 	if ok {
 		return args.Int(0), comments, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 func (usecase *mockCommentUseCase) DeleteComment(id int) error {

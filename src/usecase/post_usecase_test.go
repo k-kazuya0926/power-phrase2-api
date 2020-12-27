@@ -27,9 +27,9 @@ func (repository *mockPostRepository) Fetch(limit, page int, keyword string, pos
 	posts, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), posts, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 // 投稿詳細取得
@@ -38,9 +38,9 @@ func (repository *mockPostRepository) FetchByID(id int) (*model.GetPostResult, e
 	post, ok := args.Get(0).(*model.GetPostResult)
 	if ok {
 		return post, args.Error(1)
-	} else {
-		return nil, args.Error(1)
 	}
+
+	return nil, args.Error(1)
 }
 
 // 投稿更新
@@ -64,9 +64,9 @@ func (repository *mockPostRepository) FetchComments(postID, limit, page int) (in
 	comments, ok := args.Get(1).([]*model.GetCommentResult)
 	if ok {
 		return args.Int(0), comments, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 // コメント削除
@@ -85,9 +85,9 @@ func (repository *mockPostRepository) FetchFavorites(userID, limit, page int) (i
 	comments, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), comments, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 // お気に入り削除
@@ -194,7 +194,7 @@ func TestGetPosts_error(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
 	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 	repository.On("Fetch", limit, page, keyword, postUserID, loginUserID).Return(0, nil, errors.New("error"))
 

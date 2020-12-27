@@ -32,9 +32,9 @@ func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, post
 	posts, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), posts, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 // 投稿詳細取得
@@ -43,9 +43,9 @@ func (usecase *mockPostUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	post, ok := args.Get(0).(*model.GetPostResult)
 	if ok {
 		return post, args.Error(1)
-	} else {
-		return nil, args.Error(1)
 	}
+
+	return nil, args.Error(1)
 }
 
 // 投稿更新

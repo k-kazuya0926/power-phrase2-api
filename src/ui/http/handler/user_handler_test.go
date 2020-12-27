@@ -38,9 +38,9 @@ func (usecase *mockUserUseCase) GetUser(id int) (*model.User, error) {
 	user, ok := args.Get(0).(*model.User)
 	if ok {
 		return user, args.Error(1)
-	} else {
-		return nil, args.Error(1)
 	}
+
+	return nil, args.Error(1)
 }
 
 func (usecase *mockUserUseCase) UpdateUser(userID int, name, email, password, imageFilePath string) error {
