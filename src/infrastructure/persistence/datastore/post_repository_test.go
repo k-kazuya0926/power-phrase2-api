@@ -9,18 +9,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// 投稿登録
 func TestPostRepository_Create(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
 	repository := &postRepository{}
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 
 	// 2. Exercise
 	err := repository.Create(postForInput)
@@ -46,19 +47,20 @@ func TestPostRepository_Create(t *testing.T) {
 	teardown(db)
 }
 
+// 投稿一覧取得
 func TestPostRepository_Fetch(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
-	postForInput2 := getMockPost(userForInput.ID)
+	postForInput2 := makePost(userForInput.ID)
 	db.Create(&postForInput2)
 
 	repository := &postRepository{}
@@ -84,21 +86,22 @@ func TestPostRepository_Fetch(t *testing.T) {
 	teardown(db)
 }
 
+// 投稿詳細取得
 func TestPostRepository_FetchById(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
-	postForInput2 := getMockPost(userForInput.ID)
+	postForInput2 := makePost(userForInput.ID)
 	db.Create(&postForInput2)
 	db.First(&postForInput2)
 
@@ -122,17 +125,18 @@ func TestPostRepository_FetchById(t *testing.T) {
 	teardown(db)
 }
 
+// 投稿更新
 func TestPostRepository_Update(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 	postForInput.Title = "title2"
@@ -166,17 +170,18 @@ func TestPostRepository_Update(t *testing.T) {
 	teardown(db)
 }
 
+// 投稿削除
 func TestPostRepository_Delete(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
@@ -194,41 +199,23 @@ func TestPostRepository_Delete(t *testing.T) {
 	teardown(db)
 }
 
-func getMockPost(userID int) *model.Post {
-	return &model.Post{
-		UserID:   userID,
-		Title:    fmt.Sprintf("title%d", userID),
-		Speaker:  fmt.Sprintf("speaker%d", userID),
-		Detail:   fmt.Sprintf("detail%d", userID),
-		MovieURL: fmt.Sprintf("https://www.example.com/watch?v=%d", userID),
-	}
-}
-
-func getMockGetPostResult(userID int) *model.GetPostResult {
-	return &model.GetPostResult{
-		Post:              *getMockPost(userID),
-		UserName:          fmt.Sprintf("testuser%d", userID),
-		UserImageFilePath: fmt.Sprintf("images/%d.png", userID),
-		CommentCount:      userID,
-	}
-}
-
+// コメント登録
 func TestPostRepository_CreateComment(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
 	repository := &postRepository{}
-	commentForInput := getMockComment(postForInput.ID, userForInput.ID)
+	commentForInput := makeComment(postForInput.ID, userForInput.ID)
 
 	// 2. Exercise
 	err := repository.CreateComment(commentForInput)
@@ -252,23 +239,24 @@ func TestPostRepository_CreateComment(t *testing.T) {
 	teardown(db)
 }
 
+// コメント一覧取得
 func TestPostRepository_FetchComments(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
-	commentForInput := getMockComment(postForInput.ID, userForInput.ID)
+	commentForInput := makeComment(postForInput.ID, userForInput.ID)
 	db.Create(&commentForInput)
-	commentForInput2 := getMockComment(postForInput.ID, userForInput.ID)
+	commentForInput2 := makeComment(postForInput.ID, userForInput.ID)
 	db.Create(&commentForInput2)
 
 	repository := &postRepository{}
@@ -291,21 +279,22 @@ func TestPostRepository_FetchComments(t *testing.T) {
 	teardown(db)
 }
 
+// コメント削除
 func TestPostRepository_DeleteComment(t *testing.T) {
 	// 1. Setup
 	setup()
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := getMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
-	commentForInput := getMockComment(postForInput.ID, userForInput.ID)
+	commentForInput := makeComment(postForInput.ID, userForInput.ID)
 	db.Create(&commentForInput)
 	db.First(&commentForInput)
 
@@ -323,7 +312,155 @@ func TestPostRepository_DeleteComment(t *testing.T) {
 	teardown(db)
 }
 
-func getMockComment(postID, userID int) *model.Comment {
+// お気に入り登録
+func TestPostRepository_CreateFavorite(t *testing.T) {
+	// 1. Setup
+	setup()
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	// ユーザー
+	userForInput := makeUserForInput(1)
+	db.Create(&userForInput)
+	db.First(&userForInput)
+
+	// 投稿
+	postForInput := makePost(userForInput.ID)
+	db.Create(&postForInput)
+	db.First(&postForInput)
+
+	// お気に入り
+	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
+
+	repository := &postRepository{}
+
+	// 2. Exercise
+	err := repository.CreateFavorite(favoriteForInput)
+
+	// 3. Verify
+	assert.NoError(t, err)
+
+	// 件数
+	var count int
+	db.Table("favorites").Count(&count)
+	assert.Equal(t, 1, count)
+
+	// 内容
+	favorite := model.Favorite{}
+	db.First(&favorite)
+	assert.Equal(t, favoriteForInput.UserID, favorite.UserID)
+	assert.Equal(t, favoriteForInput.PostID, favorite.PostID)
+
+	// 4. Teardown
+	teardown(db)
+}
+
+// お気に入り一覧取得
+func TestPostRepository_FetchFavorites(t *testing.T) {
+	// 1. Setup
+	setup()
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	// ユーザー
+	userForInput := makeUserForInput(1)
+	db.Create(&userForInput)
+	db.First(&userForInput)
+
+	// 投稿
+	postForInput := makePost(userForInput.ID)
+	db.Create(&postForInput)
+	db.First(&postForInput)
+
+	postForInput2 := makePost(userForInput.ID)
+	db.Create(&postForInput2)
+	db.First(&postForInput2)
+
+	// お気に入り
+	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
+	db.Create(&favoriteForInput)
+
+	favoriteForInput2 := makeFavorite(userForInput.ID, postForInput2.ID)
+	db.Create(&favoriteForInput2)
+
+	repository := &postRepository{}
+
+	// 2. Exercise
+	totalCount, favorites, err := repository.FetchFavorites(userForInput.ID, 10, 1)
+
+	// 3. Verify
+	assert.NoError(t, err)
+
+	// 内容
+	assert.Equal(t, 2, totalCount)
+	assert.Equal(t, favoriteForInput2.PostID, favorites[0].ID)
+	assert.Equal(t, favoriteForInput2.UserID, favorites[0].UserID)
+	assert.Equal(t, userForInput.Name, favorites[0].UserName)
+	assert.Equal(t, userForInput.ImageFilePath, favorites[0].UserImageFilePath)
+
+	// 4. Teardown
+	teardown(db)
+}
+
+// お気に入り削除
+func TestPostRepository_DeleteFavorite(t *testing.T) {
+	// 1. Setup
+	setup()
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	// ユーザー
+	userForInput := makeUserForInput(1)
+	db.Create(&userForInput)
+	db.First(&userForInput)
+
+	// 投稿
+	postForInput := makePost(userForInput.ID)
+	db.Create(&postForInput)
+	db.First(&postForInput)
+
+	// お気に入り
+	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
+	db.Create(&favoriteForInput)
+	db.First(&favoriteForInput)
+
+	repository := &postRepository{}
+
+	// 2. Exercise
+	err := repository.DeleteFavorite(userForInput.ID, postForInput.ID)
+
+	// 3. Verify
+	assert.NoError(t, err)
+
+	assert.Error(t, db.First(&favoriteForInput).Error)
+
+	// 4. Teardown
+	teardown(db)
+}
+
+// Postを生成
+func makePost(userID int) *model.Post {
+	return &model.Post{
+		UserID:   userID,
+		Title:    fmt.Sprintf("title%d", userID),
+		Speaker:  fmt.Sprintf("speaker%d", userID),
+		Detail:   fmt.Sprintf("detail%d", userID),
+		MovieURL: fmt.Sprintf("https://www.example.com/watch?v=%d", userID),
+	}
+}
+
+// GetPostResultを生成
+func makeGetPostResult(userID int) *model.GetPostResult {
+	return &model.GetPostResult{
+		Post:              *makePost(userID),
+		UserName:          fmt.Sprintf("testuser%d", userID),
+		UserImageFilePath: fmt.Sprintf("images/%d.png", userID),
+		CommentCount:      userID,
+	}
+}
+
+// Commentを生成
+func makeComment(postID, userID int) *model.Comment {
 	return &model.Comment{
 		PostID: postID,
 		UserID: userID,
@@ -331,4 +468,10 @@ func getMockComment(postID, userID int) *model.Comment {
 	}
 }
 
-// TODO お気に入り関連追加
+// Favoriteを生成
+func makeFavorite(userID, postID int) *model.Favorite {
+	return &model.Favorite{
+		UserID: userID,
+		PostID: postID,
+	}
+}

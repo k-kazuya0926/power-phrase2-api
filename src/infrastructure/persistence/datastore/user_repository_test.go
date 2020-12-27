@@ -16,7 +16,7 @@ func TestUserRepository_Create(t *testing.T) {
 	defer db.Close()
 
 	repository := &userRepository{}
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 
 	// 2. Exercise
 	err := repository.Create(userForInput)
@@ -48,9 +48,9 @@ func TestUserRepository_FetchByEmail(t *testing.T) {
 	defer db.Close()
 
 	repository := &userRepository{}
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
-	userForInput2 := getMockUserForInput(2)
+	userForInput2 := makeUserForInput(2)
 	db.Create(&userForInput2)
 
 	// 2. Exercise
@@ -75,7 +75,7 @@ func TestUserRepository_FetchById(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
@@ -106,7 +106,7 @@ func TestUserRepository_Update(t *testing.T) {
 	defer db.Close()
 
 	repository := &userRepository{}
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 	userForInput.Name = "testuser2"
@@ -144,7 +144,7 @@ func TestUserRepository_Delete(t *testing.T) {
 	defer db.Close()
 
 	repository := &userRepository{}
-	userForInput := getMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
@@ -161,7 +161,7 @@ func TestUserRepository_Delete(t *testing.T) {
 }
 
 // 入力用ユーザー
-func getMockUserForInput(id int) *model.User {
+func makeUserForInput(id int) *model.User {
 	user := &model.User{
 		Name:          fmt.Sprintf("testuser%d", id),
 		Email:         fmt.Sprintf("testuser%d@example.com", id),

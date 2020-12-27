@@ -53,7 +53,7 @@ func (repository *mockUserRepository) Delete(id int) error {
 }
 
 // 入力用ユーザー
-func getMockUserForInput(id int) *model.User {
+func makeUserForInput(id int) *model.User {
 	user := &model.User{
 		Name:          fmt.Sprintf("testuser%d", id),
 		Email:         fmt.Sprintf("testuser%d@example.com", id),
@@ -64,8 +64,8 @@ func getMockUserForInput(id int) *model.User {
 }
 
 // DBから取得されたユーザー
-func getMockUserForRead(id int) *model.User {
-	user := getMockUserForInput(id)
+func makeUserForRead(id int) *model.User {
+	user := makeUserForInput(id)
 	user.ID = id
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	user.Password = string(passwordHash)
@@ -80,7 +80,7 @@ func TestCreateUser_success(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	user := getMockUserForInput(id)
+	user := makeUserForInput(id)
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(nil)
 
 	if err := godotenv.Load("../test.env"); err != nil {
@@ -103,7 +103,7 @@ func TestCreateUser_error(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	user := getMockUserForInput(id)
+	user := makeUserForInput(id)
 	repository.On("Create", mock.AnythingOfType("*model.User")).Return(errors.New("error"))
 
 	// 2. Exercise
@@ -123,8 +123,8 @@ func TestLogin_success(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	userForInput := getMockUserForInput(id)
-	userForRead := getMockUserForRead(id)
+	userForInput := makeUserForInput(id)
+	userForRead := makeUserForRead(id)
 	repository.On("FetchByEmail", userForInput.Email).Return(userForRead, nil)
 
 	// 2. Exercise
@@ -143,8 +143,8 @@ func TestLogin_error_invalidPassword(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	userForInput := getMockUserForInput(id)
-	userForRead := getMockUserForRead(id)
+	userForInput := makeUserForInput(id)
+	userForRead := makeUserForRead(id)
 	repository.On("FetchByEmail", userForInput.Email).Return(userForRead, nil)
 
 	// 2. Exercise
@@ -163,7 +163,7 @@ func TestLogin_error_repositoryError(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	userForInput := getMockUserForInput(id)
+	userForInput := makeUserForInput(id)
 	repository.On("FetchByEmail", userForInput.Email).Return(nil, errors.New("error"))
 
 	// 2. Exercise
@@ -183,7 +183,7 @@ func TestGetUser_success(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	expected := getMockUserForRead(id)
+	expected := makeUserForRead(id)
 	expected.Password = ""
 	repository.On("FetchByID", id).Return(expected, nil)
 
@@ -227,7 +227,7 @@ func TestUpdateUser_success(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	user := getMockUserForInput(id)
+	user := makeUserForInput(id)
 	repository.On("FetchByID", id).Return(user, nil)
 	repository.On("Update", mock.AnythingOfType("*model.User")).Return(nil)
 
@@ -244,7 +244,7 @@ func TestUpdateUser_error(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
 	id := 1
-	user := getMockUserForInput(id)
+	user := makeUserForInput(id)
 	repository.On("FetchByID", id).Return(user, nil)
 	repository.On("Update", mock.AnythingOfType("*model.User")).Return(errors.New("error"))
 
