@@ -40,9 +40,16 @@ func getMysqlConnection() *gorm.DB {
 
 	db.Set("gorm:table_options", "ENGINE=InnoDB")
 
+	// マイグレーション
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.Post{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT")
-	db.AutoMigrate(&model.Comment{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").AddForeignKey("post_id", "posts(id)", "RESTRICT", "RESTRICT")
+	db.AutoMigrate(&model.Comment{}).
+		AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").
+		AddForeignKey("post_id", "posts(id)", "RESTRICT", "RESTRICT")
+	db.AutoMigrate(&model.Favorite{}).
+		AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").
+		AddForeignKey("post_id", "posts(id)", "RESTRICT", "RESTRICT").
+		AddUniqueIndex("idx_favorites_post_id_user_id", "post_id", "user_id")
 
 	return db
 }

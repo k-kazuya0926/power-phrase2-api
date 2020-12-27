@@ -140,3 +140,46 @@ func (repository *postRepository) DeleteComment(id int) error {
 	comment := model.Comment{ID: id}
 	return db.Delete(&comment).Error
 }
+
+// CreateFavorite お気に入り登録
+func (repository *postRepository) CreateFavorite(favorite *model.Favorite) error {
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	return db.Create(favorite).Error
+}
+
+// FetchFavorites お気に入り一覧取得
+func (repository *postRepository) FetchFavorites(userID, limit, page int) (totalCount int, posts []*model.GetPostResult, err error) {
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	countDb := conf.NewDBConnection()
+	defer countDb.Close()
+
+	if err = countDb.Model(&model.Favorite{}).Where("user_id = ?", userID).Count(&totalCount).Error; err != nil {
+		return 0, nil, err
+	}
+
+	offset := limit * (page - 1)
+	if err = db.Table("favorites").
+		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
+		Joins("JOIN posts ON posts.id = favorites.post_id AND posts.deleted_at IS NULL JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL").
+		Where("favorites.user_id = ?", userID).
+		Order("posts.id DESC").Limit(limit).Offset(offset).
+		Find(&posts).Error; err != nil {
+		return 0, nil, err
+	}
+
+	return totalCount, posts, err
+}
+
+// DeleteFavorite お気に入り削除
+func (repository *postRepository) DeleteFavorite(id int) error {
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	favirite := model.Favorite{ID: id}
+	// 物理削除
+	return db.Unscoped().Delete(&favirite).Error
+}

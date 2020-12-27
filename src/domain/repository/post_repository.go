@@ -24,4 +24,11 @@ type PostRepository interface {
 	FetchComments(postID, limit, page int) (totalCount int, comments []*model.GetCommentResult, err error)
 	// 投稿削除
 	DeleteComment(id int) error
+
+	// お気に入り登録
+	CreateFavorite(favorite *model.Favorite) error
+	// お気に入り一覧取得
+	FetchFavorites(userID, limit, page int) (totalCount int, posts []*model.GetPostResult, err error)
+	// お気に入り削除
+	DeleteFavorite(id int) error
 }
