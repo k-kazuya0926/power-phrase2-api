@@ -95,7 +95,7 @@ func (repository *mockPostRepository) DeleteFavorite(userID, postID int) error {
 	return repository.Called(userID, postID).Error(0)
 }
 
-// 入力用投稿
+// 入力用投稿を生成
 func makePostForInput(id int) *model.Post {
 	post := &model.Post{
 		ID:       id,
@@ -108,7 +108,7 @@ func makePostForInput(id int) *model.Post {
 	return post
 }
 
-// DBから取得された投稿
+// DBから取得された投稿を生成
 func makePostForRead(id int) *model.Post {
 	post := makePostForInput(id)
 	post.CreatedAt = time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local)
@@ -122,6 +122,14 @@ func makeGetPostResult(id int) *model.GetPostResult {
 		Post:              *post,
 		UserName:          fmt.Sprintf("username%d", id),
 		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
+	}
+}
+
+// お気に入りを生成
+func makeFavorite(userID, postID int) *model.Favorite {
+	return &model.Favorite{
+		UserID: userID,
+		PostID: postID,
 	}
 }
 
@@ -351,4 +359,44 @@ func TestDeletePost_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// TODO お気に入り関連追加
+// お気に入り登録成功
+func TestCreateFavorite_success(t *testing.T) {
+	// 1. Setup
+	repository := mockPostRepository{}
+	usecase := NewPostUseCase(&repository)
+	userID := 1
+	postID := 1
+	favorite := makeFavorite(userID, postID)
+	repository.On("CreateFavorite", mock.AnythingOfType("*model.Favorite")).Return(nil)
+
+	// 2. Exercise
+	err := usecase.CreateFavorite(favorite.UserID, favorite.PostID)
+
+	// 3. Verify
+	assert.NoError(t, err)
+
+	// 4. Teardown
+}
+
+// お気に入り登録エラー
+func TestCreateFavorite_error(t *testing.T) {
+	// 1. Setup
+	repository := mockPostRepository{}
+	usecase := NewPostUseCase(&repository)
+	userID := 1
+	postID := 1
+	favorite := makeFavorite(userID, postID)
+	repository.On("CreateFavorite", mock.AnythingOfType("*model.Favorite")).Return(errors.New("error"))
+
+	// 2. Exercise
+	err := usecase.CreateFavorite(favorite.UserID, favorite.PostID)
+
+	// 3. Verify
+	assert.Error(t, err)
+
+	// 4. Teardown
+}
+
+// TODO お気に入り一覧取得
+
+// TODO お気に入り削除
