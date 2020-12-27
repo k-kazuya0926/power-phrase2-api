@@ -63,7 +63,7 @@ func TestPostRepository_Fetch(t *testing.T) {
 
 	repository := &postRepository{}
 
-	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
 	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	// 2. Exercise
@@ -330,3 +330,5 @@ func getMockComment(postID, userID int) *model.Comment {
 		Body:   "body",
 	}
 }
+
+// TODO お気に入り関連追加
