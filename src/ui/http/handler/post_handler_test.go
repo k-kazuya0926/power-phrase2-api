@@ -95,8 +95,8 @@ func (usecase *mockPostUseCase) GetFavorites(userID, limit, offset int) (totalCo
 }
 
 // お気に入り削除
-func (usecase *mockPostUseCase) DeleteFavorite(id int) error {
-	return usecase.Called(id).Error(0)
+func (usecase *mockPostUseCase) DeleteFavorite(userID, postID int) error {
+	return usecase.Called(userID, postID).Error(0)
 }
 
 // 登録テスト

@@ -91,8 +91,8 @@ func (repository *mockPostRepository) FetchFavorites(userID, limit, page int) (i
 }
 
 // お気に入り削除
-func (repository *mockPostRepository) DeleteFavorite(id int) error {
-	return repository.Called(id).Error(0)
+func (repository *mockPostRepository) DeleteFavorite(userID, postID int) error {
+	return repository.Called(userID, postID).Error(0)
 }
 
 // 入力用投稿

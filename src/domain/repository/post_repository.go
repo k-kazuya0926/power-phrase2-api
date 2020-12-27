@@ -30,5 +30,5 @@ type PostRepository interface {
 	// お気に入り一覧取得
 	FetchFavorites(userID, limit, page int) (totalCount int, posts []*model.GetPostResult, err error)
 	// お気に入り削除
-	DeleteFavorite(id int) error
+	DeleteFavorite(userID, postID int) error
 }

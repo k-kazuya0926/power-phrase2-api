@@ -184,10 +184,9 @@ func (repository *postRepository) FetchFavorites(userID, limit, page int) (total
 }
 
 // DeleteFavorite お気に入り削除
-func (repository *postRepository) DeleteFavorite(id int) error {
+func (repository *postRepository) DeleteFavorite(userID, postID int) error {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	favorite := model.Favorite{ID: id}
-	return db.Delete(&favorite).Error
+	return db.Where("user_id = ? AND post_id = ?", userID, postID).Delete(&model.Favorite{}).Error
 }

@@ -45,5 +45,5 @@ func SetRoutes(e *echo.Echo, handler handler.AppHandler) {
 
 	authenticatedGroup.POST("/posts/:id/favorites", handler.CreateFavorite)
 	authenticatedGroup.GET("/posts/favorites", handler.GetFavorites)
-	authenticatedGroup.DELETE("/favorites/:id", handler.DeleteFavorite)
+	authenticatedGroup.DELETE("/posts/favorites", handler.DeleteFavorite)
 }

@@ -54,6 +54,7 @@ type (
 
 	// DeleteFavoriteRequest お気に入り削除リクエスト
 	DeleteFavoriteRequest struct {
-		ID int `json:"id" validate:"min=1"`
+		UserID int `json:"user_id" validate:"required,min=1"`
+		PostID int `json:"post_id" validate:"required,min=1"`
 	}
 )

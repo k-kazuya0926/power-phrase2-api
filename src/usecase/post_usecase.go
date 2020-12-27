@@ -26,7 +26,7 @@ type PostUseCase interface {
 	// お気に入り一覧取得
 	GetFavorites(userID, limit, offset int) (totalCount int, posts []*model.GetPostResult, err error)
 	// お気に入り削除
-	DeleteFavorite(id int) error
+	DeleteFavorite(userID, postID int) error
 }
 
 // postUseCase 構造体
@@ -167,8 +167,8 @@ func (usecase *postUseCase) GetFavorites(userID, limit, page int) (totalCount in
 }
 
 // DeleteFavorite お気に入り削除
-func (usecase *postUseCase) DeleteFavorite(id int) error {
-	if err := usecase.PostRepository.DeleteFavorite(id); err != nil {
+func (usecase *postUseCase) DeleteFavorite(userID, postID int) error {
+	if err := usecase.PostRepository.DeleteFavorite(userID, postID); err != nil {
 		return err
 	}
 	return nil
