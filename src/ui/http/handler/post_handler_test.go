@@ -25,8 +25,8 @@ func (usecase *mockPostUseCase) CreatePost(userID int, title, speaker, detail, m
 	return usecase.Called(userID, title, speaker, detail, movieURL).Error(0)
 }
 
-func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
-	args := usecase.Called(limit, offset, keyword, userID)
+func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error) {
+	args := usecase.Called(limit, offset, keyword, postUserID, loginUserID)
 	posts, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), posts, args.Error(2)
@@ -175,11 +175,12 @@ func TestGetPosts_success(t *testing.T) {
 	q.Set("page", "1")
 	q.Set("keyword", "")
 	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
-	userID := 0 // TODO ユーザーID指定がある場合
+	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	usecase := mockPostUseCase{}
 	expected := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
-	usecase.On("GetPosts", 1, 1, "", userID).Return(2, expected, nil)
+	usecase.On("GetPosts", 1, 1, "", postUserID, loginUserID).Return(2, expected, nil)
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
@@ -238,10 +239,11 @@ func TestGetPosts_error_usecaseError(t *testing.T) {
 	q.Set("page", "1")
 	q.Set("keyword", "")
 	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
-	userID := 0 // TODO ユーザーID指定がある場合
+	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	usecase := mockPostUseCase{}
-	usecase.On("GetPosts", 1, 1, "", userID).Return(0, nil, errors.New("error"))
+	usecase.On("GetPosts", 1, 1, "", postUserID, loginUserID).Return(0, nil, errors.New("error"))
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
