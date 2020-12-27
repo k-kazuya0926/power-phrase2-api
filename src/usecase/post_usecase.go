@@ -10,11 +10,23 @@ import (
 
 // PostUseCase インターフェース
 type PostUseCase interface {
+	// 投稿登録
 	CreatePost(userID int, title, speaker, detail, movieURL string) (err error)
-	GetPosts(limit, offset int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error)
+	// 投稿一覧取得
+	GetPosts(limit, offset int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error)
+	// 投稿詳細取得
 	GetPost(id int) (*model.GetPostResult, error)
+	// 投稿更新
 	UpdatePost(ID int, title, speaker, detail, movieURL string) error
+	// 投稿削除
 	DeletePost(id int) error
+
+	// お気に入り登録
+	CreateFavorite(postID, userID int) (err error)
+	// お気に入り一覧取得
+	GetFavorites(userID, limit, offset int) (totalCount int, posts []*model.GetPostResult, err error)
+	// お気に入り削除
+	DeleteFavorite(userID, postID int) error
 }
 
 // postUseCase 構造体
@@ -27,7 +39,7 @@ func NewPostUseCase(repository repository.PostRepository) PostUseCase {
 	return &postUseCase{repository}
 }
 
-// CreatePost 登録
+// CreatePost 投稿登録
 func (usecase *postUseCase) CreatePost(userID int, title, speaker, detail, movieURL string) (err error) {
 	post := model.Post{
 		UserID:   userID,
@@ -41,9 +53,12 @@ func (usecase *postUseCase) CreatePost(userID int, title, speaker, detail, movie
 	return err
 }
 
-// GetPosts 一覧取得。キーワード検索を行わない場合はkeywordに空文字を指定する。ユーザーを限定しない場合はuserIDに0を指定する。
-func (usecase *postUseCase) GetPosts(limit, page int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
-	totalCount, posts, err = usecase.PostRepository.Fetch(limit, page, keyword, userID)
+// GetPosts 一覧取得。
+// キーワード検索を行わない場合はkeywordに空文字を指定する。
+// 投稿ユーザーを限定しない場合はpostUserIDに0を指定する。
+// ログインユーザーを限定しない場合はloginUserIDに0を指定する。
+func (usecase *postUseCase) GetPosts(limit, page int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error) {
+	totalCount, posts, err = usecase.PostRepository.Fetch(limit, page, keyword, postUserID, loginUserID)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -89,7 +104,7 @@ func makeEmbedMovieURL(movieURL string) string {
 	return ""
 }
 
-// GetPost 1件取得
+// GetPost 投稿詳細取得
 func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	post, err := usecase.PostRepository.FetchByID(id)
 	if err != nil {
@@ -102,7 +117,7 @@ func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
 	return post, nil
 }
 
-// UpdatePost 更新
+// UpdatePost 投稿更新
 func (usecase *postUseCase) UpdatePost(ID int, title, speaker, detail, movieURL string) error {
 	post := model.Post{
 		ID:       ID,
@@ -117,9 +132,43 @@ func (usecase *postUseCase) UpdatePost(ID int, title, speaker, detail, movieURL 
 	return nil
 }
 
-// DeletePost 削除
+// DeletePost 投稿削除
 func (usecase *postUseCase) DeletePost(id int) error {
 	if err := usecase.PostRepository.Delete(id); err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateFavorite お気に入り登録
+func (usecase *postUseCase) CreateFavorite(userID, postID int) (err error) {
+	favorite := model.Favorite{
+		UserID: userID,
+		PostID: postID,
+	}
+	err = usecase.PostRepository.CreateFavorite(&favorite)
+
+	return err
+}
+
+// GetFavorites お気に入り一覧取得
+func (usecase *postUseCase) GetFavorites(userID, limit, page int) (totalCount int, posts []*model.GetPostResult, err error) {
+	totalCount, posts, err = usecase.PostRepository.FetchFavorites(userID, limit, page)
+	if err != nil {
+		return 0, nil, err
+	}
+
+	// 動画URL加工
+	for _, post := range posts {
+		post.EmbedMovieURL = makeEmbedMovieURL(post.MovieURL)
+	}
+
+	return totalCount, posts, nil
+}
+
+// DeleteFavorite お気に入り削除
+func (usecase *postUseCase) DeleteFavorite(userID, postID int) error {
+	if err := usecase.PostRepository.DeleteFavorite(userID, postID); err != nil {
 		return err
 	}
 	return nil

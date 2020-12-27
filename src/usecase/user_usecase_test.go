@@ -30,9 +30,9 @@ func (repository *mockUserRepository) FetchByEmail(email string) (*model.User, e
 	user, ok := args.Get(0).(*model.User)
 	if ok {
 		return user, args.Error(1)
-	} else {
-		return nil, args.Error(1)
 	}
+
+	return nil, args.Error(1)
 }
 
 func (repository *mockUserRepository) FetchByID(id int) (*model.User, error) {

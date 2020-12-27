@@ -25,4 +25,14 @@ type GetPostResult struct {
 	UserName          string `json:"user_name"`
 	UserImageFilePath string `json:"user_image_file_path"`
 	CommentCount      int    `json:"comment_count"`
+	IsFavorite        bool   `json:"is_favorite"`
+}
+
+// Favorite favoritesテーブルに対応する構造体。
+type Favorite struct {
+	ID        int       `json:"id" gorm:"primary_key"`
+	CreatedAt time.Time `json:"created_at" gorm:"not null;default:current_timestamp"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"not null;default:current_timestamp"`
+	UserID    int       `json:"user_id" gorm:"not null;default:0"`
+	PostID    int       `json:"post_id" gorm:"not null;default:0"`
 }

@@ -22,14 +22,14 @@ func (repository *mockPostRepository) Create(post *model.Post) error {
 }
 
 // 投稿一覧取得
-func (repository *mockPostRepository) Fetch(limit, page int, keyword string, userID int) (int, []*model.GetPostResult, error) {
-	args := repository.Called(limit, page, keyword, userID)
+func (repository *mockPostRepository) Fetch(limit, page int, keyword string, postUserID, loginUserID int) (int, []*model.GetPostResult, error) {
+	args := repository.Called(limit, page, keyword, postUserID, loginUserID)
 	posts, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), posts, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 // 投稿詳細取得
@@ -38,9 +38,9 @@ func (repository *mockPostRepository) FetchByID(id int) (*model.GetPostResult, e
 	post, ok := args.Get(0).(*model.GetPostResult)
 	if ok {
 		return post, args.Error(1)
-	} else {
-		return nil, args.Error(1)
 	}
+
+	return nil, args.Error(1)
 }
 
 // 投稿更新
@@ -64,14 +64,35 @@ func (repository *mockPostRepository) FetchComments(postID, limit, page int) (in
 	comments, ok := args.Get(1).([]*model.GetCommentResult)
 	if ok {
 		return args.Int(0), comments, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 // コメント削除
 func (repository *mockPostRepository) DeleteComment(id int) error {
 	return repository.Called(id).Error(0)
+}
+
+// お気に入り登録
+func (repository *mockPostRepository) CreateFavorite(favorite *model.Favorite) error {
+	return repository.Called(favorite).Error(0)
+}
+
+// お気に入り一覧取得
+func (repository *mockPostRepository) FetchFavorites(userID, limit, page int) (int, []*model.GetPostResult, error) {
+	args := repository.Called(userID, limit, page)
+	comments, ok := args.Get(1).([]*model.GetPostResult)
+	if ok {
+		return args.Int(0), comments, args.Error(2)
+	}
+
+	return args.Int(0), nil, args.Error(2)
+}
+
+// お気に入り削除
+func (repository *mockPostRepository) DeleteFavorite(userID, postID int) error {
+	return repository.Called(userID, postID).Error(0)
 }
 
 // 入力用投稿
@@ -147,13 +168,14 @@ func TestGetPosts_success(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	userID := 0 // TODO ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 	expectedTotalCount := 2
 	expectedPosts := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
-	repository.On("Fetch", limit, page, keyword, userID).Return(expectedTotalCount, expectedPosts, nil)
+	repository.On("Fetch", limit, page, keyword, postUserID, loginUserID).Return(expectedTotalCount, expectedPosts, nil)
 
 	// 2. Exercise
-	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, userID)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, postUserID, loginUserID)
 
 	// 3. Verify
 	assert.NoError(t, err)
@@ -172,11 +194,12 @@ func TestGetPosts_error(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	userID := 0 // TODO ユーザーID指定がある場合
-	repository.On("Fetch", limit, page, keyword, userID).Return(0, nil, errors.New("error"))
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
+	repository.On("Fetch", limit, page, keyword, postUserID, loginUserID).Return(0, nil, errors.New("error"))
 
 	// 2. Execise
-	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, userID)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, postUserID, loginUserID)
 
 	// 3. Verify
 	assert.Error(t, err)
@@ -327,3 +350,5 @@ func TestDeletePost_error(t *testing.T) {
 
 	// 4. Teardown
 }
+
+// TODO お気に入り関連追加
