@@ -85,7 +85,11 @@ https://www.power-phrase.com/
 
 # インフラ構成図
 
-<img width="640px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/102556459-494b0b80-410c-11eb-8877-bd032cfc6110.jpg">
+<img width="800px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/102556459-494b0b80-410c-11eb-8877-bd032cfc6110.jpg">
+
+# ER図
+
+<img width="400px" alt="ER図" src="https://user-images.githubusercontent.com/61341861/103180209-fa089600-48d6-11eb-9b7c-e5ca29952f46.jpg">
 
 # 機能一覧
 
