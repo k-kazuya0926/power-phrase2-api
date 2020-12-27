@@ -13,10 +13,11 @@ type (
 
 	// GetPostsRequest 投稿一覧取得リクエスト
 	GetPostsRequest struct {
-		Limit   int    `json:"limit" validate:"required,min=1"`
-		Page    int    `json:"page" validate:"required,min=1"`
-		Keyword string `json:"keyword" validate:"max=100"`
-		UserID  int    `json:"user_id" validate:"min=0"`
+		Limit       int    `json:"limit" validate:"required,min=1"`
+		Page        int    `json:"page" validate:"required,min=1"`
+		Keyword     string `json:"keyword" validate:"max=100"`
+		PostUserID  int    `json:"post_user_id" validate:"min=0"`
+		LoginUserID int    `json:"login_user_id" validate:"min=0"`
 	}
 
 	// GetPostRequest 投稿詳細取得リクエスト

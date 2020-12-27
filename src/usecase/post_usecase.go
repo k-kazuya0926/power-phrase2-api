@@ -11,7 +11,7 @@ import (
 // PostUseCase インターフェース
 type PostUseCase interface {
 	CreatePost(userID int, title, speaker, detail, movieURL string) (err error)
-	GetPosts(limit, offset int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error)
+	GetPosts(limit, offset int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error)
 	GetPost(id int) (*model.GetPostResult, error)
 	UpdatePost(ID int, title, speaker, detail, movieURL string) error
 	DeletePost(id int) error
@@ -41,9 +41,12 @@ func (usecase *postUseCase) CreatePost(userID int, title, speaker, detail, movie
 	return err
 }
 
-// GetPosts 一覧取得。キーワード検索を行わない場合はkeywordに空文字を指定する。ユーザーを限定しない場合はuserIDに0を指定する。
-func (usecase *postUseCase) GetPosts(limit, page int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
-	totalCount, posts, err = usecase.PostRepository.Fetch(limit, page, keyword, userID)
+// GetPosts 一覧取得。
+// キーワード検索を行わない場合はkeywordに空文字を指定する。
+// 投稿ユーザーを限定しない場合はpostUserIDに0を指定する。
+// ログインユーザーを限定しない場合はloginUserIDに0を指定する。
+func (usecase *postUseCase) GetPosts(limit, page int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error) {
+	totalCount, posts, err = usecase.PostRepository.Fetch(limit, page, keyword, postUserID, loginUserID)
 	if err != nil {
 		return 0, nil, err
 	}

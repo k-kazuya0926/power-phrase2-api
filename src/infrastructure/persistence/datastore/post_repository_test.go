@@ -63,10 +63,11 @@ func TestPostRepository_Fetch(t *testing.T) {
 
 	repository := &postRepository{}
 
-	userID := 0 // TODO ユーザーID指定がある場合
+	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	// 2. Exercise
-	totalCount, posts, err := repository.Fetch(1, 1, "", userID)
+	totalCount, posts, err := repository.Fetch(1, 1, "", postUserID, loginUserID)
 
 	// 3. Verify
 	assert.NoError(t, err)

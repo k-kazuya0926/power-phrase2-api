@@ -24,8 +24,11 @@ func (repository *postRepository) Create(post *model.Post) error {
 	return db.Create(post).Error
 }
 
-// Fetch 投稿一覧取得。キーワード検索を行わない場合はkeywordに空文字を指定する。ユーザーを限定しない場合はuserIDに0を指定する。
-func (repository *postRepository) Fetch(limit, page int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
+// Fetch 投稿一覧取得。
+// キーワード検索を行わない場合はkeywordに空文字を指定する。
+// 投稿ユーザーを限定しない場合はpostUserIDに0を指定する。
+// ログインユーザーを限定しない場合はloginUserIDに0を指定する。
+func (repository *postRepository) Fetch(limit, page int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
@@ -35,13 +38,14 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, userID 
 	offset := limit * (page - 1)
 
 	if keyword != "" {
+		// キーワードがタイトル、発言者、詳細のいずれかに含まれる
 		countDb = countDb.Where("title LIKE ?", "%"+keyword+"%").Or("speaker LIKE ?", "%"+keyword+"%").Or("detail LIKE ?", "%"+keyword+"%")
 		db = db.Where("title LIKE ?", "%"+keyword+"%").Or("speaker LIKE ?", "%"+keyword+"%").Or("detail LIKE ?", "%"+keyword+"%")
 	}
 
-	if userID > 0 { // ユーザーIDが指定されている場合
-		countDb = countDb.Where("user_id = ?", userID)
-		db = db.Where("user_id = ?", userID)
+	if postUserID > 0 { // ユーザーIDが指定されている場合
+		countDb = countDb.Where("posts.user_id = ?", postUserID)
+		db = db.Where("posts.user_id = ?", postUserID)
 	}
 
 	// 投稿総件数取得
@@ -57,7 +61,7 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, userID 
 			(SELECT count(*) FROM comments WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL) AS comment_count
 		`).
 		Joins("JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
-		Order("id DESC").Limit(limit).Offset(offset).
+		Order("posts.id DESC").Limit(limit).Offset(offset).
 		Find(&posts).Error; err != nil {
 		return 0, nil, err
 	}

@@ -22,8 +22,8 @@ func (repository *mockPostRepository) Create(post *model.Post) error {
 }
 
 // 投稿一覧取得
-func (repository *mockPostRepository) Fetch(limit, page int, keyword string, userID int) (int, []*model.GetPostResult, error) {
-	args := repository.Called(limit, page, keyword, userID)
+func (repository *mockPostRepository) Fetch(limit, page int, keyword string, postUserID, loginUserID int) (int, []*model.GetPostResult, error) {
+	args := repository.Called(limit, page, keyword, postUserID, loginUserID)
 	posts, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), posts, args.Error(2)
@@ -168,13 +168,14 @@ func TestGetPosts_success(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	userID := 0 // TODO ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 	expectedTotalCount := 2
 	expectedPosts := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
-	repository.On("Fetch", limit, page, keyword, userID).Return(expectedTotalCount, expectedPosts, nil)
+	repository.On("Fetch", limit, page, keyword, postUserID, loginUserID).Return(expectedTotalCount, expectedPosts, nil)
 
 	// 2. Exercise
-	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, userID)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, postUserID, loginUserID)
 
 	// 3. Verify
 	assert.NoError(t, err)
@@ -193,11 +194,12 @@ func TestGetPosts_error(t *testing.T) {
 	limit := 3
 	page := 1
 	keyword := ""
-	userID := 0 // TODO ユーザーID指定がある場合
-	repository.On("Fetch", limit, page, keyword, userID).Return(0, nil, errors.New("error"))
+	postUserID := 0 // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
+	repository.On("Fetch", limit, page, keyword, postUserID, loginUserID).Return(0, nil, errors.New("error"))
 
 	// 2. Execise
-	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, userID)
+	totalCount, posts, err := usecase.GetPosts(limit, page, keyword, postUserID, loginUserID)
 
 	// 3. Verify
 	assert.Error(t, err)
