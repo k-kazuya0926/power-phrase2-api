@@ -158,7 +158,10 @@ func (usecase *postUseCase) GetFavorites(userID, limit, page int) (totalCount in
 		return 0, nil, err
 	}
 
-	// TODO URL加工
+	// 動画URL加工
+	for _, post := range posts {
+		post.EmbedMovieURL = makeEmbedMovieURL(post.MovieURL)
+	}
 
 	return totalCount, posts, nil
 }
