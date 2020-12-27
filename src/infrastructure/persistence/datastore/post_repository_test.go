@@ -16,12 +16,12 @@ func TestPostRepository_Create(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
 	repository := &postRepository{}
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 
 	// 2. Exercise
 	err := repository.Create(postForInput)
@@ -54,13 +54,13 @@ func TestPostRepository_Fetch(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
-	postForInput2 := makeMockPost(userForInput.ID)
+	postForInput2 := makePost(userForInput.ID)
 	db.Create(&postForInput2)
 
 	repository := &postRepository{}
@@ -93,15 +93,15 @@ func TestPostRepository_FetchById(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
-	postForInput2 := makeMockPost(userForInput.ID)
+	postForInput2 := makePost(userForInput.ID)
 	db.Create(&postForInput2)
 	db.First(&postForInput2)
 
@@ -132,11 +132,11 @@ func TestPostRepository_Update(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 	postForInput.Title = "title2"
@@ -177,11 +177,11 @@ func TestPostRepository_Delete(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
@@ -206,16 +206,16 @@ func TestPostRepository_CreateComment(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
 	repository := &postRepository{}
-	commentForInput := makeMockComment(postForInput.ID, userForInput.ID)
+	commentForInput := makeComment(postForInput.ID, userForInput.ID)
 
 	// 2. Exercise
 	err := repository.CreateComment(commentForInput)
@@ -246,17 +246,17 @@ func TestPostRepository_FetchComments(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
-	commentForInput := makeMockComment(postForInput.ID, userForInput.ID)
+	commentForInput := makeComment(postForInput.ID, userForInput.ID)
 	db.Create(&commentForInput)
-	commentForInput2 := makeMockComment(postForInput.ID, userForInput.ID)
+	commentForInput2 := makeComment(postForInput.ID, userForInput.ID)
 	db.Create(&commentForInput2)
 
 	repository := &postRepository{}
@@ -286,15 +286,15 @@ func TestPostRepository_DeleteComment(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
-	commentForInput := makeMockComment(postForInput.ID, userForInput.ID)
+	commentForInput := makeComment(postForInput.ID, userForInput.ID)
 	db.Create(&commentForInput)
 	db.First(&commentForInput)
 
@@ -319,11 +319,11 @@ func TestPostRepository_CreateFavorite(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
@@ -358,11 +358,11 @@ func TestPostRepository_FetchFavorites(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
@@ -395,11 +395,11 @@ func TestPostRepository_DeleteFavorite(t *testing.T) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
-	userForInput := makeMockUserForInput(1)
+	userForInput := makeUserForInput(1)
 	db.Create(&userForInput)
 	db.First(&userForInput)
 
-	postForInput := makeMockPost(userForInput.ID)
+	postForInput := makePost(userForInput.ID)
 	db.Create(&postForInput)
 	db.First(&postForInput)
 
@@ -421,8 +421,8 @@ func TestPostRepository_DeleteFavorite(t *testing.T) {
 	teardown(db)
 }
 
-// Postのモックを生成
-func makeMockPost(userID int) *model.Post {
+// Postを生成
+func makePost(userID int) *model.Post {
 	return &model.Post{
 		UserID:   userID,
 		Title:    fmt.Sprintf("title%d", userID),
@@ -432,18 +432,18 @@ func makeMockPost(userID int) *model.Post {
 	}
 }
 
-// GetPostResultのモックを生成
-func makeMockGetPostResult(userID int) *model.GetPostResult {
+// GetPostResultを生成
+func makeGetPostResult(userID int) *model.GetPostResult {
 	return &model.GetPostResult{
-		Post:              *makeMockPost(userID),
+		Post:              *makePost(userID),
 		UserName:          fmt.Sprintf("testuser%d", userID),
 		UserImageFilePath: fmt.Sprintf("images/%d.png", userID),
 		CommentCount:      userID,
 	}
 }
 
-// Commentのモックを生成
-func makeMockComment(postID, userID int) *model.Comment {
+// Commentを生成
+func makeComment(postID, userID int) *model.Comment {
 	return &model.Comment{
 		PostID: postID,
 		UserID: userID,

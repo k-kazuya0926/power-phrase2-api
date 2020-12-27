@@ -51,7 +51,7 @@ func (usecase *mockUserUseCase) DeleteUser(id int) error {
 	return usecase.Called(id).Error(0)
 }
 
-func makeMockUser(id int) *model.User {
+func makeUser(id int) *model.User {
 	return &model.User{
 		ID:            id,
 		CreatedAt:     time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local),
@@ -75,7 +75,7 @@ func createContext(method, path string, body io.Reader, rec *httptest.ResponseRe
 func TestCreateUser_success(t *testing.T) {
 	// 1. Setup
 	id := 1
-	user := makeMockUser(id)
+	user := makeUser(id)
 	jsonBytes, err := json.Marshal(user)
 	if err != nil {
 		t.Fatal(err)
@@ -113,7 +113,7 @@ func TestCreateUser_error_validationError(t *testing.T) {
 
 	for _, test := range cases {
 		// 1. Setup
-		user := makeMockUser(1)
+		user := makeUser(1)
 		user.Name = test.name
 		user.Email = test.email
 		user.Password = test.password
@@ -141,7 +141,7 @@ func TestCreateUser_error_validationError(t *testing.T) {
 
 func TestCreateUser_error_usecaseError(t *testing.T) {
 	// 1. Setup
-	user := makeMockUser(1)
+	user := makeUser(1)
 	jsonBytes, err := json.Marshal(user)
 	if err != nil {
 		t.Fatal(err)
@@ -253,7 +253,7 @@ func TestGetUser_success(t *testing.T) {
 	id := 1
 	c.SetParamValues(fmt.Sprint(id))
 
-	expectedUser := makeMockUser(id)
+	expectedUser := makeUser(id)
 
 	usecase := mockUserUseCase{}
 	usecase.On("GetUser", id).Return(expectedUser, nil)
@@ -334,7 +334,7 @@ func TestGetUser_error_usecaseError(t *testing.T) {
 
 func TestUpdateUser_success(t *testing.T) {
 	// 1. Setup
-	user := makeMockUser(1)
+	user := makeUser(1)
 	jsonBytes, err := json.Marshal(user)
 	if err != nil {
 		t.Fatal(err)
@@ -404,7 +404,7 @@ func TestUpdateUser_error_validationError(t *testing.T) {
 
 func TestUpdateUser_error_usecaseError(t *testing.T) {
 	// 1. Setup
-	user := makeMockUser(1)
+	user := makeUser(1)
 	jsonBytes, err := json.Marshal(user)
 	if err != nil {
 		t.Fatal(err)
