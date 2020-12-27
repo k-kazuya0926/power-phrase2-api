@@ -170,9 +170,10 @@ func (repository *postRepository) FetchFavorites(userID, limit, page int) (total
 	}
 
 	offset := limit * (page - 1)
-	if err = db.Table("favorites").
-		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
-		Joins("JOIN posts ON posts.id = favorites.post_id AND posts.deleted_at IS NULL JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL").
+	if err = db.Unscoped().Table("favorites").
+		Select("posts.*, users.name AS user_name, users.image_file_path AS user_image_file_path, true AS is_favorite").
+		Joins(`JOIN posts ON posts.id = favorites.post_id AND posts.deleted_at IS NULL
+			JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL`).
 		Where("favorites.user_id = ?", userID).
 		Order("posts.id DESC").Limit(limit).Offset(offset).
 		Find(&posts).Error; err != nil {
