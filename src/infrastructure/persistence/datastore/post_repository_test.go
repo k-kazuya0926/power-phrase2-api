@@ -312,7 +312,114 @@ func TestPostRepository_DeleteComment(t *testing.T) {
 	teardown(db)
 }
 
-// TODO お気に入り関連追加
+// お気に入り登録
+func TestPostRepository_CreateFavorite(t *testing.T) {
+	// 1. Setup
+	setup()
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	userForInput := makeMockUserForInput(1)
+	db.Create(&userForInput)
+	db.First(&userForInput)
+
+	postForInput := makeMockPost(userForInput.ID)
+	db.Create(&postForInput)
+	db.First(&postForInput)
+
+	repository := &postRepository{}
+	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
+
+	// 2. Exercise
+	err := repository.CreateFavorite(favoriteForInput)
+
+	// 3. Verify
+	assert.NoError(t, err)
+
+	// 件数
+	var count int
+	db.Table("favorites").Count(&count)
+	assert.Equal(t, 1, count)
+
+	// 内容
+	favorite := model.Favorite{}
+	db.First(&favorite)
+	assert.Equal(t, favoriteForInput.UserID, favorite.UserID)
+	assert.Equal(t, favoriteForInput.PostID, favorite.PostID)
+
+	// 4. Teardown
+	teardown(db)
+}
+
+// お気に入り一覧取得
+func TestPostRepository_FetchFavorites(t *testing.T) {
+	// 1. Setup
+	setup()
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	userForInput := makeMockUserForInput(1)
+	db.Create(&userForInput)
+	db.First(&userForInput)
+
+	postForInput := makeMockPost(userForInput.ID)
+	db.Create(&postForInput)
+	db.First(&postForInput)
+
+	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
+	db.Create(&favoriteForInput)
+
+	repository := &postRepository{}
+
+	// 2. Exercise
+	totalCount, favorites, err := repository.FetchFavorites(userForInput.ID, 1, 1)
+
+	// 3. Verify
+	assert.NoError(t, err)
+
+	// 内容
+	assert.Equal(t, 1, totalCount)
+	assert.Equal(t, favoriteForInput.PostID, favorites[0].ID)
+	assert.Equal(t, favoriteForInput.UserID, favorites[0].UserID)
+	assert.Equal(t, userForInput.Name, favorites[0].UserName)
+	assert.Equal(t, userForInput.ImageFilePath, favorites[0].UserImageFilePath)
+
+	// 4. Teardown
+	teardown(db)
+}
+
+// お気に入り削除
+func TestPostRepository_DeleteFavorite(t *testing.T) {
+	// 1. Setup
+	setup()
+	db := conf.NewDBConnection()
+	defer db.Close()
+
+	userForInput := makeMockUserForInput(1)
+	db.Create(&userForInput)
+	db.First(&userForInput)
+
+	postForInput := makeMockPost(userForInput.ID)
+	db.Create(&postForInput)
+	db.First(&postForInput)
+
+	favoriteForInput := makeFavorite(userForInput.ID, postForInput.ID)
+	db.Create(&favoriteForInput)
+	db.First(&favoriteForInput)
+
+	repository := &postRepository{}
+
+	// 2. Exercise
+	err := repository.DeleteFavorite(userForInput.ID, postForInput.ID)
+
+	// 3. Verify
+	assert.NoError(t, err)
+
+	assert.Error(t, db.First(&favoriteForInput).Error)
+
+	// 4. Teardown
+	teardown(db)
+}
 
 // Postのモックを生成
 func makeMockPost(userID int) *model.Post {
@@ -341,5 +448,13 @@ func makeMockComment(postID, userID int) *model.Comment {
 		PostID: postID,
 		UserID: userID,
 		Body:   "body",
+	}
+}
+
+// Favoriteを生成
+func makeFavorite(userID, postID int) *model.Favorite {
+	return &model.Favorite{
+		UserID: userID,
+		PostID: postID,
 	}
 }
