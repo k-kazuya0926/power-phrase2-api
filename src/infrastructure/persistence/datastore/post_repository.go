@@ -2,6 +2,8 @@
 package datastore
 
 import (
+	"fmt"
+
 	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/repository"
@@ -58,9 +60,11 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, postUse
 		Select(`posts.*,
 			users.name as user_name,
 			users.image_file_path as user_image_file_path,
-			(SELECT count(*) FROM comments WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL) AS comment_count
+			(SELECT count(*) FROM comments WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL) AS comment_count,
+			(CASE WHEN favorites.id IS NULL THEN false ELSE true END) AS is_favorite
 		`).
-		Joins("JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
+		Joins(fmt.Sprintf(`JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL
+			LEFT JOIN favorites ON favorites.post_id = posts.id AND favorites.user_id = %d`, loginUserID)).
 		Order("posts.id DESC").Limit(limit).Offset(offset).
 		Find(&posts).Error; err != nil {
 		return 0, nil, err

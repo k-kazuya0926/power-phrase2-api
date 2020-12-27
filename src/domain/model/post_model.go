@@ -25,4 +25,5 @@ type GetPostResult struct {
 	UserName          string `json:"user_name"`
 	UserImageFilePath string `json:"user_image_file_path"`
 	CommentCount      int    `json:"comment_count"`
+	IsFavorite        bool   `json:"is_favorite"`
 }
