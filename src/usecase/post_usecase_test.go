@@ -96,7 +96,7 @@ func (repository *mockPostRepository) DeleteFavorite(userID, postID int) error {
 }
 
 // 入力用投稿
-func getMockPostForInput(id int) *model.Post {
+func makeMockPostForInput(id int) *model.Post {
 	post := &model.Post{
 		ID:       id,
 		UserID:   id,
@@ -109,15 +109,15 @@ func getMockPostForInput(id int) *model.Post {
 }
 
 // DBから取得された投稿
-func getMockPostForRead(id int) *model.Post {
-	post := getMockPostForInput(id)
+func makeMockPostForRead(id int) *model.Post {
+	post := makeMockPostForInput(id)
 	post.CreatedAt = time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local)
 	post.UpdatedAt = time.Date(2015, 9, 13, 12, 35, 42, 123456789, time.Local)
 	return post
 }
 
-func getMockGetPostResult(id int) *model.GetPostResult {
-	post := getMockPostForRead(id)
+func makeMockGetPostResult(id int) *model.GetPostResult {
+	post := makeMockPostForRead(id)
 	return &model.GetPostResult{
 		Post:              *post,
 		UserName:          fmt.Sprintf("username%d", id),
@@ -131,7 +131,7 @@ func TestCreatePost_success(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
-	post := getMockPostForInput(id)
+	post := makeMockPostForInput(id)
 	repository.On("Create", mock.AnythingOfType("*model.Post")).Return(nil)
 
 	// 2. Exercise
@@ -148,7 +148,7 @@ func TestCreatePost_error(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
-	post := getMockPostForInput(id)
+	post := makeMockPostForInput(id)
 	repository.On("Create", mock.AnythingOfType("*model.Post")).Return(errors.New("error"))
 
 	// 2. Exercise
@@ -171,7 +171,7 @@ func TestGetPosts_success(t *testing.T) {
 	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
 	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 	expectedTotalCount := 2
-	expectedPosts := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
+	expectedPosts := []*model.GetPostResult{makeMockGetPostResult(1), makeMockGetPostResult(2)}
 	repository.On("Fetch", limit, page, keyword, postUserID, loginUserID).Return(expectedTotalCount, expectedPosts, nil)
 
 	// 2. Exercise
@@ -246,7 +246,7 @@ func TestGetPost_success(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
-	expected := getMockGetPostResult(id)
+	expected := makeMockGetPostResult(id)
 	repository.On("FetchByID", id).Return(expected, nil)
 
 	// 2. Exercise
@@ -291,7 +291,7 @@ func TestUpdatePost_success(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
-	post := getMockPostForInput(id)
+	post := makeMockPostForInput(id)
 	repository.On("Update", mock.AnythingOfType("*model.Post")).Return(nil)
 
 	// 2. Exercise
@@ -307,7 +307,7 @@ func TestUpdatePost_error(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
-	post := getMockPostForInput(id)
+	post := makeMockPostForInput(id)
 	repository.On("Update", mock.AnythingOfType("*model.Post")).Return(errors.New("error"))
 
 	// 2. Exercise
