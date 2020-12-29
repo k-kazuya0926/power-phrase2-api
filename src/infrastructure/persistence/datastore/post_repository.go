@@ -75,15 +75,22 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, postUse
 }
 
 // FetchByID 投稿1件取得
-func (repository *postRepository) FetchByID(id int) (*model.GetPostResult, error) {
+func (repository *postRepository) FetchByID(id, loginUserID int) (*model.GetPostResult, error) {
 	db := conf.NewDBConnection()
 	defer db.Close()
 
 	post := model.GetPostResult{}
 	post.ID = id
 	if err := db.Table("posts").
-		Select("posts.*, users.name as user_name, users.image_file_path as user_image_file_path").
-		Joins("JOIN users on users.id = posts.user_id AND users.deleted_at IS NULL").
+		Select(`posts.*,
+			users.name as user_name,
+			users.image_file_path as user_image_file_path,
+			(SELECT count(*) FROM comments WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL) AS comment_count,
+			(CASE WHEN favorites.id IS NULL THEN false ELSE true END) AS is_favorite,
+			(SELECT count(*) FROM favorites AS f WHERE f.post_id = posts.id) AS favorite_count
+		`).
+		Joins(fmt.Sprintf(`JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL
+			LEFT JOIN favorites ON favorites.post_id = posts.id AND favorites.user_id = %d`, loginUserID)).
 		First(&post).Error; err != nil {
 		return nil, err
 	}

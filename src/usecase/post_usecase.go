@@ -15,7 +15,7 @@ type PostUseCase interface {
 	// 投稿一覧取得
 	GetPosts(limit, offset int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error)
 	// 投稿詳細取得
-	GetPost(id int) (*model.GetPostResult, error)
+	GetPost(id, loginUserID int) (*model.GetPostResult, error)
 	// 投稿更新
 	UpdatePost(ID int, title, speaker, detail, movieURL string) error
 	// 投稿削除
@@ -105,8 +105,8 @@ func makeEmbedMovieURL(movieURL string) string {
 }
 
 // GetPost 投稿詳細取得
-func (usecase *postUseCase) GetPost(id int) (*model.GetPostResult, error) {
-	post, err := usecase.PostRepository.FetchByID(id)
+func (usecase *postUseCase) GetPost(id, loginUserID int) (*model.GetPostResult, error) {
+	post, err := usecase.PostRepository.FetchByID(id, loginUserID)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ type PostRepository interface {
 	// 投稿一覧取得
 	Fetch(limit, page int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error)
 	// 投稿詳細取得
-	FetchByID(id int) (*model.GetPostResult, error)
+	FetchByID(id, loginUserID int) (*model.GetPostResult, error)
 	// 投稿更新
 	Update(post *model.Post) error
 	// 投稿削除

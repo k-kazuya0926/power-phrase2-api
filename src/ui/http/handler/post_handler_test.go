@@ -38,8 +38,8 @@ func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, post
 }
 
 // 投稿詳細取得
-func (usecase *mockPostUseCase) GetPost(id int) (*model.GetPostResult, error) {
-	args := usecase.Called(id)
+func (usecase *mockPostUseCase) GetPost(id, loginUserID int) (*model.GetPostResult, error) {
+	args := usecase.Called(id, loginUserID)
 	post, ok := args.Get(0).(*model.GetPostResult)
 	if ok {
 		return post, args.Error(1)
@@ -286,7 +286,9 @@ func TestGetPosts_error_usecaseError(t *testing.T) {
 func TestGetPost_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
-	c := createContext(echo.GET, "/posts", nil, rec)
+	q := make(url.Values)
+	q.Set("login_user_id", "1")
+	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 	c.SetPath("/posts/:id")
 	c.SetParamNames("id")
 	id := 1
@@ -295,7 +297,7 @@ func TestGetPost_success(t *testing.T) {
 	expectedPost := makeGetPostResult(id)
 
 	usecase := mockPostUseCase{}
-	usecase.On("GetPost", id).Return(expectedPost, nil)
+	usecase.On("GetPost", id, 1).Return(expectedPost, nil)
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
@@ -325,7 +327,9 @@ func TestGetPost_error_validationError(t *testing.T) {
 	for _, test := range cases {
 		// 1. Setup
 		rec := httptest.NewRecorder()
-		c := createContext(echo.GET, "/posts", nil, rec)
+		q := make(url.Values)
+		q.Set("login_user_id", "1")
+		c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 		c.SetPath("/posts/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprint(test.id))
@@ -348,14 +352,16 @@ func TestGetPost_error_validationError(t *testing.T) {
 func TestGetPost_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
-	c := createContext(echo.GET, "/posts", nil, rec)
+	q := make(url.Values)
+	q.Set("login_user_id", "1")
+	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 	c.SetPath("/posts/:id")
 	c.SetParamNames("id")
 	id := 1
 	c.SetParamValues(fmt.Sprint(id))
 
 	usecase := mockPostUseCase{}
-	usecase.On("GetPost", id).Return(nil, errors.New("error"))
+	usecase.On("GetPost", id, 1).Return(nil, errors.New("error"))
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
