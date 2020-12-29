@@ -19,6 +19,10 @@ workflows:
             repo: 'power-phrase2-api'
             tag: "${CIRCLE_SHA1}"
             dockerfile: docker/api/Dockerfile
+            filters:
+              branches:
+                  only:
+                  - master
         - aws-ecs/deploy-service-update:
             requires:
                 - aws-ecr/build-and-push-image
@@ -26,6 +30,10 @@ workflows:
             cluster-name: 'power-phrase2-api-cluster'
             service-name: 'power-phrase2-api-service'
             container-image-name-updates: 'container=power-phrase2-api-container,tag=${CIRCLE_SHA1}'
+            filters:
+                branches:
+                    only:
+                    - master
 
 jobs:
   test:
