@@ -15,11 +15,11 @@ type CommentUseCase interface {
 
 // commentUseCase 構造体
 type commentUseCase struct {
-	repository.CommentRepository
+	repository.PostRepository
 }
 
 // NewCommentUseCase CommentUseCaseを生成。
-func NewCommentUseCase(repository repository.CommentRepository) CommentUseCase {
+func NewCommentUseCase(repository repository.PostRepository) CommentUseCase {
 	return &commentUseCase{repository}
 }
 
@@ -30,14 +30,14 @@ func (usecase *commentUseCase) CreateComment(postID, userID int, body string) (e
 		UserID: userID,
 		Body:   body,
 	}
-	err = usecase.CommentRepository.Create(&comment)
+	err = usecase.PostRepository.CreateComment(&comment)
 
 	return err
 }
 
 // GetComments 一覧取得
 func (usecase *commentUseCase) GetComments(postID, limit, page int) (totalCount int, comments []*model.GetCommentResult, err error) {
-	totalCount, comments, err = usecase.CommentRepository.Fetch(postID, limit, page)
+	totalCount, comments, err = usecase.PostRepository.FetchComments(postID, limit, page)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -47,7 +47,7 @@ func (usecase *commentUseCase) GetComments(postID, limit, page int) (totalCount 
 
 // DeleteComment 削除
 func (usecase *commentUseCase) DeleteComment(id int) error {
-	if err := usecase.CommentRepository.Delete(id); err != nil {
+	if err := usecase.PostRepository.DeleteComment(id); err != nil {
 		return err
 	}
 	return nil

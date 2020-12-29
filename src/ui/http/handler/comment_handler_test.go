@@ -30,16 +30,16 @@ func (usecase *mockCommentUseCase) GetComments(postID, limit, offset int) (total
 	comments, ok := args.Get(1).([]*model.GetCommentResult)
 	if ok {
 		return args.Int(0), comments, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
 func (usecase *mockCommentUseCase) DeleteComment(id int) error {
 	return usecase.Called(id).Error(0)
 }
 
-func getMockComment(id, postID, userID int) *model.Comment {
+func makeComment(id, postID, userID int) *model.Comment {
 	return &model.Comment{
 		ID:     id,
 		PostID: postID,
@@ -48,9 +48,9 @@ func getMockComment(id, postID, userID int) *model.Comment {
 	}
 }
 
-func getMockGetCommentResult(id, postID, userID int) *model.GetCommentResult {
+func makeGetCommentResult(id, postID, userID int) *model.GetCommentResult {
 	return &model.GetCommentResult{
-		Comment:           *getMockComment(id, postID, userID),
+		Comment:           *makeComment(id, postID, userID),
 		UserName:          fmt.Sprintf("testuser%d", id),
 		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
 	}
@@ -60,7 +60,7 @@ func getMockGetCommentResult(id, postID, userID int) *model.GetCommentResult {
 func TestCreateComment_success(t *testing.T) {
 	// 1. Setup
 	postID := 1
-	comment := getMockComment(1, postID, 1)
+	comment := makeComment(1, postID, 1)
 	jsonBytes, err := json.Marshal(comment)
 	if err != nil {
 		t.Fatal(err)
@@ -98,7 +98,7 @@ func TestCreateComment_error_validationError(t *testing.T) {
 
 	for _, test := range cases {
 		// 1. Setup
-		comment := getMockComment(1, test.postID, test.userID)
+		comment := makeComment(1, test.postID, test.userID)
 		comment.Body = test.body
 		jsonBytes, err := json.Marshal(comment)
 		if err != nil {
@@ -127,7 +127,7 @@ func TestCreateComment_error_validationError(t *testing.T) {
 func TestCreateComment_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	postID := 1
-	comment := getMockComment(1, postID, 1)
+	comment := makeComment(1, postID, 1)
 	jsonBytes, err := json.Marshal(comment)
 	if err != nil {
 		t.Fatal(err)
@@ -165,7 +165,7 @@ func TestGetComments_success(t *testing.T) {
 	c.SetParamValues(fmt.Sprint(postID))
 
 	usecase := mockCommentUseCase{}
-	expected := []*model.GetCommentResult{getMockGetCommentResult(1, postID, 1), getMockGetCommentResult(2, postID, 2)}
+	expected := []*model.GetCommentResult{makeGetCommentResult(1, postID, 1), makeGetCommentResult(2, postID, 2)}
 	usecase.On("GetComments", postID, 10, 1).Return(2, expected, nil)
 	handler := NewCommentHandler(&usecase)
 

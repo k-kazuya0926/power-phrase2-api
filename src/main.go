@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/k-kazuya0926/power-phrase2-api/conf"
 	"github.com/k-kazuya0926/power-phrase2-api/interactor"
 	"github.com/k-kazuya0926/power-phrase2-api/ui/http/router"
 	"github.com/k-kazuya0926/power-phrase2-api/validator"
@@ -12,8 +11,6 @@ import (
 )
 
 func main() {
-	conf.NewConfig()
-
 	e := echo.New()
 	interactor := interactor.NewInteractor()
 	handler := interactor.NewAppHandler()

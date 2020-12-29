@@ -102,7 +102,7 @@ func (handler *userHandler) Login(c echo.Context) error {
 	})
 }
 
-// GetUser 1件取得
+// GetUser 詳細取得
 func (handler *userHandler) GetUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

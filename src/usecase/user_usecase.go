@@ -93,7 +93,7 @@ func createToken(user *model.User) (string, error) {
 	return t, err
 }
 
-// GetUser 1件取得
+// GetUser 詳細取得
 func (usecase *userUseCase) GetUser(id int) (*model.User, error) {
 	user, err := usecase.UserRepository.FetchByID(id)
 	if err != nil {

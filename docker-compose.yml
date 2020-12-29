@@ -17,6 +17,15 @@ services:
       - apparmor:unconfined
     cap_add: # コンテナの capabilities の追加
       - SYS_PTRACE
+    environment:
+      ENV: local
+      SERVER_PORT: 1323
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: power-phrase2
+      DB_USER: root
+      DB_PASSWORD: power-phrase2
+      JWT_SIGNING_KEY: secret
     networks:
       - app_network
 

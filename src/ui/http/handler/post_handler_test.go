@@ -21,39 +21,65 @@ type mockPostUseCase struct {
 	mock.Mock
 }
 
+// 投稿登録
 func (usecase *mockPostUseCase) CreatePost(userID int, title, speaker, detail, movieURL string) (err error) {
 	return usecase.Called(userID, title, speaker, detail, movieURL).Error(0)
 }
 
-func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, userID int) (totalCount int, posts []*model.GetPostResult, err error) {
-	args := usecase.Called(limit, offset, keyword, userID)
+// 投稿一覧取得
+func (usecase *mockPostUseCase) GetPosts(limit, offset int, keyword string, postUserID, loginUserID int) (totalCount int, posts []*model.GetPostResult, err error) {
+	args := usecase.Called(limit, offset, keyword, postUserID, loginUserID)
 	posts, ok := args.Get(1).([]*model.GetPostResult)
 	if ok {
 		return args.Int(0), posts, args.Error(2)
-	} else {
-		return args.Int(0), nil, args.Error(2)
 	}
+
+	return args.Int(0), nil, args.Error(2)
 }
 
-func (usecase *mockPostUseCase) GetPost(id int) (*model.GetPostResult, error) {
-	args := usecase.Called(id)
+// 投稿詳細取得
+func (usecase *mockPostUseCase) GetPost(id, loginUserID int) (*model.GetPostResult, error) {
+	args := usecase.Called(id, loginUserID)
 	post, ok := args.Get(0).(*model.GetPostResult)
 	if ok {
 		return post, args.Error(1)
-	} else {
-		return nil, args.Error(1)
 	}
+
+	return nil, args.Error(1)
 }
 
+// 投稿更新
 func (usecase *mockPostUseCase) UpdatePost(ID int, title, speaker, detail, movieURL string) error {
 	return usecase.Called(ID, title, speaker, detail, movieURL).Error(0)
 }
 
+// 投稿削除
 func (usecase *mockPostUseCase) DeletePost(id int) error {
 	return usecase.Called(id).Error(0)
 }
 
-func getMockPost(id int) *model.Post {
+// お気に入り登録
+func (usecase *mockPostUseCase) CreateFavorite(userID, postID int) (err error) {
+	return usecase.Called(userID, postID).Error(0)
+}
+
+// お気に入り一覧取得
+func (usecase *mockPostUseCase) GetFavorites(userID, limit, offset int) (totalCount int, posts []*model.GetPostResult, err error) {
+	args := usecase.Called(userID, limit, offset)
+	posts, ok := args.Get(1).([]*model.GetPostResult)
+	if ok {
+		return args.Int(0), posts, args.Error(2)
+	}
+
+	return args.Int(0), nil, args.Error(2)
+}
+
+// お気に入り削除
+func (usecase *mockPostUseCase) DeleteFavorite(userID, postID int) error {
+	return usecase.Called(userID, postID).Error(0)
+}
+
+func makePost(id int) *model.Post {
 	return &model.Post{
 		ID:       id,
 		UserID:   id,
@@ -64,9 +90,9 @@ func getMockPost(id int) *model.Post {
 	}
 }
 
-func getMockGetPostResult(id int) *model.GetPostResult {
+func makeGetPostResult(id int) *model.GetPostResult {
 	return &model.GetPostResult{
-		Post:              *getMockPost(id),
+		Post:              *makePost(id),
 		EmbedMovieURL:     fmt.Sprintf("https://www.example.com/embed/%d", id),
 		UserName:          fmt.Sprintf("testuser%d", id),
 		UserImageFilePath: fmt.Sprintf("images/%d.png", id),
@@ -76,7 +102,7 @@ func getMockGetPostResult(id int) *model.GetPostResult {
 // 登録テスト
 func TestCreatePost_success(t *testing.T) {
 	// 1. Setup
-	post := getMockPost(1)
+	post := makePost(1)
 	jsonBytes, err := json.Marshal(post)
 	if err != nil {
 		t.Fatal(err)
@@ -113,7 +139,7 @@ func TestCreatePost_error_validationError(t *testing.T) {
 
 	for _, test := range cases {
 		// 1. Setup
-		post := getMockPost(1)
+		post := makePost(1)
 		post.UserID = test.userID
 		post.Title = test.title
 		post.Speaker = test.speaker
@@ -143,7 +169,7 @@ func TestCreatePost_error_validationError(t *testing.T) {
 
 func TestCreatePost_error_usecaseError(t *testing.T) {
 	// 1. Setup
-	post := getMockPost(1)
+	post := makePost(1)
 	jsonBytes, err := json.Marshal(post)
 	if err != nil {
 		t.Fatal(err)
@@ -175,11 +201,12 @@ func TestGetPosts_success(t *testing.T) {
 	q.Set("page", "1")
 	q.Set("keyword", "")
 	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
-	userID := 0 // TODO ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	usecase := mockPostUseCase{}
-	expected := []*model.GetPostResult{getMockGetPostResult(1), getMockGetPostResult(2)}
-	usecase.On("GetPosts", 1, 1, "", userID).Return(2, expected, nil)
+	expected := []*model.GetPostResult{makeGetPostResult(1), makeGetPostResult(2)}
+	usecase.On("GetPosts", 1, 1, "", postUserID, loginUserID).Return(2, expected, nil)
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
@@ -238,10 +265,11 @@ func TestGetPosts_error_usecaseError(t *testing.T) {
 	q.Set("page", "1")
 	q.Set("keyword", "")
 	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
-	userID := 0 // TODO ユーザーID指定がある場合
+	postUserID := 0  // TODO 投稿ユーザーID指定がある場合
+	loginUserID := 0 // TODO ログインユーザーID指定がある場合
 
 	usecase := mockPostUseCase{}
-	usecase.On("GetPosts", 1, 1, "", userID).Return(0, nil, errors.New("error"))
+	usecase.On("GetPosts", 1, 1, "", postUserID, loginUserID).Return(0, nil, errors.New("error"))
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
@@ -258,16 +286,18 @@ func TestGetPosts_error_usecaseError(t *testing.T) {
 func TestGetPost_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
-	c := createContext(echo.GET, "/posts", nil, rec)
+	q := make(url.Values)
+	q.Set("login_user_id", "1")
+	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 	c.SetPath("/posts/:id")
 	c.SetParamNames("id")
 	id := 1
 	c.SetParamValues(fmt.Sprint(id))
 
-	expectedPost := getMockGetPostResult(id)
+	expectedPost := makeGetPostResult(id)
 
 	usecase := mockPostUseCase{}
-	usecase.On("GetPost", id).Return(expectedPost, nil)
+	usecase.On("GetPost", id, 1).Return(expectedPost, nil)
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
@@ -297,7 +327,9 @@ func TestGetPost_error_validationError(t *testing.T) {
 	for _, test := range cases {
 		// 1. Setup
 		rec := httptest.NewRecorder()
-		c := createContext(echo.GET, "/posts", nil, rec)
+		q := make(url.Values)
+		q.Set("login_user_id", "1")
+		c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 		c.SetPath("/posts/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprint(test.id))
@@ -320,14 +352,16 @@ func TestGetPost_error_validationError(t *testing.T) {
 func TestGetPost_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
-	c := createContext(echo.GET, "/posts", nil, rec)
+	q := make(url.Values)
+	q.Set("login_user_id", "1")
+	c := createContext(echo.GET, "/posts?"+q.Encode(), nil, rec)
 	c.SetPath("/posts/:id")
 	c.SetParamNames("id")
 	id := 1
 	c.SetParamValues(fmt.Sprint(id))
 
 	usecase := mockPostUseCase{}
-	usecase.On("GetPost", id).Return(nil, errors.New("error"))
+	usecase.On("GetPost", id, 1).Return(nil, errors.New("error"))
 	handler := NewPostHandler(&usecase)
 
 	// 2. Exercise
@@ -343,7 +377,7 @@ func TestGetPost_error_usecaseError(t *testing.T) {
 // 更新テスト
 func TestUpdatePost_success(t *testing.T) {
 	// 1. Setup
-	post := getMockPost(1)
+	post := makePost(1)
 	jsonBytes, err := json.Marshal(post)
 	if err != nil {
 		t.Fatal(err)
@@ -411,7 +445,7 @@ func TestUpdatePost_error_validationError(t *testing.T) {
 
 func TestUpdatePost_error_usecaseError(t *testing.T) {
 	// 1. Setup
-	post := getMockPost(1)
+	post := makePost(1)
 	jsonBytes, err := json.Marshal(post)
 	if err != nil {
 		t.Fatal(err)
@@ -517,3 +551,5 @@ func TestDeletePost_error_usecaseError(t *testing.T) {
 
 	// 4. Teardown
 }
+
+// TODO お気に入り関連追加

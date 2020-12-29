@@ -19,6 +19,5 @@ FROM alpine
 WORKDIR /app
 
 COPY --from=build /go/app/app .
-COPY --from=build /go/app/production.env ./.env
 
 CMD ["./app"]

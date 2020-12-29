@@ -1,9 +1,42 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
+
+orbs:
+    # circleci/aws-ecr@6.1.0というorbをaws-ecrというaliasをつけて扱う
+    aws-ecr: circleci/aws-ecr@6.1.0
+    aws-ecs: circleci/aws-ecs@0.0.8
+
+workflows:
+    # build_and_push_imageという名前のworkflowを定義
+    build_and_push_image:
+        # workflowで実行するjobの順番を定義
+        jobs:
+        - test # デプロイ操作前にテストを実行
+        - aws-ecr/build-and-push-image:
+            requires:
+                - test # テストに成功したときだけデプロイ操作に移る
+            region: AWS_REGION
+            account-url: AWS_ECR_ACCOUNT_URL
+            repo: 'power-phrase2-api'
+            tag: "${CIRCLE_SHA1}"
+            dockerfile: docker/api/Dockerfile
+            filters:
+              branches:
+                  only:
+                  - master
+        - aws-ecs/deploy-service-update:
+            requires:
+                - aws-ecr/build-and-push-image
+            family: 'power-phrase2-api-task'
+            cluster-name: 'power-phrase2-api-cluster'
+            service-name: 'power-phrase2-api-service'
+            container-image-name-updates: 'container=power-phrase2-api-container,tag=${CIRCLE_SHA1}'
+            filters:
+                branches:
+                    only:
+                    - master
+
 jobs:
-  build:
+  test:
     docker:
       # specify the version
       - image: circleci/golang:1.15.2

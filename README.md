@@ -20,8 +20,8 @@ https://www.power-phrase.com/
 - DDD(オニオンアーキテクチャ)
 - モックやFour Phase Testを取り入れた自動テスト
 - AWS ECSによるコンテナデプロイ
+- CircleCIによるCI/CD
 - Terraformによるインフラのコード化(VPC、RDS)
-- CircleCIによるCI
 
 ## フロントエンド
 
@@ -85,7 +85,11 @@ https://www.power-phrase.com/
 
 # インフラ構成図
 
-<img width="640px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/102556459-494b0b80-410c-11eb-8877-bd032cfc6110.jpg">
+<img width="800px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/103261758-fca5e100-49e5-11eb-8a67-a4d6c4a4533d.jpg">
+
+# ER図
+
+<img width="400px" alt="ER図" src="https://user-images.githubusercontent.com/61341861/103180209-fa089600-48d6-11eb-9b7c-e5ca29952f46.jpg">
 
 # 機能一覧
 
@@ -107,3 +111,6 @@ https://www.power-phrase.com/
 - コメント登録機能
 - コメント一覧機能
 - コメント削除機能(ログイン後、自分が登録したものについてのみ可能)
+- お気に入り登録機能(ログイン後のみ可能)
+- お気に入り一覧機能(ログイン後のみ可能)
+- お気に入り削除機能(ログイン後のみ可能)
