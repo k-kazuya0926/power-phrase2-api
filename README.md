@@ -20,8 +20,8 @@ https://www.power-phrase.com/
 - DDD(オニオンアーキテクチャ)
 - モックやFour Phase Testを取り入れた自動テスト
 - AWS ECSによるコンテナデプロイ
+- CircleCIによるCI/CD
 - Terraformによるインフラのコード化(VPC、RDS)
-- CircleCIによるCI
 
 ## フロントエンド
 
@@ -85,7 +85,7 @@ https://www.power-phrase.com/
 
 # インフラ構成図
 
-<img width="800px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/102556459-494b0b80-410c-11eb-8877-bd032cfc6110.jpg">
+<img width="800px" alt="インフラ構成図" src="https://user-images.githubusercontent.com/61341861/103261758-fca5e100-49e5-11eb-8a67-a4d6c4a4533d.jpg">
 
 # ER図
 
