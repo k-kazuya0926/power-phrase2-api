@@ -22,7 +22,8 @@ type (
 
 	// GetPostRequest 投稿詳細取得リクエスト
 	GetPostRequest struct {
-		ID int `validate:"min=1"`
+		ID          int `validate:"min=1"`
+		LoginUserID int `json:"login_user_id" validate:"min=0"`
 	}
 
 	// UpdatePostRequest 投稿更新リクエスト

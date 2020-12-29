@@ -108,7 +108,7 @@ func TestPostRepository_FetchById(t *testing.T) {
 	repository := &postRepository{}
 
 	// 2. Exercise
-	actualPost, err := repository.FetchByID(postForInput.ID)
+	actualPost, err := repository.FetchByID(postForInput.ID, userForInput.ID)
 
 	// 3. Verify
 	assert.NoError(t, err)

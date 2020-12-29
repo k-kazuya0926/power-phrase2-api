@@ -33,8 +33,8 @@ func (repository *mockPostRepository) Fetch(limit, page int, keyword string, pos
 }
 
 // 投稿詳細取得
-func (repository *mockPostRepository) FetchByID(id int) (*model.GetPostResult, error) {
-	args := repository.Called(id)
+func (repository *mockPostRepository) FetchByID(id, loginUserID int) (*model.GetPostResult, error) {
+	args := repository.Called(id, loginUserID)
 	post, ok := args.Get(0).(*model.GetPostResult)
 	if ok {
 		return post, args.Error(1)
@@ -254,11 +254,12 @@ func TestGetPost_success(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
+	loginUserID := 1
 	expected := makeGetPostResult(id)
-	repository.On("FetchByID", id).Return(expected, nil)
+	repository.On("FetchByID", id, loginUserID).Return(expected, nil)
 
 	// 2. Exercise
-	post, err := usecase.GetPost(id)
+	post, err := usecase.GetPost(id, loginUserID)
 
 	// 3. Verify
 	assert.NoError(t, err)
@@ -281,10 +282,11 @@ func TestGetPost_error(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
 	id := 1
-	repository.On("FetchByID", id).Return(nil, errors.New("error"))
+	loginUserID := 1
+	repository.On("FetchByID", id, loginUserID).Return(nil, errors.New("error"))
 
 	// 2. Execise
-	post, err := usecase.GetPost(id)
+	post, err := usecase.GetPost(id, loginUserID)
 
 	// 3. Verify
 	assert.Error(t, err)

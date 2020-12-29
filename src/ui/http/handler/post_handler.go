@@ -117,13 +117,17 @@ func (handler *postHandler) GetPost(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, "ID：数値で入力してください。")
 	}
+	loginUserID, err := strconv.Atoi(c.QueryParam("login_user_id"))
+	if err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, "login_user_id：数値で入力してください。")
+	}
 
-	request := &request.GetPostRequest{ID: id}
+	request := &request.GetPostRequest{ID: id, LoginUserID: loginUserID}
 	if err := c.Validate(request); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
-	post, err := handler.PostUseCase.GetPost(id)
+	post, err := handler.PostUseCase.GetPost(id, loginUserID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}

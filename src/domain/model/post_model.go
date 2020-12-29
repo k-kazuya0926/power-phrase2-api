@@ -26,6 +26,7 @@ type GetPostResult struct {
 	UserImageFilePath string `json:"user_image_file_path"`
 	CommentCount      int    `json:"comment_count"`
 	IsFavorite        bool   `json:"is_favorite"`
+	FavoriteCount     int    `json:"favorite_count"`
 }
 
 // Favorite favoritesテーブルに対応する構造体。
