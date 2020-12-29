@@ -20,7 +20,7 @@ workflows:
             requires:
                 - aws-ecr/build-and-push-image
             family: 'power-phrase2-api-task'
-            cluster-name: ' power-phrase2-api-cluster'
+            cluster-name: 'power-phrase2-api-cluster'
             service-name: 'power-phrase2-api-service'
             container-image-name-updates: 'container=power-phrase2-api-container,tag=${CIRCLE_SHA1}'
 
