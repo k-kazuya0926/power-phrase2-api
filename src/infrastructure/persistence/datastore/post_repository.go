@@ -183,7 +183,8 @@ func (repository *postRepository) FetchFavorites(userID, limit, page int) (total
 			users.name AS user_name,
 			users.image_file_path AS user_image_file_path,
 			(SELECT count(*) FROM comments WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL) AS comment_count,
-			true AS is_favorite
+			true AS is_favorite,
+			(SELECT count(*) FROM favorites AS f WHERE f.post_id = posts.id) AS favorite_count
 		`).
 		Joins(`JOIN posts ON posts.id = favorites.post_id AND posts.deleted_at IS NULL
 			JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL`).
