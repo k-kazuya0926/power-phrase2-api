@@ -15,6 +15,7 @@ workflows:
             account-url: AWS_ECR_ACCOUNT_URL
             repo: 'power-phrase2-api'
             tag: "${CIRCLE_SHA1}"
+            dockerfile: docker/api/Dockerfile
         - aws-ecs/deploy-service-update:
             requires:
                 - aws-ecr/build-and-push-image
