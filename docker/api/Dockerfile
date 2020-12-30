@@ -6,7 +6,7 @@ COPY src .
 
 RUN set -eux && \
     apk update && \
-    apk add --no-cache less && \
+    apk add --no-cache alpine-sdk build-base && \
     go get -u github.com/cosmtrek/air && \
     go build -o /go/bin/air github.com/cosmtrek/air && \
     go get -u github.com/go-delve/delve/cmd/dlv && \
