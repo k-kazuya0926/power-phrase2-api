@@ -99,7 +99,14 @@ func makeGetPostResult(id int) *model.GetPostResult {
 	}
 }
 
-// 登録テスト
+func makeFavorite(userID, postID int) *model.Favorite {
+	return &model.Favorite{
+		UserID: userID,
+		PostID: postID,
+	}
+}
+
+// 投稿登録成功
 func TestCreatePost_success(t *testing.T) {
 	// 1. Setup
 	post := makePost(1)
@@ -125,6 +132,7 @@ func TestCreatePost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿登録バリデーションエラー
 func TestCreatePost_error_validationError(t *testing.T) {
 	cases := []struct {
 		label    string
@@ -167,6 +175,7 @@ func TestCreatePost_error_validationError(t *testing.T) {
 	}
 }
 
+// 投稿登録ユースケースエラー
 func TestCreatePost_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	post := makePost(1)
@@ -192,7 +201,7 @@ func TestCreatePost_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// 一覧取得テスト
+// 投稿一覧取得成功
 func TestGetPosts_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -220,6 +229,7 @@ func TestGetPosts_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿一覧取得バリデーションエラー
 func TestGetPosts_error_validationError(t *testing.T) {
 	cases := []struct {
 		label string
@@ -257,6 +267,7 @@ func TestGetPosts_error_validationError(t *testing.T) {
 	}
 }
 
+// 投稿一覧取得ユースケースエラー
 func TestGetPosts_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -282,7 +293,7 @@ func TestGetPosts_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// 詳細取得テスト
+// 投稿詳細取得成功
 func TestGetPost_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -313,6 +324,7 @@ func TestGetPost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿詳細取得バリデーションエラー
 func TestGetPost_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
@@ -349,6 +361,7 @@ func TestGetPost_error_validationError(t *testing.T) {
 	}
 }
 
+// 投稿詳細取得ユースケースエラー
 func TestGetPost_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -374,7 +387,7 @@ func TestGetPost_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// 更新テスト
+// 投稿更新成功
 func TestUpdatePost_success(t *testing.T) {
 	// 1. Setup
 	post := makePost(1)
@@ -402,6 +415,7 @@ func TestUpdatePost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿更新バリデーションエラー
 func TestUpdatePost_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
@@ -443,6 +457,7 @@ func TestUpdatePost_error_validationError(t *testing.T) {
 	}
 }
 
+// 投稿更新ユースケースエラー
 func TestUpdatePost_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	post := makePost(1)
@@ -471,7 +486,7 @@ func TestUpdatePost_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// 削除テスト
+// 投稿削除
 func TestDeletePost_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -495,6 +510,7 @@ func TestDeletePost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿削除バリデーションエラー
 func TestDeletePost_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
@@ -529,6 +545,7 @@ func TestDeletePost_error_validationError(t *testing.T) {
 	}
 }
 
+// 投稿削除ユースケースエラー
 func TestDeletePost_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -552,4 +569,112 @@ func TestDeletePost_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// TODO お気に入り関連追加
+// お気に入り登録成功
+func TestCreateFavorite_success(t *testing.T) {
+	// 1. Setup
+	userID := 1
+	postID := 2
+	favorite := makeFavorite(userID, postID)
+	jsonBytes, err := json.Marshal(favorite)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := httptest.NewRecorder()
+	c := createContext(echo.POST, "/posts/:id/favorites", strings.NewReader(string(jsonBytes)), rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(postID))
+
+	usecase := mockPostUseCase{}
+	usecase.On("CreateFavorite", favorite.UserID, favorite.PostID).Return(nil)
+	handler := NewPostHandler(&usecase)
+
+	// 2. Exercise
+	err = handler.CreateFavorite(c)
+
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, rec.Code)
+
+	// 4. Teardown
+}
+
+// お気に入り登録バリデーションエラー
+func TestCreateFavorite_error_validationError(t *testing.T) {
+	cases := []struct {
+		label  string
+		userID int
+		postID int
+	}{
+		{"UserID下限", 0, 1},
+		{"PostID下限", 1, 0},
+	}
+
+	for _, test := range cases {
+		// 1. Setup
+		favorite := makeFavorite(test.userID, test.postID)
+		jsonBytes, err := json.Marshal(favorite)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		rec := httptest.NewRecorder()
+		c := createContext(echo.POST, "/posts/:id/favorites", strings.NewReader(string(jsonBytes)), rec)
+		c.SetParamNames("id")
+		c.SetParamValues(fmt.Sprint(test.postID))
+
+		usecase := mockPostUseCase{}
+		handler := NewPostHandler(&usecase)
+
+		// 2. Exercise
+		err = handler.CreateFavorite(c)
+
+		// 3. Verify
+		assert.NoError(t, err, test.label)
+		assert.Equal(t, http.StatusUnprocessableEntity, rec.Code, test.label)
+
+		// 4. Teardown
+	}
+}
+
+// お気に入り登録ユースケースエラー
+func TestCreateFavorite_error_usecaseError(t *testing.T) {
+	// 1. Setup
+	userID := 1
+	postID := 2
+	favorite := makeFavorite(userID, postID)
+	jsonBytes, err := json.Marshal(favorite)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rec := httptest.NewRecorder()
+	c := createContext(echo.POST, "/posts/:id/favorites", strings.NewReader(string(jsonBytes)), rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprint(postID))
+
+	usecase := mockPostUseCase{}
+	usecase.On("CreateFavorite", userID, postID).Return(errors.New("error"))
+	handler := NewPostHandler(&usecase)
+
+	// 2. Exercise
+	err = handler.CreateFavorite(c)
+
+	// 3. Verify
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusInternalServerError, rec.Code)
+
+	// 4. Teardown
+}
+
+// TODO お気に入り一覧取得成功
+
+// TODO お気に入り一覧取得バリデーションエラー
+
+// TODO お気に入り一覧取得ユースケースエラー
+
+// TODO お気に入り削除成功
+
+// TODO お気に入り削除バリデーションエラー
+
+// TODO お気に入り削除ユースケースエラー
