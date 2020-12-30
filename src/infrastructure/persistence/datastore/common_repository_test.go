@@ -1,17 +1,14 @@
 package datastore
 
 import (
-	"log"
+	"os"
 
 	"github.com/jinzhu/gorm"
-	"github.com/joho/godotenv"
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
 )
 
 func setup() {
-	if err := godotenv.Load("../../../test.env"); err != nil {
-		log.Fatal("Error loading test.env file")
-	}
+	os.Setenv("DB_NAME", "power-phrase2-test")
 }
 
 func teardown(db *gorm.DB) {
