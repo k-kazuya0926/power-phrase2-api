@@ -64,8 +64,8 @@ func (repository *postRepository) Fetch(limit, page int, keyword string, postUse
 			(CASE WHEN favorites.id IS NULL THEN false ELSE true END) AS is_favorite,
 			(SELECT count(*) FROM favorites AS f WHERE f.post_id = posts.id) AS favorite_count
 		`).
-		Joins(fmt.Sprintf(`JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL
-			LEFT JOIN favorites ON favorites.post_id = posts.id AND favorites.user_id = %d`, loginUserID)).
+		Joins("JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL").
+		Joins(fmt.Sprintf(`LEFT JOIN favorites ON favorites.post_id = posts.id AND favorites.user_id = %d`, loginUserID)).
 		Order("posts.id DESC").Limit(limit).Offset(offset).
 		Find(&posts).Error; err != nil {
 		return 0, nil, err
@@ -89,8 +89,8 @@ func (repository *postRepository) FetchByID(id, loginUserID int) (*model.GetPost
 			(CASE WHEN favorites.id IS NULL THEN false ELSE true END) AS is_favorite,
 			(SELECT count(*) FROM favorites AS f WHERE f.post_id = posts.id) AS favorite_count
 		`).
-		Joins(fmt.Sprintf(`JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL
-			LEFT JOIN favorites ON favorites.post_id = posts.id AND favorites.user_id = %d`, loginUserID)).
+		Joins("JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL").
+		Joins(fmt.Sprintf(`LEFT JOIN favorites ON favorites.post_id = posts.id AND favorites.user_id = %d`, loginUserID)).
 		First(&post).Error; err != nil {
 		return nil, err
 	}
@@ -186,8 +186,8 @@ func (repository *postRepository) FetchFavorites(userID, limit, page int) (total
 			true AS is_favorite,
 			(SELECT count(*) FROM favorites AS f WHERE f.post_id = posts.id) AS favorite_count
 		`).
-		Joins(`JOIN posts ON posts.id = favorites.post_id AND posts.deleted_at IS NULL
-			JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL`).
+		Joins("JOIN posts ON posts.id = favorites.post_id AND posts.deleted_at IS NULL").
+		Joins("JOIN users ON users.id = posts.user_id AND users.deleted_at IS NULL").
 		Where("favorites.user_id = ?", userID).
 		Order("posts.id DESC").Limit(limit).Offset(offset).
 		Find(&posts).Error; err != nil {
