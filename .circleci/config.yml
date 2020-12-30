@@ -40,6 +40,14 @@ jobs:
     docker:
       # specify the version
       - image: circleci/golang:1.15.2
+        environment:
+          SERVER_PORT: 1323
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_NAME: power-phrase2-test
+          DB_USER: root
+          DB_PASSWORD: power-phrase2
+          JWT_SIGNING_KEY: secret
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
