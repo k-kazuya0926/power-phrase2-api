@@ -40,7 +40,6 @@ https://www.power-phrase.com/
     - validator.v9 v9.31.0
     - jwt-go v3.2.0(JWT認証)
     - go-imageupload v0.0.0-20160503070439-09d2b92fa05e
-    - godotenv v1.3.0(環境変数ファイル読み込み)
     - air v1.21.2(ホットリロード)
     - testify v1.4.0(自動テスト)
 - MySQL 8.0.21
