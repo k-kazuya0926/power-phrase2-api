@@ -21,10 +21,12 @@ type mockCommentUseCase struct {
 	mock.Mock
 }
 
+// コメント登録
 func (usecase *mockCommentUseCase) CreateComment(postID, userID int, body string) (err error) {
 	return usecase.Called(postID, userID, body).Error(0)
 }
 
+// コメント一覧取得
 func (usecase *mockCommentUseCase) GetComments(postID, limit, offset int) (totalCount int, comments []*model.GetCommentResult, err error) {
 	args := usecase.Called(postID, limit, offset)
 	comments, ok := args.Get(1).([]*model.GetCommentResult)
@@ -35,6 +37,7 @@ func (usecase *mockCommentUseCase) GetComments(postID, limit, offset int) (total
 	return args.Int(0), nil, args.Error(2)
 }
 
+// コメント削除
 func (usecase *mockCommentUseCase) DeleteComment(id int) error {
 	return usecase.Called(id).Error(0)
 }
@@ -56,7 +59,7 @@ func makeGetCommentResult(id, postID, userID int) *model.GetCommentResult {
 	}
 }
 
-// 登録テスト
+// コメント登録成功
 func TestCreateComment_success(t *testing.T) {
 	// 1. Setup
 	postID := 1
@@ -85,6 +88,7 @@ func TestCreateComment_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// コメント登録バリデーションエラー
 func TestCreateComment_error_validationError(t *testing.T) {
 	cases := []struct {
 		label  string
@@ -124,6 +128,7 @@ func TestCreateComment_error_validationError(t *testing.T) {
 	}
 }
 
+// コメント登録ユースケースエラー
 func TestCreateComment_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	postID := 1
@@ -152,7 +157,7 @@ func TestCreateComment_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// 一覧取得テスト
+// コメント一覧取得成功
 func TestGetComments_success(t *testing.T) {
 	// 1. Setup
 	postID := 1
@@ -180,6 +185,7 @@ func TestGetComments_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// コメント一覧取得バリデーションエラー
 func TestGetComments_error_validationError(t *testing.T) {
 	cases := []struct {
 		label  string
@@ -222,6 +228,7 @@ func TestGetComments_error_validationError(t *testing.T) {
 	}
 }
 
+// コメント一覧取得ユースケースエラー
 func TestGetComments_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -247,7 +254,7 @@ func TestGetComments_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// 削除テスト
+// コメント削除成功
 func TestDeleteComment_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -270,6 +277,7 @@ func TestDeleteComment_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// コメント削除バリデーションエラー
 func TestDeleteComment_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
@@ -285,7 +293,6 @@ func TestDeleteComment_error_validationError(t *testing.T) {
 		// 1. Setup
 		rec := httptest.NewRecorder()
 		c := createContext(echo.DELETE, "/comments/:id", nil, rec)
-		// c.SetPath("/comments/:id")
 		c.SetParamNames("id")
 		c.SetParamValues(fmt.Sprint(test.id))
 
@@ -304,11 +311,11 @@ func TestDeleteComment_error_validationError(t *testing.T) {
 	}
 }
 
+// コメント削除ユースケースエラー
 func TestDeleteComment_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
 	c := createContext(echo.DELETE, "/comments/:id", nil, rec)
-	// c.SetPath("/comments/:id")
 	c.SetParamNames("id")
 	postID := 1
 	c.SetParamValues(fmt.Sprint(postID))

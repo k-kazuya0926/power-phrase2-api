@@ -133,7 +133,7 @@ func makeFavorite(userID, postID int) *model.Favorite {
 	}
 }
 
-// 投稿登録テスト
+// 投稿登録成功
 func TestCreatePost_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -151,6 +151,7 @@ func TestCreatePost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿登録エラー
 func TestCreatePost_error(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -168,7 +169,7 @@ func TestCreatePost_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// 投稿一覧テスト
+// 投稿一覧取得成功
 func TestGetPosts_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -195,6 +196,7 @@ func TestGetPosts_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿一覧取得エラー
 func TestGetPosts_error(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -248,7 +250,7 @@ func TestMakeEmbedMovieURL(t *testing.T) {
 	}
 }
 
-// 投稿詳細テスト
+// 投稿詳細取得成功
 func TestGetPost_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -277,6 +279,7 @@ func TestGetPost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿詳細取得エラー
 func TestGetPost_error(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -295,7 +298,7 @@ func TestGetPost_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// 投稿更新テスト
+// 投稿更新成功
 func TestUpdatePost_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -313,6 +316,7 @@ func TestUpdatePost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿更新エラー
 func TestUpdatePost_error(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)
@@ -329,7 +333,7 @@ func TestUpdatePost_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// 投稿削除テスト
+// 投稿削除成功
 func TestDeletePost_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -346,6 +350,7 @@ func TestDeletePost_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// 投稿削除エラー
 func TestDeletePost_error(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewPostUseCase(&repository)

@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ユーザー登録
 func TestUserRepository_Create(t *testing.T) {
 	// 1. Setup
 	setup()
@@ -41,6 +42,7 @@ func TestUserRepository_Create(t *testing.T) {
 	teardown(db)
 }
 
+// メールアドレスによるユーザー詳細取得
 func TestUserRepository_FetchByEmail(t *testing.T) {
 	// 1. Setup
 	setup()
@@ -69,6 +71,7 @@ func TestUserRepository_FetchByEmail(t *testing.T) {
 	teardown(db)
 }
 
+// IDによるユーザー詳細取得
 func TestUserRepository_FetchById(t *testing.T) {
 	// 1. Setup
 	setup()
@@ -99,6 +102,7 @@ func TestUserRepository_FetchById(t *testing.T) {
 	teardown(db)
 }
 
+// ユーザー更新
 func TestUserRepository_Update(t *testing.T) {
 	// 1. Setup
 	setup()
@@ -137,6 +141,7 @@ func TestUserRepository_Update(t *testing.T) {
 	teardown(db)
 }
 
+// ユーザー削除
 func TestUserRepository_Delete(t *testing.T) {
 	// 1. Setup
 	setup()
@@ -160,7 +165,7 @@ func TestUserRepository_Delete(t *testing.T) {
 	teardown(db)
 }
 
-// 入力用ユーザー
+// 入力用ユーザー生成
 func makeUserForInput(id int) *model.User {
 	user := &model.User{
 		Name:          fmt.Sprintf("testuser%d", id),

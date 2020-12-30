@@ -79,7 +79,7 @@ func TestCreateComment_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// コメント一覧テスト
+// コメント一覧取得成功
 func TestGetComments_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -104,6 +104,7 @@ func TestGetComments_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// コメント一覧取得エラー
 func TestGetComments_error(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -124,7 +125,7 @@ func TestGetComments_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// コメント削除テスト
+// コメント削除成功
 func TestDeleteComment_success(t *testing.T) {
 	// 1. Setup
 	repository := mockPostRepository{}
@@ -141,6 +142,7 @@ func TestDeleteComment_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// コメント削除エラー
 func TestDeleteComment_error(t *testing.T) {
 	repository := mockPostRepository{}
 	usecase := NewCommentUseCase(&repository)

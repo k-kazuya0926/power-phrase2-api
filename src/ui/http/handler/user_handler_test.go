@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"time"
 
 	"github.com/k-kazuya0926/power-phrase2-api/domain/model"
-	"github.com/k-kazuya0926/power-phrase2-api/validator"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,16 +21,19 @@ type mockUserUseCase struct {
 	mock.Mock
 }
 
+// ユーザー登録
 func (usecase *mockUserUseCase) CreateUser(name, email, password, imageFilePath string) (userID int, token string, err error) {
 	args := usecase.Called(name, email, password, imageFilePath)
 	return args.Int(0), args.String(1), args.Error(2)
 }
 
+// ログイン
 func (usecase *mockUserUseCase) Login(email, password string) (userID int, token string, err error) {
 	args := usecase.Called(email, password)
 	return args.Int(0), args.String(1), args.Error(2)
 }
 
+// ユーザー詳細取得
 func (usecase *mockUserUseCase) GetUser(id int) (*model.User, error) {
 	args := usecase.Called(id)
 	user, ok := args.Get(0).(*model.User)
@@ -43,10 +44,12 @@ func (usecase *mockUserUseCase) GetUser(id int) (*model.User, error) {
 	return nil, args.Error(1)
 }
 
+// ユーザー更新
 func (usecase *mockUserUseCase) UpdateUser(userID int, name, email, password, imageFilePath string) error {
 	return usecase.Called(userID, name, email, password, imageFilePath).Error(0)
 }
 
+// ユーザー削除
 func (usecase *mockUserUseCase) DeleteUser(id int) error {
 	return usecase.Called(id).Error(0)
 }
@@ -63,15 +66,7 @@ func makeUser(id int) *model.User {
 	}
 }
 
-func createContext(method, path string, body io.Reader, rec *httptest.ResponseRecorder) echo.Context {
-	req := httptest.NewRequest(method, path, body)
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	e := echo.New()
-	e.Validator = validator.NewValidator()
-	return e.NewContext(req, rec)
-}
-
-// ユーザー登録テスト
+// ユーザー登録成功
 func TestCreateUser_success(t *testing.T) {
 	// 1. Setup
 	id := 1
@@ -98,6 +93,7 @@ func TestCreateUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー登録バリデーションエラー
 func TestCreateUser_error_validationError(t *testing.T) {
 	cases := []struct {
 		label    string
@@ -139,6 +135,7 @@ func TestCreateUser_error_validationError(t *testing.T) {
 	}
 }
 
+// ユーザー登録ユースケースエラー
 func TestCreateUser_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	user := makeUser(1)
@@ -164,7 +161,7 @@ func TestCreateUser_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// ログインテスト
+// ログイン成功
 func TestLogin_success(t *testing.T) {
 	// 1. Setup
 	email := "testuser@example.com"
@@ -188,6 +185,7 @@ func TestLogin_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ログインバリデーションエラー
 func TestLogin_error_validationError(t *testing.T) {
 	cases := []struct {
 		label    string
@@ -221,6 +219,7 @@ func TestLogin_error_validationError(t *testing.T) {
 	}
 }
 
+// ログインユースケースエラー
 func TestLogin_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	email := "testuser@example.com"
@@ -243,7 +242,7 @@ func TestLogin_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// ユーザー詳細テスト
+// ユーザー詳細取得成功
 func TestGetUser_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -275,6 +274,7 @@ func TestGetUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー詳細取得バリデーションエラー
 func TestGetUser_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
@@ -309,6 +309,7 @@ func TestGetUser_error_validationError(t *testing.T) {
 	}
 }
 
+// ユーザー詳細取得ユースケースエラー
 func TestGetUser_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -332,6 +333,7 @@ func TestGetUser_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー更新成功
 func TestUpdateUser_success(t *testing.T) {
 	// 1. Setup
 	user := makeUser(1)
@@ -359,6 +361,7 @@ func TestUpdateUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー更新バリデーションエラー
 func TestUpdateUser_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
@@ -402,6 +405,7 @@ func TestUpdateUser_error_validationError(t *testing.T) {
 	}
 }
 
+// ユーザー更新ユースケースエラー
 func TestUpdateUser_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	user := makeUser(1)
@@ -430,7 +434,7 @@ func TestUpdateUser_error_usecaseError(t *testing.T) {
 	// 4. Teardown
 }
 
-// ユーザー削除テスト
+// ユーザー削除成功
 func TestDeleteUser_success(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()
@@ -454,6 +458,7 @@ func TestDeleteUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー削除バリデーションエラー
 func TestDeleteUser_error_validationError(t *testing.T) {
 	cases := []struct {
 		label   string
@@ -488,6 +493,7 @@ func TestDeleteUser_error_validationError(t *testing.T) {
 	}
 }
 
+// ユーザー削除ユースケースエラー
 func TestDeleteUser_error_usecaseError(t *testing.T) {
 	// 1. Setup
 	rec := httptest.NewRecorder()

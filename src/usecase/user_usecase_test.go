@@ -17,12 +17,14 @@ type mockUserRepository struct {
 	mock.Mock
 }
 
+// ユーザー登録
 func (repository *mockUserRepository) Create(user *model.User) error {
 	args := repository.Called(user)
 	user.ID = 1
 	return args.Error(0)
 }
 
+// メールアドレスによるユーザー詳細取得
 func (repository *mockUserRepository) FetchByEmail(email string) (*model.User, error) {
 	args := repository.Called(email)
 	user, ok := args.Get(0).(*model.User)
@@ -33,6 +35,7 @@ func (repository *mockUserRepository) FetchByEmail(email string) (*model.User, e
 	return nil, args.Error(1)
 }
 
+// IDによるユーザー詳細取得
 func (repository *mockUserRepository) FetchByID(id int) (*model.User, error) {
 	args := repository.Called(id)
 	user := args.Get(0)
@@ -42,10 +45,12 @@ func (repository *mockUserRepository) FetchByID(id int) (*model.User, error) {
 	return user.(*model.User), args.Error(1)
 }
 
+// ユーザー更新
 func (repository *mockUserRepository) Update(user *model.User) error {
 	return repository.Called(user).Error(0)
 }
 
+// ユーザー削除
 func (repository *mockUserRepository) Delete(id int) error {
 	return repository.Called(id).Error(0)
 }
@@ -72,7 +77,7 @@ func makeUserForRead(id int) *model.User {
 	return user
 }
 
-// ユーザー登録テスト
+// ユーザー登録成功
 func TestCreateUser_success(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -92,6 +97,7 @@ func TestCreateUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー登録エラー
 func TestCreateUser_error(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -111,7 +117,7 @@ func TestCreateUser_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// ログインテスト
+// ログイン成功
 func TestLogin_success(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -132,6 +138,7 @@ func TestLogin_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ログイン　パスワード不正
 func TestLogin_error_invalidPassword(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -152,6 +159,7 @@ func TestLogin_error_invalidPassword(t *testing.T) {
 	// 4. Teardown
 }
 
+// ログイン　リポジトリエラー
 func TestLogin_error_repositoryError(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -171,7 +179,7 @@ func TestLogin_error_repositoryError(t *testing.T) {
 	// 4. Teardown
 }
 
-// ユーザー詳細テスト
+// ユーザー詳細取得成功
 func TestGetUser_success(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -198,6 +206,7 @@ func TestGetUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー詳細取得エラー
 func TestGetUser_error(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -215,7 +224,7 @@ func TestGetUser_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// ユーザー更新テスト
+// ユーザー更新成功
 func TestUpdateUser_success(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -234,6 +243,7 @@ func TestUpdateUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー更新エラー
 func TestUpdateUser_error(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
@@ -251,7 +261,7 @@ func TestUpdateUser_error(t *testing.T) {
 	// 4. Teardown
 }
 
-// ユーザー削除テスト
+// ユーザー削除成功
 func TestDeleteUser_success(t *testing.T) {
 	// 1. Setup
 	repository := mockUserRepository{}
@@ -268,6 +278,7 @@ func TestDeleteUser_success(t *testing.T) {
 	// 4. Teardown
 }
 
+// ユーザー削除エラー
 func TestDeleteUser_error(t *testing.T) {
 	repository := mockUserRepository{}
 	usecase := NewUserUseCase(&repository)
