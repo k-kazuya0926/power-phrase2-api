@@ -47,6 +47,7 @@ https://www.power-phrase.com/
 - AWS(下記インフラ構成図参照)
     - ECS
     - ECR
+    - VPC
     - EC2(Amazon Linux 2)
     - RDS(MySQL 8)
     - Route53
