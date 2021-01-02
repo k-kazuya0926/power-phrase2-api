@@ -21,7 +21,7 @@ https://www.power-phrase.com/
 - モックやFour Phase Testを取り入れた自動テスト
 - AWS ECSによるコンテナデプロイ
 - CircleCIによるCI/CD
-- Terraformによるインフラのコード化(VPC、RDS)
+- Terraformによるインフラのコード化(VPC、RDS、S3)
 
 ## フロントエンド
 

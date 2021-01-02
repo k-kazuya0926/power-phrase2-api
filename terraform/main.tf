@@ -88,6 +88,7 @@ resource "aws_security_group" "app" {
   }
 }
 
+# Security Group Rule
 resource "aws_security_group_rule" "ssh" {
   type              = "ingress"
   from_port         = 22
@@ -149,4 +150,17 @@ resource "aws_db_instance" "db" {
   vpc_security_group_ids  = [aws_security_group.db.id]
   db_subnet_group_name    = aws_db_subnet_group.main.name
   skip_final_snapshot     = true
+}
+
+# S3
+resource "aws_s3_bucket" "power-phrase" {
+  acl = "public-read"
+  website {
+    error_document = "error.html"
+    index_document = "index.html"
+  }
+}
+
+resource "aws_s3_bucket" "myfiles" {
+  acl = "private"
 }
